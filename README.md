@@ -4,9 +4,7 @@
 - [Informazioni sul corso](#informazioni-sul-corso)
 - [Introduzione](#introduzione)
 - [Problemi di ottimizzazione](#problemi-di-ottimizzazione)
-    - [Composizione di funzioni](#composizione-di-funzioni)
-    - [Dichiarazione di funzioni](#dichiarazione-di-funzioni)
-    - [Dichiarazioni locali di funzioni](#dichiarazioni-locali-di-funzioni)
+    - [Categorie dei problemi di ottimizzazione](#categorie-dei-problemi-di-ottimizzazione)
 
 
 ### Informazioni sul corso
@@ -75,101 +73,86 @@ Molti problemi di ottimizzazione sono computazionalmente difficili (Es: np-hard 
     - Se non c'è collegamento tra *i* e *j* si può mettere che d(i,j) = *infinito*
 
 Il problema TSP può essere:
-- **simmetrico**: d(i,j) = d(j,i) $\forall$ *i*,*j* 
-- **asimmetrico**: d(i,j) != d(j,i) esistono i e j che si verifica ciò (Esempio città in salita e discesa)
-    - euclideo: d(i,j) = distanza(posizione città i, posizione città j) -> distanza euclidea (non realistica, realistica solo se la terra fosse piatta)
+- **simmetrico**: d(i,j) = d(j,i) $\forall$ (per ogni) *i*,*j* 
+- **asimmetrico**: d(i,j) != d(j,i) $\exists$ (esistono) *i* e *j* per cui si verifica ciò (Esempio: città in salita e discesa).
+    - **euclideo**: d(i,j) = distanza(posizione città *i*, posizione città *j*) -> distanza euclidea (non realistica, realistica solo se la terra fosse piatta).
 
-Il TSP è np-hard se visto come problema di ottimizzazione, oppure è np-complete come problema decisionale.
+#### Il TSP è *NP*-hard se visto come problema di ottimizzazione, oppure è *NP*-completo come problema decisionale.
 
-Definizione: Un problema di ottimizzazione è definito da:
-- spazio di ricerca X
-- funzione obiettivo f: X -> R (non necessariamente sarà sempre R)
+***Definizione***. Un problema di ottimizzazione è definito da:
+- uno spazio di ricerca X
+- una funzione obiettivo f: X -> R (non necessariamente sarà sempre R)
 
 Lo scopo è trovare il valore x* appartenente a X tale che f(x*) sia minimo (o massimo)
 
 Nel problema del commesso viaggiatore:
 - X è l'insieme di tutti i cicli Hamiltoniani del grafo
-    - un ciclo Hamiltoniano è una sequenza di città che inizia da una città prestabilita c0, passa per tutte le città una sola volta e termina in c0.
-    (trovare foto se riesco) <br>
-    1 -3-4-2-6-5-1 nel grafo di prima
-- La funzione obiettivo f è la distanza totale (o il costo) del ciclo Hamiltonino. <br>
-    f(1-3-4-2-6-5-1) = d(1,3) + ecc...
+    - un ciclo Hamiltoniano è una sequenza di città che inizia da una città prestabilita *c0*, passa per tutte le città una sola volta e termina in *c0*. <br>
+    Es: 1->3->4->2->6->5->1 (nel grafo di prima)
+- La funzione obiettivo f è la distanza totale (o il costo) del ciclo Hamiltoniano. <br>
+    f(1->3->4->2->6->5->1) = d(1,3) + ... + d(5,1)
     <br>
-    x* è il ciclo Hamiltoniano con la minima distanza totale. Ciò lo rende un problema np-hard.
+    - x* è il ciclo Hamiltoniano con la minima distanza totale. <br>
+    Ciò lo rende un problema *NP*-hard.
 
-Trovare un ciclo Hamiltoniano è semplice se il grafo è completo. <br>
-Computare f è facile (Calcolare f) <br>
-La difficoltà sta nel trovare x* .
+*Note*:
+- Trovare un ciclo Hamiltoniano è semplice se il grafo è completo.
+- Computare f è facile (Calcolare f).
+- La difficoltà sta nel trovare x*
 
-X è l'insieme di tutte le permutazioni delle città (dei nodi) (con la prima città che deve essere rimessa anche in fondo). 
+X è l'insieme di tutte le permutazioni delle città (dei nodi del grafo) (con la prima città che deve essere rimessa anche in fondo). 
 
 In alcuni problemi anche generare un elemento di X può essere difficile (elemento di X = soluzione ammissibile).
 
-Categorie dei problemi di ottimizzazione:
-- Discreti (Es: TSP)
-    - un problema di ottimizzazione è discreto quando X è un insieme finito
-        - Se il grafo ha n città, ci sono (n-1)! cicli hamiltoniani
-- Continui
+## **Categorie dei problemi di ottimizzazione**:
+- **Discreti** (Es: TSP)
+    - Un problema di ottimizzazione è discreto quando X è un insieme finito.
+    - In un problema discreto ogni X(*i*) ha un dominio finito.
+        - *Es:* Se il grafo ha n città, ci sono (n-1)! cicli hamiltoniani.
+- **Continui**
     - X è un insieme infinito (Es: R o un intervallo)
-        - Lo spazio di ricerca è costituito da numeri reali, vettori di numeri reali, matrici di numeri reali ecc
-        - Es: determinare la posizione di n punti in modo tale da minimizzare la somma complessiva delle distanze da un determinato punto fissato. 
+        - Lo spazio di ricerca è costituito da numeri reali, vettori di numeri reali, matrici di numeri reali ecc...
+        - *Es*: determinare la posizione di *n* punti in modo tale da minimizzare la somma complessiva delle distanze da un determinato punto fissato. 
+    - In un problema continuo ogni X(*i*) ha un dominio infinito.
+        - *ES*: ho una città e devo mettere delle stazioni di ricarica. Le devo mettere in modo tale che sia minima la somma complessiva delle distanze delle varie città in modo tale che un veicolo non deve fare troppa strata per potersi ricaricare.
 
-In un problema discreto ogni X(i) ha un dominio finito
+Si distingue anche tra problemi di ottimizzazione con:
+- **funzioni obiettivo lineari**
+    - f(x*i*, ... , x*n*) = w*1*x*1*+....+w*n*x*n*
+    - *Es*: funzione problema dello zaino.
+- **funzioni obiettivo non lineari**
+    - f non è una combinazione lineare x*1*, ... , x*n*
 
-In un problema continuo ogni X(i) ha un dominio infinito.
-    - Esempio: ho una città e devo mettere delle stazioni di ricarica. Le devo mettere in modo tale che sia minima la somma complessiva delle distanze delle varie città in modo tale che un veicolo non deve fare troppa strata per potersi ricaricare.
-
-
-Esistono altre categorie. <br>
-Problemi di ottimizzazione.
-- funzioni obiettivo lineari
-    - f(xi, ...., xn) = w1x1+....+wnxn
-    - Es funzione problema dello zaino
-- funzioni obiettivo non lineari
-    - f non è una combinazione lineare x1,...xn
-
-Abbiamo poi:
-- problemi vincolati:
+Si hanno inoltre:
+- **problemi vincolati**:
     - X è ottenuto aggiungendo vincoli allo spazio di ricerca originale.
-    - Es: lo zaino è un problema vincolato. Senza vincoli lo zaino è senza limiti e si prenderbbero tutti gli oggetti, ottenendo il massimo valore. Il problema dello zaino classico è quello vincolato (ogni oggetto ha un valore e un peso e lo zaino ha un limite)
-    - X è ristretto
+        - Es: lo zaino è un problema vincolato. Senza vincoli lo zaino è senza limiti e si prenderbbero tutti gli oggetti, ottenendo il massimo valore. Il problema dello zaino classico è quello vincolato (ogni oggetto ha un valore e un peso e lo zaino ha un limite)
+    - X è quindi ristretto.
 
-Abbiamo poi:
-- problemi con singola funzione a obiettivo
-- problemi con più funzioni obiettivo
+I problemi di ottimizzazione possono anche avere:
+- **una singola funzione obiettivo**
+- **più funzioni obiettivo**
+    - *Es*: TSP con tempo e carburante come funzioni obiettivo (che in questo caso sono addirittura in competizione).
 
-Es: tsp con tempo e carburante come funzioni obiettivo (che in questo caso sono addirittura in competizione)
-
-Il problema del commesso viaggiatore è un problema np-hard. 
-Cosa fare se il problema di ottimizzazione è computazionalmente difficile?
-1. Usare un algoritmo esatto (fattibile solo per piccole istanze)
+### Quali sono le possibili soluzioni algoritmiche per un problema di ottimizzazione combinatoria come TSP?
+1. **Algoritmi esatti**: 
+    - Risolvono in maniera esatta il problema. Non sono comunque in grado di risolvere istanze medio-grandi.
     - All'aumentare dell'istanza anche di poco, i tempi di calcolo crescono esponenzialmente. Perche gli algoritmi sono solitamente esponenziali, al massimo polinomiali.
-    - è possibile anche usare alcuni "universal solver". Ad esempio un sat solver, mip solver. Significa formulare il problema di ottimizzazione come un sat o un mixed integer probgramming. 
-2. Approssimare il problema di ottimizzazione. Utilizzare un algoritmo approssimato.
-    - Anziche trovare x* tale che f(x*) sia massimo o minimo, questi algoritmi trovano un x' tale che f(x') <= kf(x*)
-
-Es: f(x*) = 300
-x' ---> f(x') <= 2*300 <br>
-Minore è k e meglio è
-
-x' non è un minimo, è qualcosa che gli si avvicina ma quanto è lontano?
-
-Per alcuni problemi di ottimizzazione k può essere scelto.
-
-Per ottenere bassi valori di k è richeisto maggiore tempo.
-
-Ci sono dei problemi di ottimizzazione in cui k non può essere scelto però. Non possono essere approssimati meglio di quel k.
-
-3. Utilizzare una metaeuristica. Una metaeuristica è un algoritmo che da una soluzione del problema, la quale non è necessariamente ottima ma potrebbe essere molto buona, ottenuta soprattuto in un tempo ragionevole. Non c'è nessuna garanzia su quanto è buona la soluzione e non riesco a stimarlo. Questo è il prezzo da pagare per utilizzare una metaeuristica
-
-Metaeuristica significa che la stessa tecnica può essere usata (adattandola) a un'ampia gamma di problemi di ottimizzazione.
-    - Esempio: algoritmi genetici (risolvono problemi come lo zaino, il tsp, problemi di scheduling, problemi di ottimizzazione discreti , continui ecc...)
-tecnica: È uno schema per un possibile algoritmo (ci sono dei buchi da riempire che dipendono dal problema e altri possono essere scelti dal programmatoree)
-
-Molte metaeuristiche usano i numeri casuali (pseudo casuali). Significa che sono algoritmi randomizzati
-
-```ocaml
-Let rec gcd (m, n) = if n=m then n
-    Else if n>m then gcd(n-m, m)
-        else gcf(m, m-n) ;;
-```
+    - È possibile anche usare alcuni "*universal solver*". Ad esempio un SAT solver o MIP solver. Significa formulare il problema di ottimizzazione come un SAT o un *mixed integer probgramming*.
+2. **Algoritmi Approssimati**: 
+    - Sono algoritmi studiati ad Hoc per il problema che trovano soluzioni sub-ottimali in tempo polinomiale. La soluzione trovata non è peggio di una certa quantità rispetto all’ottimo. Usano delle euristiche pensate appositamente per il problema.
+    - **Approssimare il problema di ottimizzazione**: utilizzare un algoritmo approssimato.
+        - Anziche trovare x* tale che f(x*) sia massimo o minimo, questi algoritmi trovano un x' tale che f(x') <= *k* * f(x*)
+            - *Es*: f(x*) = 300 <br>
+            x' ---> f(x') <= 2*300 <br>
+        Ovviamente minore è *k* e meglio è.
+        - x' non è un minimo, è qualcosa che gli si avvicina ma quanto è lontano?
+        - Per ottenere bassi valori di *k* è richiesto maggiore tempo.
+        - Ci sono dei problemi di ottimizzazione in cui *k* non può essere scelto però. Non possono essere approssimati meglio di quel *k*.
+3. **Metaeuristiche**:
+    - Trovano soluzioni sub-ottimali in tempo polinomiale. Non danno la garanzia di un limite per la soluzione, ma il vantaggio è che lo schema si può applicare con opportuni cambiamenti a molti problemi di natura diversa. Questi metodi fanno poche o nessuna ipotesi sul problema da ottimizzare e possono cercare spazi molto ampi di soluzioni candidate.
+    - Una **metaeuristica** è un algoritmo che da una soluzione del problema, la quale non è necessariamente ottima ma potrebbe essere molto buona, ottenuta soprattuto in un tempo ragionevole. Non c'è nessuna garanzia su quanto è buona la soluzione e non riesco a stimarlo. Questo è il prezzo da pagare per utilizzare una metaeuristica.
+    - Metaeuristica significa che la stessa `tecnica` può essere usata (adattandola) a un'ampia gamma di problemi di ottimizzazione.
+        - *Es*: algoritmi genetici (risolvono problemi come lo zaino, il TSP, problemi di scheduling, problemi di ottimizzazione discreti, continui ecc...).
+    - `Tecnica`: È uno schema per un possibile algoritmo (ci sono dei buchi da riempire che dipendono dal problema e altri possono essere scelti dal programmatore).
+    - Molte metaeuristiche usano i numeri casuali (pseudo casuali). Significa che sono algoritmi randomizzati.
