@@ -12,7 +12,9 @@
     - [Attrazione del bacino su un minimo locale](#attrazione-del-bacino-su-un-minimo-locale)
     - [Iterated Local Search](#iterated-local-search-ils)
     - [Implementazione degli algoritmi Local Search](#implementazione-degli-algoritmi-local-search)
-        - [](#)
+        - [Best improvement Local Search](#best-improvement-local-search)
+        - [First improvement Local Search](#first-improvement-local-search)
+        - [Iterated Local Search](#iterated-local-search)
 
 
 ### Informazioni sul corso
@@ -367,3 +369,180 @@ in rosso gli archi che non c'erano.
 <hr>
 
 ## **Implementazione degli algoritmi Local Search**
+Innanzitutto è necessario definire la classe `Problem` per definire la struttura di base del problema, la sua inizializzazione e le funzioni di comodo.
+### **Best improvement Local Search**
+```python
+# number partition problem
+import numpy as np
+
+class Problem:
+    def __init__(self, num):
+        self.dim = num
+        self.numbers = np.random.randint(1, 100000, num)    # Creazione istanza
+
+    def objective_function(self, sol):
+        # La soluzione è un vettore di 0 e di 1
+        '''
+        - 0 rappresenta che stanno nel primo sottoinsieme
+        - 1 rappresenta che stanno nel secondo sottoinsieme
+        '''
+        s = 0
+        for i in range(self.dim):
+            if sol[i] == 0:
+                s += self.numbers[i]
+            else:
+                s -= self.numbers[i]
+            
+        return abs(s)
+
+    def get_dim(self):
+        return self.dim
+```
+Si può ora procedere all'implementazione dell'algoritmo di ricerca `Local Search`
+```python
+import numpy as np
+from NPP import *
+
+# local search algorithm for a binary problem
+# BEST IMPROVEMENT
+def local_search(prob, init_sol=None):
+    n = prob.get_dim()
+    if init_sol is None:
+        x = np.random.randint(0, 1+1, n)
+    else:
+        x = init_sol.copy()
+    
+    improved = True
+    fx = prob.objective_function(x)
+    print("Initial value {}".format(fx))
+    while improved:
+        best_f = 1e300  # Numero grande per i confronti seguenti
+        for i in range(0, n):
+            x[i] = 1-x[i] # Bit-flip
+            fy = prob.objective_function(x)
+            if fy < best_f:
+                y = x.copy()
+                best_f = fy
+            x[i] = 1-x[i] 
+        if best_f < fx:
+            fx = best_f
+            x = y
+            improved = True
+            print("New value {}".format(fx))
+        else:
+            improved = False
+    return x, fx 
+```
+Per testare l'algoritmo e vedere le varie info si consigliano i seguenti comandi (disponibili nel file ***test.py*** nella directory apposita).
+```python
+from local_search import *
+
+np.random.seed(42) # Fisso il seed per la riproducibilità degli esperimenti
+
+p = Problem(100) # Creo istanza problema di lunghezza 100
+
+print(p.numbers) # Stampo i vari numeri che popolano il vettore popolato randomicamente
+print(p.get_dim())
+
+x, fx = local_search(p) # Eseguo la Local Search
+print(x, fx)
+
+x, fx = local_search(p,x) # Se la rieseguo partendo dalla soluzione di prima si vede che ritorna sempre lo stesso valore e quindi non migliora
+
+risultati = [local_search(p) for run in range(100)] # Eseguo Local Search 100 volte
+print(risultati)
+
+# Analisi sui valori dei risultati ottenuti
+ff = [coppia[1] for coppia in risultati]
+
+min = np.min(ff)
+# Altri tipi di analisi
+'''
+np.mean(ff)
+np.max(ff)
+np.min(ff)
+np.median(ff)
+'''
+```
+### **First Improvement Local Search**
+Si passa ora all'implementazione della ***Local Search*** nella sua versione **First improvement**.
+```python
+import numpy as np
+from NPP import *
+
+# local search algorithm for a binary problem
+# FIRST IMPROVEMENT
+def local_search(prob, init_sol=None, verbose= False):
+    n = prob.get_dim()
+    if init_sol is None:
+        x = np.random.randint(0, 1+1, n)
+    else:
+        x = init_sol.copy()
+    
+    improved = True
+    fx = prob.objective_function(x)
+    if verbose:
+        print('Initial value {}'.format(fx))
+    while improved:
+        best_f = fx
+        ordering = list(range(0,n))
+        np.random.shuffle(ordering)
+        for i in ordering:
+            x[i] = 1-x[i]
+            fy = prob.objective_function(x)
+            if fy < best_f:
+                y = x.copy()
+                best_f = fy
+                x[i] = 1-x[i]
+                break
+        
+            x[i] = 1-x[i]
+        if best_f < fx:
+            fx = best_f
+            x = y
+            improved = True
+            if verbose:
+                print("New value {}".format(fx))
+        else:
+            improved = False
+    return x, fx 
+```
+Questa versione è molto più veloce di quella precedente.
+### **Iterated Local Search**
+```python
+from local_search_fi import *
+from NPP import *
+
+def iterated_local_search(prob, num_tries, num_flips, init_sol= None):
+    n = prob.get_dim()
+    if init_sol is None:
+        x = np.random.randint(0, 1+1, n)
+    else:
+        x = init_sol.copy()
+    nt = 0
+    fx = prob.objective_function(x)
+    while nt < num_tries:
+        y =perturbation(x, num_flips)
+        z, fz = local_search(prob, y)
+        if fz < fx:
+            x = z
+            fx = fz
+            nt = 0
+        else:
+            nt+=1
+    return x, fx
+
+def perturbation(x, num_flips):
+    n = len(x)
+    y = x.copy()
+    for flip in range(num_flips):
+        i = np.random.randint(0, n)
+        y[i] = 1 - y[i]
+    
+    return y
+```
+Quest'ultima può essere in realtà implementata utilizzando entrambe le tipologie di `Local Search` (best improvemente e first improvement), con la quale si noteranno differenti prestazioni in termini di tempo e probabilmente anche della soluzione trovata.
+
+Per quanto riguarda il codice sorgente completo, eventuali comandi di test e altro vedere i relativi file nell'apposita directory per la ***Local Search***.
+
+<hr>
