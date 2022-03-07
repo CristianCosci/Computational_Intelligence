@@ -1,28 +1,67 @@
-from local_search import *
+np.random.seed(42)
 
-np.random.seed(42) # Fisso il seed per la riproducibilità degli esperimenti
+# ------------------------------------------------------------------------------------------------
+# BEST IMPROVEMENT
+from local_search_bi import *
 
-p = Problem(100) # Creo istanza problema di lunghezza 100
+p = Problem(100)
 
-print(p.numbers) # Stampo i vari numeri che popolano il vettore popolato randomicamente
+print(p.numbers)
 print(p.get_dim())
 
-x, fx = local_search(p) # Eseguo la Local Search
-print(x, fx)
 
-x, fx = local_search(p,x) # Se la rieseguo partendo dalla soluzione di prima si vede che ritorna sempre lo stesso valore e quindi non migliora
+x, fx = local_search(p)
+#print(x, fx)
 
-risultati = [local_search(p) for run in range(100)] # Eseguo Local Search 100 volte
-print(risultati)
+x, fx = local_search(p,x) # si vede che ritorna sempre lo stesso valore e quindi non migliora
 
-# Analisi sui valori dei risultati ottenuti
+
+risultati = [local_search(p) for run in range(100)]
+#print(risultati)
+
 ff = [coppia[1] for coppia in risultati]
 
 min = np.min(ff)
-# Altri tipi di analisi
-'''
+print(min)
+
 np.mean(ff)
 np.max(ff)
 np.min(ff)
 np.median(ff)
-'''
+
+
+# ------------------------------------------------------------------------------------------------
+# FIRST IMPROVEMENT
+from local_search_fi import *
+p = Problem(100)
+x, fx = local_search(p)
+#print(x, fx)
+
+risultati = [local_search(p) for run in range(100)]
+
+
+ff = [coppia[1] for coppia in risultati]
+min = np.min(ff)
+print(min)
+
+
+# -------------------------------------------------------
+# ILS
+from iterated_local_search import *
+p = Problem(100)
+
+x,fx = iterated_local_search(p, 10, 5)
+
+print(fx)
+
+s0 = [p.numbers[i] for i in range(100) if x[i] == 0]
+print(sum(s0))
+
+s1 = [p.numbers[i] for i in range(100) if x[i] == 1]
+print(sum(s1))
+
+print(sum(s1)-sum(s0))
+
+
+ris_ls = [local_search(p) for _ in range(100)]
+print(ris_ls)
