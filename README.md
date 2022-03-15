@@ -15,6 +15,10 @@
         - [Best improvement Local Search](#best-improvement-local-search)
         - [First improvement Local Search](#first-improvement-local-search)
         - [Iterated Local Search](#iterated-local-search)
+- [Simulated annealing](#simulated-annealing)
+    - [Principali caratteristiche](#principali-caratteristiche-di-sa)
+    - [Applicazione al TSP](#applicazione-di-sa-al-tsp)
+    - [Implementazione algoritmo Simulated Annealing](#implementazione-algoritmo-simulated-annealing)
 
 
 ### Informazioni sul corso
@@ -174,8 +178,8 @@ I problemi di ottimizzazione possono anche avere:
 ## **Local search**
 - Si utilizza in problemi di ottimizzazione discreta.
 
-Le soluzioni nello spazio di ricerca sono connesse e formano un grafo orientato.
-(aggiungere foto quando il prof carica roba)
+Le soluzioni nello spazio di ricerca sono connesse e formano un grafo orientato. <br>
+![ls0](./imgs/ls0.png) <br>
 - *S* e *S'* sono soluzioni
 - Si dice che *S'* è un vicino di *S*
 - *S''* è un vicino di *S'*
@@ -394,6 +398,11 @@ class Problem:
                 s -= self.numbers[i]
             
         return abs(s)
+    
+    def objective_function(self, sol):  # Molto più efficiente
+        s = sum((1-2*sol)*self.number)
+        
+        return np.abs(s)
 
     def get_dim(self):
         return self.dim
@@ -418,7 +427,7 @@ def local_search(prob, init_sol=None):
     while improved:
         best_f = 1e300  # Numero grande per i confronti seguenti
         for i in range(0, n):
-            x[i] = 1-x[i] # Bit-flip
+            x[i] = 1-x[i] # Bit-flip -> questa logica può essere migliorata e resa più efficiente in quanto ci mette O(n^2) operazioni
             fy = prob.objective_function(x)
             if fy < best_f:
                 y = x.copy()
@@ -433,6 +442,13 @@ def local_search(prob, init_sol=None):
             improved = False
     return x, fx 
 ```
+- Il **bit-flip** può essere chiamato Δf(x, i) = f(x con i-esimo bit complementare) - f(x) <br>
+Nel problema NPP è anche semplice trovare il miglior vicino di x, in O(n) anzichè O(n^2). <br>
+A sua volta se riduco il tempo di ricerca della Local Search lo riduco anche delle versione iterata in quanto usa essa stessa.
+
+
+
+
 Per testare l'algoritmo e vedere le varie info si consigliano i seguenti comandi (disponibili nel file ***test.py*** nella directory apposita).
 ```python
 from local_search import *
@@ -546,3 +562,128 @@ Quest'ultima può essere in realtà implementata utilizzando entrambe le tipolog
 Per quanto riguarda il codice sorgente completo, eventuali comandi di test e altro vedere i relativi file nell'apposita directory per la ***Local Search***.
 
 <hr>
+
+## **Simulated annealing**
+- Nella *ricerca locale* (anche nella sua versione *iterata*), si passa da un elemento ***x*** a un elemento **migliore**.
+    - **Nella ricerca locale** il passaggio avviene in maniera *diretta* perchè si prende un vicino di x e lo si cerca di migliorare passando per uno dei vicini di quest'ultimo. 
+    - Nella ricerca locale devo quindi migliorare ad ogni passaggio. **Quando non è più possibile, l'algoritmo termina**.
+- **Nella ricerca locale iterata**, il procedimento è diverso, ma ad ogni passaggio si deve comunque migliorare. <br>
+Si parte da un punto ***x0***, si applica la ricerca locale e si arriva in ***x1*** (minimo locale). Si applica una perturbazione a quest'ultimo (che potrebbe anche peggiorare la situazione ma non importa) e si riapplica la ricerca locale arrivando in ***z***. Se z è migliore la ricerca procede da questo punto, se invece ho peggiorato non si accetta (perchè si deve comunque sempre migliorare). <br>
+Dopo un tot di tentavi infruttuosi la ricerca termina (oppure si possono scegliere altre condizioni di terminazione. Es. quante volte ho valutato f).
+
+Nel **Simulated annealing** invece, si può anche peggiorare (ma di poco) e soprattutto all'inizio. <br>
+Si intende che **le soluzioni** possono anche peggiorare.
+
+```pseudocode
+x:= initial solution                        # può essere preso random
+fx:= f(x)
+t:= initial temperature
+for i:= 1 to num_iterations
+    y:= selecet a random neighbor of x
+    fy:= f(y)
+    df=fy-fx                                # differenza in f
+    p:= exp(-df/t)                          # se df è negativo, p è maggiore di 1
+    if random(0,1) < p then                 # Se fy<fx, y è accettato come nuovo valore di x
+        x:= y
+        fx:= fy
+    end if
+    t:= t * delta_t                         # delta_t = 0.95
+end for
+
+return x, fx
+```
+***Cosa accade?*** <br>
+Quando f(y) >= f(X), y è accettato con una probabilità ***exp(-df/t)***. <br>
+Più è basso df e maggiore è la probabilità di accettazione. Se la differenza fosse 0 o negativa, lo accetterebbe sempre. <br>
+Maggiore è t, maggiore è la probabilità di accettazione. <br>
+- I peggioramenti non gravi sono quindi accettati meglio dei peggioramenti gravi.
+- I peggioramenti sono accettati soprattutto quando la temperatura è alta.
+
+È altresì importante che la temperatura diminuisce mano a mano.
+
+All'inizio quindi la tendenza ad accettare peggioramenti è alta e poi scende. Verso la fine il **simulated annealing (SA)** accetta solo miglioramenti (perchè la probabilità di accettazione è così bassa che è come se fosse 0).
+
+**Questo algoritmo è molto più casuale** (randomico) della ricerca locale e della ricerca locale iterata (vedere quanti eventi random ci sono nello pseudocodice).
+
+### **Principali caratteristiche di SA:**
+1. È molto più randomico di LS e ILS
+2. C'è un bilanciamento tra **exploration** e **exploitation**. <br>
+**Exploration**: guardare intorno a x (esplorare lo spazio di ricerca), senza prendere troppo in considerazione la funzione obiettivo f. <br>
+**Exploitation**: cerca necessariamente il vicino migliore. <br>
+All'inizio prevale l'exploration e mano a mano che la temperatura scende, la componente di exploitation prevale.
+3. SA può essere usato anche per l'ottimizzazione continua, facendo una piccola modifica (Vedi sotto). <br>
+**Ottimizzazione continua**: x non è un vettore o una permutazione di numeri (0 e 1), ma è fatto di numeri reali (il concetto di vicini non ha senso nei numeri reali). <br>
+```pseudocode 
+y:= x+delta_x 
+```
+dove delta_x è un vettore di numeri casuali piccoli nell'intervallo *[-epsilon, +epsilon]*. <br> Ciò indica "muoviti da x di un passettino".
+
+**Uno dei problemi principali di SA è come gestire la temperatura**:
+- trovare il valore iniziale per t_init
+- trovare come aggiornare t
+
+<hr>
+
+### **Applicazione di SA al TSP**
+**TSP** = *problema del commesso viaggiatore*. <br>
+In questo problema, una soluzione è una lista di vertici tale che:
+1. inizia e finisce con lo stesso vertice
+2. non ha vertici duplicati (tranne il primo e l'ultimo)
+3. ha lunghezza **n+1**
+
+Nel TSP ci sono vari concetti si vicini (possibili implementazioni):
+- **SWAPE/EXCHANGE** <br>
+*x* = `[0 2 3 5 4 1 0]` ---> *x'* (**vicino**) = `[0 2 1 5 4 3 0]` <br> 
+Ci sono **O(n^2)** vicini.
+- **2-OPT** <br>
+**Tecnica 2-OPT** : prendo due archi che non devono essere vicini e li inverto. <br>
+*x* = `[0 2 3 5 4 1 0]` ---> *x'* (**vicino**) = `[0 2 4 5 3 1 0]` <br>
+Ci sono sempre O(n^2) vicini <br>
+**2-OPT ha un'interessante proprietà:**
+    - ***f(x'') = f(x) - d(2,3) - d(4,1) + d(2,4) + d(3,1)***
+    - ![2opt](./imgs/2opt.png) <br>
+    - *Nel TSP simmetrico, f(x'') può essere calcolato da f(x) in O(1)* -> **MOLTO INTERESSANTE** (di solito costa O(n))
+
+<hr>
+
+## **Implementazione algoritmo Simulated Annealing**
+L'implementazione seguente tratta l'algorimto **SA** sul problema **NPP**, quindi è necessario fare riferimento al file ***NPP.py***.
+```python
+import numpy as np
+from NPP import *
+
+# simulated annealing per il problema binario
+def simulated_annealing(prob, num_iter, init_sol=None):
+    n = prob.get_dim()
+    if init_sol is None:
+        x = np.random.randint(0, 1+1, n)
+    else:
+        x = init_sol.copy()
+    fx = prob.objective_function(x)
+    temp = 0.1 * fx / (-np.log(0.5))
+    for i in range(num_iter):
+        j = np.random.randint(0, n)
+        y = x.copy()
+        y[j] = 1 - y[j]
+        fy = prob.objective_function(y)
+        df = fy - fx
+        pr = np.exp(-df / temp)
+        if np.random.random() < pr:     # if fy < fx or np.random.random() < pr
+            x = y
+            fx = fy
+        temp = temp*0.95
+    
+    return x, fx
+```
+Il codice per fare eventuali test è il seguente:
+```python
+from NPP import *
+from simulated_annealing import *
+
+np.random.seed(1918)
+
+instance = Problem(100)
+x, fx = simulated_annealing(instance, 10000)
+print(x, fx)
+```
+Nel caso in cui si abbia overflow nel decadimento di temp cambiare il tasso di decadimento (qui è 0.95).
