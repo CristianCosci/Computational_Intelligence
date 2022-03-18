@@ -7,6 +7,7 @@
     - [Categorie dei problemi di ottimizzazione](#categorie-dei-problemi-di-ottimizzazione)
 - [Local search](#local-search)
     - [Number Partitioning Problem NPP](#number-partitioning-problem-npp)
+        - [Fenotipo e Genotipo](#fenotipo-e-genotipo)
     - [Minimo Ottimo Locale](#minimo-ottimo-locale)
     - [Local Search Algorithm](#local-search-algorithm)
     - [Attrazione del bacino su un minimo locale](#attrazione-del-bacino-su-un-minimo-locale)
@@ -17,8 +18,11 @@
         - [Iterated Local Search](#iterated-local-search)
 - [Simulated annealing](#simulated-annealing)
     - [Principali caratteristiche](#principali-caratteristiche-di-sa)
-    - [Applicazione al TSP](#applicazione-di-sa-al-tsp)
     - [Implementazione algoritmo Simulated Annealing](#implementazione-algoritmo-simulated-annealing)
+- [Applicazioni di algoritmi al problema del commesso viaggiatore (TSP)](#applicazioni-di-algoritmi-al-problema-del-commesso-viaggiatore-tsp)
+- [Algoritmi Genetici](#algoritmi-genetici)
+    - [Crossover](#1-crossover)
+    - [Mutazione](#2-mutazione)
 
 
 ### Informazioni sul corso
@@ -624,28 +628,6 @@ dove delta_x è un vettore di numeri casuali piccoli nell'intervallo *[-epsilon,
 
 <hr>
 
-### **Applicazione di SA al TSP**
-**TSP** = *problema del commesso viaggiatore*. <br>
-In questo problema, una soluzione è una lista di vertici tale che:
-1. inizia e finisce con lo stesso vertice
-2. non ha vertici duplicati (tranne il primo e l'ultimo)
-3. ha lunghezza **n+1**
-
-Nel TSP ci sono vari concetti si vicini (possibili implementazioni):
-- **SWAPE/EXCHANGE** <br>
-*x* = `[0 2 3 5 4 1 0]` ---> *x'* (**vicino**) = `[0 2 1 5 4 3 0]` <br> 
-Ci sono **O(n^2)** vicini.
-- **2-OPT** <br>
-**Tecnica 2-OPT** : prendo due archi che non devono essere vicini e li inverto. <br>
-*x* = `[0 2 3 5 4 1 0]` ---> *x'* (**vicino**) = `[0 2 4 5 3 1 0]` <br>
-Ci sono sempre O(n^2) vicini <br>
-**2-OPT ha un'interessante proprietà:**
-    - ***f(x'') = f(x) - d(2,3) - d(4,1) + d(2,4) + d(3,1)***
-    - ![2opt](./imgs/2opt.png) <br>
-    - *Nel TSP simmetrico, f(x'') può essere calcolato da f(x) in O(1)* -> **MOLTO INTERESSANTE** (di solito costa O(n))
-
-<hr>
-
 ## **Implementazione algoritmo Simulated Annealing**
 L'implementazione seguente tratta l'algorimto **SA** sul problema **NPP**, quindi è necessario fare riferimento al file ***NPP.py***.
 ```python
@@ -687,3 +669,194 @@ x, fx = simulated_annealing(instance, 10000)
 print(x, fx)
 ```
 Nel caso in cui si abbia overflow nel decadimento di temp cambiare il tasso di decadimento (qui è 0.95).
+
+<hr>
+
+## **Applicazioni di algoritmi al problema del commesso viaggiatore (TSP)**
+**TSP** = *problema del commesso viaggiatore*. <br>
+In questo problema, una soluzione è una lista di vertici tale che:
+1. inizia e finisce con lo stesso vertice
+2. non ha vertici duplicati (tranne il primo e l'ultimo)
+3. ha lunghezza **n+1**
+
+Nel TSP ci sono vari concetti si vicini (possibili implementazioni):
+- **SWAPE/EXCHANGE** <br>
+*x* = `[0 2 3 5 4 1 0]` ---> *x'* (**vicino**) = `[0 2 1 5 4 3 0]` <br> 
+Ci sono **O(n^2)** vicini.
+- **2-OPT** <br>
+**Tecnica 2-OPT** : prendo due archi che non devono essere vicini e li inverto. <br>
+*x* = `[0 2 3 5 4 1 0]` ---> *x'* (**vicino**) = `[0 2 4 5 3 1 0]` <br>
+Ci sono sempre O(n^2) vicini <br>
+**2-OPT ha un'interessante proprietà:**
+    - ***f(x'') = f(x) - d(2,3) - d(4,1) + d(2,4) + d(3,1)***
+    - ![2opt](./imgs/2opt.png) <br>
+    - *Nel TSP simmetrico, f(x'') può essere calcolato da f(x) in O(1)* -> **MOLTO INTERESSANTE** (di solito costa O(n))
+
+File per il TSP
+```python
+import numpy as np
+
+class Problem_tsp:
+    def __init__(self, nc, mat):
+        self.ncities = nc
+        self.dmat = mat # Matrice che contiene le distanze
+
+    def create_random_instance(nc):
+        # Crea due vettori x e y che contengono le coordinate di ciascuna città nel range [-50,50]
+        x = 100 * np.random.random(nc) - 50
+        y = 100 * np.random.random(nc) - 50
+        m = np.zeros((nc, nc))
+        for i in range(nc):
+            for j in range(nc):
+                m[i,j] = np.sqrt((x[i]-x[j])**2+(y[i]-y[j])**2)
+        return Problem_tsp(nc,m)
+    
+    # l è l'elenco dei nodi visitati, includendo il primo e l'ultimo (che sono uguali)
+    def objective_function(self, l):
+        s = 0
+        for i in range(self.ncities):
+            c1 = l[i]
+            c2 = l[i+1]
+            d = self.dmat[c1,c2]
+            s = s+d
+        return s
+    
+    def do_2_opt(l, i, j):
+        l1 = l[:i+1]
+        l2 = l[i+1:j]
+        l3 = l[j:]
+        return l1+l2[::-1]+l3
+    
+    # Compute the difference on the objective functuion if the 2-opt operation is performed
+    def delta_2_opt(self, l, i, j):
+        return -self.dmat[l[i], l[i+1]] - self.dmat[l[j-1], l[j]] + self.dmat[l[i], l[j-1]] + self.dmat[l[i+1], l[j]]
+```
+Il `delta` è in grado di calcolare quanto cambia la funzione obiettivo se io applico il `2-opt`, senza però farlo effettivamente e senza ricalcolare interamente la funzione obiettivo. <br>
+Effettuare `2-opt` e ricalcolare la funzione obiettivo costa **O(n)**, invece così costa **O(1)**. <br>
+A questo punto si può implementare una ricerca locale che usa `2-opt`.
+```python
+def local_search(self, init_sol=None, verbose=False):
+        n = self.ncities
+        if init_sol is None:
+            # Creazione di una soluzione casuale
+            x = list(range(1, n))
+            np.random.shuffle(x)
+            x = [0]+x+[0]
+        else:
+            x = init_sol.copy()
+        improved = True
+        fx = self.objective_function(x)
+        if verbose:
+            print("Initial value {}".format(fx))
+        while improved:
+            best_delta = 1e300  # Numero grande per i confronti seguenti
+            # Il delta sarebbe quanto aumenta la funzione obiettivo se io faccio la 2-opt (l'obiettivo è averlo più basso possibile)
+            for i in range(1, n-1): # Controllo cosa succede se applico 2-opt senza effettivamente modificare x (lo cambio solo dopo aver trovato la migliore configurazione possibile)
+                for j in range(i+3, n):
+                    delta = self.delta_2_opt(x, i, j)
+                    if delta < best_delta:
+                        i_best = i
+                        j_best = j
+                        best_delta = delta
+            if best_delta < 0:
+                fx = fx + best_delta
+                x = Problem_tsp.do_2_opt(x, i_best, j_best)
+                improved = True
+                if verbose:
+                    print("New value {}".format(fx))
+            else:
+                improved = False
+        return x, fx 
+```
+Per provare l'implementazione, vedere il file ***test2.py***. Qui di seguito sono comunque riportati dei comandi di esempio.
+```python
+from TSP import * 
+p = Problem_tsp.create_random_instance(50)
+print(p.ncities)
+print(p.dmat)
+
+l = list(range(0, 50))
+l.append(0)
+print(len(l))
+
+print(p.objective_function(l))
+
+l1 = Problem_tsp.do_2_opt(l, 22, 44)
+print(p.objective_function(l1))
+
+delta = p.delta_2_opt(l, 22, 44)
+print(delta)
+print(p.objective_function(l)+delta)
+
+p = Problem_tsp.create_random_instance(20)
+print(p.local_search(verbose=True))
+```
+- Finire di implementare 2-opt su TSP
+- applicare ILS
+- applicare SA
+
+Per quanto riguarda le istanze del TSP, è possibile:
+- generarle a caso
+- leggerle da file
+    - Sono disponibili delle repo contenenti varie istanze <br>
+    Vedi:
+        - https://github.com/mastqe/tsplib.git
+        - http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/
+
+<hr>
+
+# **Algoritmi genetici**
+È l'algoritmo più famoso in letteratura. <br>
+È la più famosa metaeuristica.
+
+È basata su una metafora semplice da capire
+- **L'algoritmo usa una popolazione di individui**
+- **Ciascun individuo è una soluzione del problema ed è rappresentato in genere come una stringa** (binaria)
+
+Questa popolazione è modificata attraverso 3 operazioni
+1. **Crossover**
+2. **Mutazione**
+3. **Rimpiazzamento**
+
+C'è anche un'operazione antecedente al crossover: <br>
+**0.** **selezione**: non modifica la popolazione, serve come punto di partenza per il crossover
+
+La rappresentazione degli individui è detta **cromosomi**. 
+- Ogni individuo è rappresentato come un cromosoma. Il cromosoma è il patrimonio genetico di un individuo.
+
+Altre caratteristiche:
+- Gli **GA** (genetich algorithm) sono molto studiati in molti articoli scientifici. Sia dal punto di vista teorico che dal punto di vista applicativo.
+- GA **possono essere applicati a moltissimi problemi di ottimizzazione, sia discreti che continui.**
+    - GAs hanno una **predisposizione per il discreto**. Sono naturalmente applicati a problemi discreti perchè gli individui sono stringhe.
+- *GA sono stati introdotti da Holland nel 1970 e da allora sono la metaeuristica più famosa in assoluto* (da allora sono studiati e applicati in tantissime situazioni in cui gli algoritmi tradizionali non riescono a funzionare).
+
+### **Rappresentazione cromosomi** 
+#### **Applicazione di un algoritmo genetico ad un problema binario:**
+s = [0,1,0,1,0,0,1,1]
+- 8 **alleli**, ciascuno dei quali contiene un 0 o 1 (che sono chiamati **geni**)
+    - gli **alleli** sono le **posizioni**
+    - i **geni** sono che cosa **contiene**
+
+**2 tipi di operazioni:**
+### 1. **Crossover**
+- L'operazione di crossover prende due cromosoimi **s1** e **s2**, genera 1 o 2 **nuovi  cromosomi**
+- s1 e s2 sono chiamati **genitori**
+- I due nuovi cromosomi **c1 e c2** sono chiamati **figli** 
+
+*Per esempio:* <br>
+L'operazione chiamata ***one-point crossover*** <br>
+s1 = [0,1,0,1,0,0,1,1] <br>
+s2 = [1,1,0,1,0,1,0,0]
+
+Si prende un **punto di taglio** e si crea un figlio con gli elementi a sinistra del taglio di uno e a destra del taglio dell'altro, e viceversa per l'altro figlio. 
+
+![crossover](./imgs/crossover.png)
+
+In questo modo si può vedere che ***ciascun figlio eredita parte del patrimonio genetico dal primo genitore e parte dal secondo***.
+
+`Si può dire che il crossover mescola i patrimoni genetici di due elementi di una popolazione, creando due elementi che sono nuovi.`
+
+### 2. **Mutazione**
+- Crea un nuovo individuo **mutando/alterando** un figlio appena prodotto dal crossover.
+    - Lo si altera ad esempio **cambiando uno o più geni**.
+- Queste operazioni si possono fare sulla rappresentazione e non sull'individuo (**differenza tra fenotipo e genotipo**)
