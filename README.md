@@ -21,6 +21,11 @@
     - [Implementazione algoritmo Simulated Annealing](#implementazione-algoritmo-simulated-annealing)
 - [Applicazioni di algoritmi al problema del commesso viaggiatore (TSP)](#applicazioni-di-algoritmi-al-problema-del-commesso-viaggiatore-tsp)
 - [Algoritmi Genetici](#algoritmi-genetici)
+    - [Introduzione e Caratteristiche](#caratteristiche)
+    - [Pseudocodice di GA](#pseudocodice-di-ga)
+    - [Mating Pool](#mating-pool)
+        - [Roulette Wheel](#roulette-wheel-ruota-della-fortuna)
+        - [Tornei](#selezione-baata-su-tornei)
     - [Crossover](#1-crossover)
     - [Mutazione](#2-mutazione)
 
@@ -791,7 +796,6 @@ print(p.objective_function(l)+delta)
 p = Problem_tsp.create_random_instance(20)
 print(p.local_search(verbose=True))
 ```
-- Finire di implementare 2-opt su TSP
 - applicare ILS
 - applicare SA
 
@@ -806,6 +810,7 @@ Per quanto riguarda le istanze del TSP, è possibile:
 <hr>
 
 # **Algoritmi genetici**
+### **Caratteristiche**
 È l'algoritmo più famoso in letteratura. <br>
 È la più famosa metaeuristica.
 
@@ -837,26 +842,234 @@ s = [0,1,0,1,0,0,1,1]
     - gli **alleli** sono le **posizioni**
     - i **geni** sono che cosa **contiene**
 
-**2 tipi di operazioni:**
-### 1. **Crossover**
+<hr>
+
+Ripassando, nei GA si ha:
+- ***f*** funzione obiettivo
+- ***X*** spazio di ricerca
+- Popolazione di ***N*** individui, chiamati **cromosomi**. 
+    - *Ciascun cromosoma codifica una soluzione, cioè un elemento di X*
+
+Se il cromosoma *c* è direttamente la soluzione, f può essere applicata al cromosoma *c*. <br>
+Altrimenti *f* deve essere riscritta (ridefinita) in modo da poter essere applicata a *c*, oppure *c* deve essere decodificato in modo da ottenere la soluzione corrispondente.
+
+***Esempio***:
+### **Applicazione degli algoritmi genetici al TSP***
+Sono possibili molte rappresentazioni dello spazio di ricerca X:
+1. Un cromosoma è la lista dei vertici visitati <br>
+    `[0, 2, 3, 1, 5, 4, 0]`
+2. Un cromosoma è la lista degli archi visitatu <br>
+   `[(0,2), (2,3), (3,1), (1,5), (5,4), (4,0)]`
+3. Un cromosoma è una matrice binaria di dimensione ***n x m*** tale che l'elemento M[i,j] = 1 se e solo se l'arco (i-->j) è visitato. <br>
+*Questa rappresentazione funziona correttamente solo se il TSP è simmetrico.*
+4. *Potrebbero esistere anche altre rappresentazioni*
+
+**La funzione obiettivo f** va quindi riscritta per ognuna di queste rappresentazioni, oppure decido una volta per tutte quale deve essere la rappresentazione esterna, scrivo la funzione per quest'ultima e ogni volta che l'algoritmo genetico deve valutare f trasformo il cromosoma in soluzione. <br>
+Quindi, ci sono 2 approcci per valutare la funzione obiettivo:
+1. **Scrivo il codice per valutare f secondo la rappresentazione.**
+2. **Scrivo un codice per valutare f usando uno standard per la soluzione** (per esempio una lista di vertici visitati). <br> 
+Ogni volta che la funzione deve essere valutata da GA, si traduce il cromosoma nella forma standard applicando una funzione di decodifica per ottenere la soluzione.
+
+Quindi, GA può decidere, per qualsiasi motivo, una rappresentazione interna (**GENOTIPO**) diversa da quella su cui l'utente ragiona (rappresentazione standard) (**FENOTIPO**).
+
+<hr>
+
+## **Pseudocodice di GA**
+```pseudocode
+function GA(X, f,                       //parametri del problemma
+    N, Ngen, pCross, pMut)              //parametri dell'algoritmo
+
+    inizializzo la popolazione
+    for g:=1 to Ngen
+        select the mating pool
+        apply the crossover operation
+        apply the mutation operator
+        update the population
+    end for
+    
+    return il miglior individuo trovato x* e il corrispondente f value f(x*)
+```
+*Cosa significa il miglior individuo trovato?*
+- Molte metauristiche basati su metauristiche possono produrre, in qualsiasi passaggio, individui che sono peggiori o migliori di quelli prodotti nei passaggi precedenti.
+    - Quindi ha senso memorizzare il miglior individuo trovato fino a quel punto (stato corrente).
+    - C'è quindi una variabile nell'algoritmo che mi permette di controllare se il nuovo individuo è migliore di quello momentaneamente memorizzato.
+        - Li confronto e in caso positivo salvo quello nuovo.
+
+Ciò è molto utile se:
+- L'algoritmo non sempre accetta miglioramenti
+- L'algoritmo usa qualche meccaniscmo di restart (non riesco a migliorare allora provo a ripartire)
+
+***NOTA***: Miglior individuo trovato -> variabile che conserva il miglior individuo di sempre.
+
+La popolazione può essere inizializzata in 3 modi principali:
+1. **Completamente a caso**
+    - Se il problema **non ha vincoli**, tutte le soluzioni sono valide.
+    - Se il problema **ha vincoli** (ad esempio il problema dello zaino), significa che non tutti gli individui rappresetano una soluzione valida
+2. **Creare solo cromosomi validi**
+3. **Creare 'buoni' individui** (non così scarsi). Per esempio utilizzando un'euristica ***h*** che mi permette di farlo.
+    - **se h è deterministica**, può produrre un solo individuo. Di conseguenza gli altri N-1 vanno scelti a caso.
+    - **in generale**, usare h solo per generare soltanto alcuni individui e gli altri generati in modo casuale.
+
+#### **Differenza tra euristica e metaeuristica:**
+- euristica è dipendente dal problema
+- la metaeuristica no
+
+## **Mating Pool**
+Tornando alla spiegazione dello pseudocodice dell'algoritmo: <br>
+***Primo passaggio:***
+- *select of the mating pool M*
+
+***Definizione***. <br>
+Il mating pool M è un insieme di N/2 coppie di individui presi dalla popolazione (per esempio la popolazione attuale).
+- M è usato per il passaggio successivo (Crossover)
+- L'idea principale è di scegliere i migliori individui
+
+*Come scegliere gli individui migliori?*
+- **Roulette wheel**
+- **Tornei**
+
+### **Roulette wheel (ruota della fortuna)**
+
+![rw](./imgs/rw.png)
+
+- Selezionare un individuo in modo casuale secondo la probabilità (in modo proporzionale) alla **fitness F** per ogni individuo.
+    - *Un GA ha l'obiettivo implicito di massimizzare il valore di fitness degli elementi della popolazione degli individui.*
+        - Posso accontentarmi anche di un singolo individuo con un alto valore di fitness F
+
+**Caratteristiche:**
+- Se il problema è di ottimizzazione è un problema di **massimizzazione**:
+    - F può coincidere con la funzione obiettivo f.
+    - Oppure **F è una trasformazione crescente di f**.
+        - Es. F(x) = f(x)^2 <br>
+- Se il problema di ottimizzazione è un problema di **minimizzazione**: 
+    - **F deve essere una trasformazione decrescente**.
+        - Es. F(x) = 1/f(x) <br>
+        F(x) = 1000 - f(x) <br>
+        F(x) = -log f(x) <br>
+    - In questo caso se `f(x1) < f(x2)` (x1 è migliore di x1), allora `F(x1) > F(x2)` (x1 ha un valore di fitness maggiore di x2)
+    - *Il TSP è un problema di minimizzazione*
+
+Supponiamo che le fitness F(x) > 0 (siano tutte positive) per ogni x. <br>
+La probabilità di pescare l'individuo x[i] è data da: <br>
+```
+F(x[i]) / F(x[1]) + F(x[2]) + ... + F(x[N])
+```
+***Per esempio***: <br> 
+F(x1) = 10, F(x2) = 5, F(x3) = 15, F(x4) = 20, F(x5) = 10 <br>
+p(x1) = 10 / (10 + 5 +15 +20 +10)    ----> 10/60 <br>
+p(x2) = 5/60 <br>
+ecc....
+
+- Per pescare un individuo, si genera un numero reale casuale r tra 0 e 60.
+    - Se r < 10 ---> estrai x1
+    - Se r è tra [10, 15[ ---> estrai x2
+    - se r è tra [15, 30[ ---> estrai x3
+    - se r è tra [30, 50[ ---> estrai x4
+    - se r è tra [50, 60[ ---> estrai x5
+
+In questo modo genero ogni numero x[i] con una **probabilità proporzionale** a F(x[i]). <br>
+**Il costo computazionale della singola estrazione è O(N)**.
+
+- F può essere considerata anche come **rank** di x nella popolazione.
+    - F=N per il *miglior individuo*
+    - F=N-1 per il secondo miglior individuo
+    - ...
+    - F = 1 per il *peggior individuo*
+
+
+### **Selezione baata su tornei**
+- **scelgo k individui a caso e scelgo il migliore tra di loro** (a mo' di sfida)
+- **è più veloce rispetto a fare la roulette wheel**
+    - il costo di selezionare N/2 coppio è **O(kN)**, invece di **O(N^2)** per la roulette wheel
+
+In questo modo il peggior individuo non verrà mai selezionato (non ha chance di essere selezionato perchè prendendo anche solo due individui. Il peggiore non sarà mai scelto a meno che tra le selezione degli individui io posso pescare più volte lo stesso individuo. In questo modo potrei prendere due peggiori e quindi viene selezionato). <br>
+Questi metodi di selezione possono produrre un mating pool con individui identici
+
+- I migliori individui possono essere rappresentati più volte.
+    - Migliore è l'individuo e più coppie potrebbero esserci di lui.
+    - I peggiori individui potrebbere anche essere assenti nel mating pool.
+- Se un individuo è molto più buono degli altri:
+    - con la roulette ci possono essere tante copie di lui a discapito degli altri
+    - con i tornei non è detta ma potrebbe esserci comunque un numero abbastanza alto di copie
+
+<hr>
+
+## 1. **Crossover**
 - L'operazione di crossover prende due cromosoimi **s1** e **s2**, genera 1 o 2 **nuovi  cromosomi**
 - s1 e s2 sono chiamati **genitori**
 - I due nuovi cromosomi **c1 e c2** sono chiamati **figli** 
+- Si parte quindi da **N/2** coppie di individui
+    - p1, p2
+    - p3, p4
+    - ...
+    - p[N/2 -1], p[N/2]
 
-*Per esempio:* <br>
-L'operazione chiamata ***one-point crossover*** <br>
-s1 = [0,1,0,1,0,0,1,1] <br>
-s2 = [1,1,0,1,0,1,0,0]
+Ciascuna di queste coppie è copiata e inviata allo step successivo (con probabilità **1-pCross**) oppure è modificata utilizzando l'operatore di crossover (con probabilità **pCross**).
+- Ciascuna coppia p[i], p[i+1] produce 2 figli c[i], c[i+1]
+    - c[i] = p[i] e c[i+1] = p[i+1] con probabilità **1-pCross**
+    - c[i], c[i+1] = crossover(p[i] , p[i+1]) con probabilità **pCross**
 
-Si prende un **punto di taglio** e si crea un figlio con gli elementi a sinistra del taglio di uno e a destra del taglio dell'altro, e viceversa per l'altro figlio. 
+***Operazioni di Crossover:*** <br>
+Crea 2 figli (qualche volta un solo figlio ma deve essere applicato 2 volte, altre volte più figli e ne scelgo solo due) dai due genitori.
+- ***one-point crossover***:
+    - Utilizzato quando i due cromosomi sono stringhe o vettori di lunghezza fissa L
+    - seleziona un **punto di taglio k casuale** tra 1<=k<L
+    - *Per esempio:* <br>
+    L'operazione chiamata <br>
+    s1 = [0,1,0,1,0,0,1,1] <br>
+    s2 = [1,1,0,1,0,1,0,0] <br>
+    Si prende un **punto di taglio** e si crea un figlio con gli elementi a sinistra del taglio di uno e a destra del taglio dell'altro, e viceversa per l'altro figlio. <br>
+    ![crossover](./imgs/crossover.png) <br>
+    In questo modo si può vedere che ***ciascun figlio eredita parte del patrimonio genetico dal primo genitore e parte dal secondo***. <br>
+    `Si può dire che il crossover mescola i patrimoni genetici di due elementi di una popolazione, creando due elementi che sono nuovi.`
+- È semplice gneralizzare il **one-point crossover al multi-point crossover**
+    - ***2-point crossover***
+        - **selezione 2 punti di taglio k e h** in modo casuale tale che k<h
+        - *Per esempio:* <br>
+        ![crossover2](./imgs/crossover2.png)
+- ***Crossover uniforme:***
+    - i figli ereditano da un genitore o dall'altro in modo casuale
+    - *Per esempio:* <br>
+    ![crossover3](./imgs/crossover3.png)
+- *Ci sono anche molti altri tipi di crossover per altri tipi di cromosomi*
+    - *Per esempio*: <br>
+    **In TSP il one-point crossover non funziona bene**
+        - da una coppia di cromosomi validi(genitori), può produrre 2 figli non validi
+            - `p1 = 0 1 3 4 5 2 0`
+            - `p2 = 0 2 1 5 3 4 0`
+            - Se faccio il crossover ad un punto: <br>
+            ![crossover4](./imgs/crossover4.png) <br>
+            c1 visita 3 due volte, ma non visita 2. <br>
+            c2 fa il contrario. <br>
+            Il problema sta in questo punto. Questo perchè in una soluzione del TSP ogni figlio deve visitare ogni nodo esattamente una volta.
+            - Questo metodo di ricombinazioni non è adatto per il TSP (e anche per altri problemi basati sulle permutazini).
+            - Neanche il Crossover uniforme funziona, ha ancora più chance di creare doppioni rispetto al one-point.
+            - **Nel TSP si utilizzano altri sistemi per il crossover**
 
-![crossover](./imgs/crossover.png)
+<hr>
 
-In questo modo si può vedere che ***ciascun figlio eredita parte del patrimonio genetico dal primo genitore e parte dal secondo***.
-
-`Si può dire che il crossover mescola i patrimoni genetici di due elementi di una popolazione, creando due elementi che sono nuovi.`
-
-### 2. **Mutazione**
+## 2. **Mutazione**
+***Definizione***. <br>
+Mutazione significa alterare il cromosoma dei figli. <br>
+I figli possono essere sia copie dei genitori o prodotti dal crossover (non è importante).
 - Crea un nuovo individuo **mutando/alterando** un figlio appena prodotto dal crossover.
+    - ***c -----> c'***
     - Lo si altera ad esempio **cambiando uno o più geni**.
 - Queste operazioni si possono fare sulla rappresentazione e non sull'individuo (**differenza tra fenotipo e genotipo**)
+- Il crossover usa il materiale genetico dalla popolazione
+    - Il crossover ricombina tra loro cose che già esistono, non si hanno componenti nuovi per produrre individui. L'originialità è dovuta al fatto che li combino in modo diverso.
+- **Invece la mutazione può produrre nuove componenti**
+
+### **Operatore di Mutazione Standard**
+Può essere usato quando i cromosomi sono vettori o stringhe. <br>
+Altera ogni gene con una probabilità pMut.
+
+`c[i] = 0 1 0 1 0 0 1 1 1 0` *(stringa di bit binaria)* <br>
+pMut = 0.1
+- Significa che in media solo un gene (bit) su 10 viene alterato.
+    - Con probabilità 1/10 lo altero
+    - Con probabilità 9/10 lo lascio invariato.
+
+`c'[i] = 0 1 0 1 0 1 1 1 1 0`
+
+**NOTA**: ****pMut*** in generale si tiene bassa*
