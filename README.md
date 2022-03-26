@@ -28,6 +28,9 @@
         - [Tornei](#selezione-baata-su-tornei)
     - [Crossover](#1-crossover)
     - [Mutazione](#2-mutazione)
+    - [Selezionare la nuova popolazione](#selezionare-la-nuova-popolazione)
+    - [Criteri di Terminazione](#criteri-di-terminazione)
+    - [Implementazione GA per il problema MAX-CUT](#implementazione-di-un-algoritmo-genetico-per-il-problema-max-cut)
 
 
 ### Informazioni sul corso
@@ -1062,7 +1065,7 @@ I figli possono essere sia copie dei genitori o prodotti dal crossover (non è i
 
 ### **Operatore di Mutazione Standard**
 Può essere usato quando i cromosomi sono vettori o stringhe. <br>
-Altera ogni gene con una probabilità pMut.
+Altera ogni gene con una probabilità pMut *(probabilità di mutazione)*.
 
 `c[i] = 0 1 0 1 0 0 1 1 1 0` *(stringa di bit binaria)* <br>
 pMut = 0.1
@@ -1073,3 +1076,216 @@ pMut = 0.1
 `c'[i] = 0 1 0 1 0 1 1 1 1 0`
 
 **NOTA**: ****pMut*** in generale si tiene bassa*
+
+### **Selezionare la nuova popolazione**
+Si hanno questi elementi tra cui scegliere:
+- **N genitori**      (elementi della popolazione corrente) <br>
+- **N figli**         (prodotti da crossover+mutazione)
+
+1. **Valutare tutti gli N figli**
+    - La nuova popolazione è composta dagli N figli (sostituzione dei genitori con i figli). Questo è ciò che accade a lungo andare in natura. Potrebbe tuttavia verificarsi che non tutti i figli siano adatti a vivere in questo ambiente.  
+2. **Elitismo**: <br>
+    La nuova popolazione è composta da 
+    - K migliori individui tra i genitori e i figli
+    - N-K figli <br>
+    ***Esempio***: <br>
+    K = 1   -> se il miglior individuo è un genitore, quest'ultimo viene selezionato e il peggior figlio non viene selezionato.
+3. **Sopravvivono i migliori**: <br>
+    È una condizione particolare del punto precedente. <br>
+    Ovvero K = N. <br>
+    La nuova popolazione è composta dai N migliori individui tra i genitori e i figli. <br>
+    Non importa quindi l'età. È possibile che il miglior individuo rimanga sempre nella popolazione (immortale). Ciò è possibile anche nell'elitismo.
+    
+### **Breve recap sugli algoritmi genetici**: <br>
+L'implementazione di un algoritmo genetico richiede molte scelte:
+- **I parametri dell'algoritmo**:
+    - `N` -> grandezza della popolazione
+    - `num_gen` -> numero di generazioni (iterazioni dell'algoritmo genetico)
+    - `pCross` -> probabilità del crossover (probabilità che una coppia selezionata durante il mating pool gli venga applicato il crossover)
+    - `pMut` -> probabilità della mutazione
+    - *Come si selezionano?* <br>
+        Si fanno un pò di tentativi. Non ci sono regole generali che funzionano sempre. <br>
+        **In generale**
+        - pCross dovrebbe essere abbastanza alto (tra 0.8 e 1)
+        - pMut dovrebbe essere bassa
+        - N dovrebbe andare di pari passo alla dimensione del problema. Un problema più grande dovrebbe avere una popolazione più grande
+        - Il numero di iterazioni (num_gen) dovrebbe essere sostituito da un altro criterio -> ***Criteri di terminazione***
+
+### **Criteri di Terminazione**
+- Dopo **num_gen** iterazioni/generazioni (criterio di iterazioni)
+- Dopo **num_sec** secondi (criterio temporale)
+    - ***Svantaggio***: dipende dalla velocità di esecuzione del programma. Il criterio ha senso se voglio una risposta velocemente. Il criterio non ha senso se voglio testare algoritmi testati su macchine diverse, è dipendente dalla macchina.
+- Termino quando la funzione obiettivo ha raggiunto un livello prefissato
+
+### Punti di scelta dell'algoritmo (oltre ai parametri):
+- Criteri di terminazione
+- Inizializzazione
+- Selezione del mating pool
+- Come fare il crossover
+- Come fare la mutazione
+- Come fare il rimpiazzamento (selezione della nuova popolazione)
+
+***Crossover e mutazione dipendono fortemente dal problema. Dipendono dalla rappresentazione che si fa delle soluzioni.***
+
+<hr>
+
+## **Implementazione di un algoritmo genetico per il problema MAX-CUT**
+Dato un grafo non orientato G=(V,E) trovare un sottoinsieme U1 ⊂ in V tale che il numero di tagli indotto da U1, U2 = V \ U1 è massimo. <br>
+**Un **taglio** è un arco (x,y) ∈ E tale che x ∈ U1, y ∈ U2 o x ∈ U2, y ∈ U1.**
+
+![tagliga](./imgs/tagliGA.png) <br>
+I tagli sono in verde. Un taglio è quindi un arco da un vertice di un insieme verso uno di un altro.
+
+**MAX-CUT è un problema NP-hard**.
+
+**Lo scopo è quello di trovare U1 in modo tale che f sia massima.** <br>
+Una soluzione può essere descritta come una stringa di n-bit dove n è il numero dei vertici n=|V| (si presta bene agli algoritmi genetici). <br>
+x = (1,0,0,1,1,0,1) <br>
+xi = 1 se i ∈ U1 <br>
+xi = 0 se i ∈ U2 <br>
+
+```python
+# Un'istanza è data dal numero dei nodi numerati da 0 al numero di nodi -1 (0, . . ., num_nodes-1) -> se ho 6 nodi sono numerati da 0 a 5
+# È data anche dalla lista degli archi (una coppia di nodi) 
+import numpy as np
+
+class Maxcut_problem:
+	
+	def __init__(self, num_nodes, edges):
+		self.num_nodes = num_nodes
+		self.edges = edges
+
+	def create_random_instance(num_nodes, edge_prob):
+		edges=[]
+		for i in range(0,num_nodes):
+			for j in range(i+1,num_nodes):
+				if np.random.random()<edge_prob:
+					edges.append((i,j))
+		return maxcut_problem(num_nodes,edges)
+
+	def objective_function(self,c):
+        # c è un vettore di n-bit
+		# c is a num_nodes binary string
+		num_cuts = 0
+		for x,y in self.edges:
+			if c[x]!=c[y]:
+				num_cuts +=1
+		return num_cuts
+
+	def get_dim(self):
+		return self.num_nodes
+```
+```python
+# A simple genetic algorithm for unconstrained binary maximization problems
+import numpy as np
+
+class Binary_genetic_algorithm:
+
+	def __init__(self, problem, num_elem=None, num_gen=100, pcross=0.9, pmut=0.01):
+		self.problem=problem
+		self.num_bits=problem.get_dim()
+		if num_elem is None:
+			self.num_elem=self.num_bits
+		else:
+			self.num_elem=num_elem
+		self.pcross=pcross
+		self.pmut=pmut
+		self.num_gen=num_gen
+
+	def run(self):
+		self.init_population()
+		for gen in range(0,self.num_gen):
+			mating_pool=self.select_mating_pool()
+			children=self.do_crossover(mating_pool)
+			self.do_mutation(children)
+			self.select_new_population(children)
+		return self.best, self.best_f
+
+	def init_population(self):
+		self.population=[]
+		self.f_obj=np.zeros(self.num_elem)
+		self.best=None
+		self.best_f=-1
+		for i in range(0,self.num_elem):
+			ind=np.random.randint(0,1+1,self.num_bits)
+			self.population.append(ind)
+			self.f_obj[i]=self.problem.objective_function(ind)
+			self.update_best(ind,self.f_obj[i])
+		
+	def update_best(self, x, fx):
+		if fx>self.best_f:
+			self.best_f=fx
+			self.best=x
+			print("new best ",fx)
+	
+	def select_mating_pool(self):
+		mating_pool=[]
+		for i in range(0,self.num_elem//2):
+			p1=self.roulette_wheel()
+			p2=self.roulette_wheel()
+			mating_pool.append((p1,p2))
+		return mating_pool
+
+	def roulette_wheel(self):
+		s=np.sum(self.f_obj)
+		r=np.random.random()*s
+		i=0
+		while r>s:
+			r=r-self.f_obj[i]
+			i=i+1
+		return self.population[i]
+
+	def do_crossover(self, mating_pool):
+		children=[]
+		for p1, p2 in mating_pool:
+			if np.random.random()<self.pcross:
+				c1, c2 = self.crossover_operator(p1,p2)
+			else:
+				c1=p1.copy()
+				c2=p2.copy()
+			children.append(c1)
+			children.append(c2)
+		return children
+
+	def crossover_operator(self, p1, p2):
+		# one point crossover
+		l1=list(p1)
+		l2=list(p2)
+		j=np.random.randint(1,self.num_bits)
+		c1=np.array(l1[:j]+l2[j:])
+		c2=np.array(l2[:j]+l1[j:])
+		return c1,c2
+
+	def do_mutation(self,children):
+		for c in children:
+			for i in range(0, self.num_bits):
+				if np.random.random()<self.pmut:
+					c[i]=1-c[i]
+
+	def select_new_population(self,children):
+		# Find the best among the children and the parents
+		f_child=np.array([self.problem.objective_function(c) for c in children])
+		ib1=np.argmax(self.f_obj)
+		ib2=np.argmax(f_child)
+		# First case: the best child is better than the the best parent
+		if f_child[ib2]>self.f_obj[ib1]:
+			self.population=children
+			self.f_obj=f_child
+			self.update_best(children[ib2],f_child[ib2])
+		else:
+			iw=np.argmin(f_child)
+			children[iw]=self.population[ib1]
+			f_child[iw]=self.f_obj[ib1]
+			self.population=children
+			self.f_obj=f_child		
+```
+Per provare l'implementazione, vedere il file ***test.py***. Qui di seguito sono comunque riportati dei comandi di esempio.
+```python
+from binary_genetic_algorithm import *
+from maxcut import *
+
+p = Maxcut_problem.create_random_instance(20, 0.1)
+g = Binary_genetic_algorithm(p, num_elem=20)
+print(len(p.edges))
+g.run()
+```
