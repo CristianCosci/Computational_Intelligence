@@ -30,7 +30,9 @@
     - [Mutazione](#2-mutazione)
     - [Selezionare la nuova popolazione](#selezionare-la-nuova-popolazione)
     - [Criteri di Terminazione](#criteri-di-terminazione)
+    - [Implementazione di un GA](#implementazione-di-un-ga)
     - [Implementazione GA per il problema MAX-CUT](#implementazione-di-un-algoritmo-genetico-per-il-problema-max-cut)
+    - [Implementazione GA per il problema TSP](#implementazione-di-un-algoritmo-genetico-per-il-problema-tsp)
 
 
 ### Informazioni sul corso
@@ -815,6 +817,7 @@ Per quanto riguarda le istanze del TSP, è possibile:
 # **Algoritmi genetici**
 ### **Caratteristiche**
 È l'algoritmo più famoso in letteratura. <br>
+L'algoritmo genetico si applica per risolvere un problema di ottimizzazione. <br>
 È la più famosa metaeuristica.
 
 È basata su una metafora semplice da capire
@@ -1129,6 +1132,51 @@ L'implementazione di un algoritmo genetico richiede molte scelte:
 
 <hr>
 
+## **Implementazione di un GA (recap)**
+1. **Si deve implementare il problema** (la classe, i suoi metodi e funzioni)
+    - Creare un'istanza a caso
+    - Caricare un'istanza da file
+    - Calcolare la funzione obiettivo (data una soluzione in qualche forma)
+        - *Scegliere come rappresentare la soluzione* (già qui si deve scegliere che rappresentazione utilizzare)
+2. **Implementare il Crossover e la Mutazione per la rappresentazione scelta dal programmatore**
+3. **Il programamtore deve anche scegliere tutti i passaggi che devono essere fatti all'interno dell'algoritmo:**
+    1. Inizializzazione
+    2. Criterio di terminazione
+    3. Selezione
+    4. Rimpiazzamento (replacement)
+    5. (Eventualmente) Altri passaggi (non solo in GA ma anche in altre metaeuristiche):
+        - Metodi di ricerca locale per migliorare le soluzioni (*combinare la forza di un GA con un algoritmo di ricerca locale*: **Algoritmo Memetico**)
+        - Un possibile modo per applicare la ricerca locale è quello di cercare di migliorare la miglior soluzione trovata dal GA. <br>
+        ![gals](./imgs/gals.png) <br>
+        - Un altro possibile modo si applica nella situazione in cui talvolta la popolazione perde diversità (gli individui iniziano ad assomigliarsi molto l'un l'altro). La peggior situazione è che diventino tutti uguali. <br>
+        Molti operatori di Crossover hanno la seguente proprietà: <br>
+        *Se p1 = p2 allora il Crossover(p1, p2) produce figli uguali ai genitori*. <br>
+        Quando un individuo è molto meglio degli altri (**super-individuo**), quest'ultimo tende a monopolizzare la popolazione (la porta ad essere simile a lui). Quando tutti gli individui sono uguali GA non funziona. L'unica operazione che potrebbe far uscire da questo stallo è la Mutazione. <br>
+        **Prima cosa**: riconoscere quando la popolazione ha significativamente perso la sua diversità (ci sono varie tecniche per farlo). <br>
+        **Seconda cosa**: Reagire (Ad esempio fermare l'algoritmo o reinizializzare la popolazione o una parte di essa, magari salvando la best solution ever found).
+    6. Parametri
+
+La configurazione di un algoritmo genetico (scegliere tutto quello che deve essere scelto, ovvero i parametri e i metodi) può essere automatizzata. Cioè io posso avere dei meccanismi che scelgono i parametri in maniera da ottimizzarli.
+
+### **Crossover per le permutazioni**
+***p1*** = 0 2 **3 5 1** 6 4 <br>
+***p2*** = 2 5 **1 4 3** 0 6
+
+c1 prende gli elementi mancanti nell'ordine in cui si trovano in p2. <br>
+c1 = 2 4 **3 5 1** 0 6
+c2 = 0 2 **1 4 3** 5 6
+
+Questo si chiama ***ordered crossover**:
+- Significa prendere un segmento di ognuna delle due permutazioni, ricopiarlo nei figli e poi gli elementi che mancano, prenderli dall'altro genitore nell'ordine in cui si trovano (non nelle stesse posizioni).
+
+### **Mutazione per le permutazioni**
+Scambia **k** coppie in modo casuale. <br>
+K deve essere compatibile con pMut. <br>
+***Esempio:*** <br>
+![knsu2](./imgs/knsu2.png)
+
+<hr>
+
 ## **Implementazione di un algoritmo genetico per il problema MAX-CUT**
 Dato un grafo non orientato G=(V,E) trovare un sottoinsieme U1 ⊂ in V tale che il numero di tagli indotto da U1, U2 = V \ U1 è massimo. <br>
 **Un **taglio** è un arco (x,y) ∈ E tale che x ∈ U1, y ∈ U2 o x ∈ U2, y ∈ U1.**
@@ -1288,4 +1336,179 @@ p = Maxcut_problem.create_random_instance(20, 0.1)
 g = Binary_genetic_algorithm(p, num_elem=20)
 print(len(p.edges))
 g.run()
+```
+<hr>
+
+## **Implementazione di un algoritmo genetico per il problema TSP**
+Qui di seguito è riportata l'implementazione del TSP, vedere l'apposito file nella directory degli algoritmi genetici.
+```python
+class Tsp_problem:
+
+    def __init__(self, n_cities, dist_matrix):
+        self.n_cities = n_cities
+        self.dist_matrix = dist_matrix
+
+    def create_random_instance(n):
+        x = np.random.random(-5, 5, size = n)
+        y = np.random.random(-5, 5, size = n)
+        m = np.zeros((n, n))
+        for i in range(n):
+            for j in range(n):
+                m[i,j] = np.sqrt((x[i] - x[j])**2+(y[i] - y[j])**2)
+
+        return tsp_problem(n,m)
+    
+    def objective_function(self, x):
+        # x è la lista ordinata dei nodi visitati, eccetto l'ultimo vertice (che è anche il primo)
+        # 1 2 0 4 5 3 1
+        cost = 0
+        for i in range(0, self.n_cities):
+            c1 = x[i]
+            c2 = x[i+1]
+            cost = self.dist_matrix[c1, c2]
+        
+        # Costo per tornare al primo
+        c1 = x[-1]
+        c2 = x[0]
+        cost+= self.dist_matrix[c1,c2]
+
+        return cost
+    
+    def get_dim(self):
+        return self.n_cities
+```
+È ora necessario modificare l'algoritmo genetico definito per il problema del MAX-CUT in modo tale che sia possibile utilizzarlo per il problema TSP (vedi file `permutation_genetic_algorithm.py`).
+```python
+# A simple genetic algorithm for unconstrained permutation minimization problems
+import numpy as np
+
+class Permutation_genetic_algorithm:
+
+	def __init__(self, problem, num_elem=None, num_gen=100, pcross=0.9, pmut=0.01):
+		self.problem=problem
+		self.num_nodes=problem.get_dim()
+		if num_elem is None:
+			self.num_elem=self.num_nodes
+		else:
+			self.num_elem=num_elem
+		self.pcross=pcross
+		self.pmut=pmut
+		self.num_gen=num_gen
+
+    # Questo metodo rimane invariato perchè è assolutamente genetico
+	def run(self):
+		self.init_population()
+		for gen in range(0,self.num_gen):
+			mating_pool=self.select_mating_pool()
+			children=self.do_crossover(mating_pool)
+			self.do_mutation(children)
+			self.select_new_population(children)
+		return self.best, self.best_f
+
+	def init_population(self):
+		self.population=[]
+		self.f_obj=np.zeros(self.num_elem)
+		self.best=None
+		self.best_f= 1e300 # Numero molto alto
+		for i in range(0,self.num_elem):
+            l = list(range(0, self.n_cities))
+			ind = np.random.shuffle(l)
+			self.population.append(ind)
+			self.f_obj[i]=self.problem.objective_function(ind)
+			self.update_best(ind,self.f_obj[i])
+		
+	def update_best(self, x, fx):
+		if fx < self.best_f:
+			self.best_f=fx
+			self.best=x
+			print("new best ",fx)
+	
+	def select_mating_pool(self):
+		mating_pool=[]
+        self.fitness = np.array([1/f for f in self.f_obj])
+		for i in range(0,self.num_elem//2):
+			p1=self.roulette_wheel()
+			p2=self.roulette_wheel()
+			mating_pool.append((p1,p2))
+		return mating_pool
+
+	def roulette_wheel(self):
+		s=np.sum(self.fitness)
+		r=np.random.random()*s
+		i=0
+		while r>s:
+			r=r-self.fitness[i]
+			i=i+1
+		return self.population[i]
+
+	def do_crossover(self, mating_pool):
+		children=[]
+		for p1, p2 in mating_pool:
+			if np.random.random()<self.pcross:
+				c1, c2 = self.crossover_operator(p1,p2)
+			else:
+				c1=p1.copy()
+				c2=p2.copy()
+			children.append(c1)
+			children.append(c2)
+		return children
+
+	def crossover_operator(self, p1, p2):
+        ok = False
+        while not ok:
+            i1 = np.random.randint(1, self.n_cities-1)
+            i2 = np.random.randint(1, self.n_cities-1)
+            if i1 != i2:
+                ok = True
+        j1 = min(i1, i2)
+        j2 = max(i1, i2)
+        c1 = ordered_crossover(p1, p2, j1, j2)
+        c2 = ordered_crossover(p2, p1, j1, j2)
+		return c1,c2
+
+    def ordered_crossover(p1, p2, j1, j2):
+        n = len(p1)
+        c = [None]*n
+        for j in range(j1, j2+1):
+            c[j] = p1[j]
+        h = 0
+        for j in range(n):
+            if p2[j] not in c:
+                assert(c[h] == None)
+                c[h] = p2[j]
+                h+= 1
+                if h == j1:
+                    h = j2 + 1
+
+        return c
+
+	def do_mutation(self,children):
+		for c in children:
+				if np.random.random()<self.pmut:
+					pass
+
+	def select_new_population(self,children):
+        '''
+        Ricapitolando:
+            Ho messo insieme i padri (self.population) e i figli.
+            Ho calcolato la funzione obiettivo per ogni figlio.
+            Ho messo insieme, in un'unica lista, le funzioni obiettivo dei padri (che già avevo) e dei figli.
+            Ho creato una lista che contiene gli indici di tutti (sia padre che figli):
+                - i padri hanno un indice che va da 0 a num_elem-1
+                - i figli da num_elem in poi
+            Ho ordinato questa lista di indici in base al valore della funzione f.
+            Ho preso la prima parte di questi indici.
+            Ho ricostruito la nuova popolazione prendendo i valori di l soltanto per indici migliori e i valori di f.
+            Infine ho chiamato la funzione update_best.
+            Questo meccanismo in generale si potrebbe usare come select new population anche per i problemi binari.
+        '''
+        l = self.population+children
+        fc = [self.problem.objective_function(c) for c in children]
+        f = list(self.f_obj)+fc
+        l1 = list(range(2*self.num_elem))
+        l1.sort(key=lambda i: f[i])
+        l1_best = l1[:self.num_elem]
+        self.population = [l[i] for i in l1_best]
+        self.f_obj = [f[i] for i in l1_best]
+        self.update_best(self.population[0], self.f_obj[0])
 ```
