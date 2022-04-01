@@ -33,6 +33,7 @@
     - [Implementazione di un GA](#implementazione-di-un-ga)
     - [Implementazione GA per il problema MAX-CUT](#implementazione-di-un-algoritmo-genetico-per-il-problema-max-cut)
     - [Implementazione GA per il problema TSP](#implementazione-di-un-algoritmo-genetico-per-il-problema-tsp)
+    - [Influenza dei parametri negli algoritmi](#parametri-su-cui-si-può-agire-in-un-ga-e-la-loro-influenza)
 
 
 ### Informazioni sul corso
@@ -1344,38 +1345,40 @@ Qui di seguito è riportata l'implementazione del TSP, vedere l'apposito file ne
 ```python
 class Tsp_problem:
 
-    def __init__(self, n_cities, dist_matrix):
-        self.n_cities = n_cities
-        self.dist_matrix = dist_matrix
+	def __init__(self,n_cities, dist_matrix):
+		self.n_cities=n_cities
+		self.dist_matrix=dist_matrix
 
-    def create_random_instance(n):
-        x = np.random.random(-5, 5, size = n)
-        y = np.random.random(-5, 5, size = n)
-        m = np.zeros((n, n))
-        for i in range(n):
-            for j in range(n):
-                m[i,j] = np.sqrt((x[i] - x[j])**2+(y[i] - y[j])**2)
 
-        return tsp_problem(n,m)
-    
-    def objective_function(self, x):
-        # x è la lista ordinata dei nodi visitati, eccetto l'ultimo vertice (che è anche il primo)
+	def create_random_instance(n):
+		x=np.random.random(size=n)
+		y=np.random.random(size=n)
+		m=np.zeros((n,n))
+		for i in range(n):
+			for j in range(n):
+				m[i,j]=np.sqrt((x[i]-x[j])**2+(y[i]-y[j])**2)
+		
+        return Tsp_problem(n,m)
+
+
+	def objective_function(self,x):
+		 # x è la lista ordinata dei nodi visitati, eccetto l'ultimo vertice (che è anche il primo)
         # 1 2 0 4 5 3 1
-        cost = 0
-        for i in range(0, self.n_cities):
-            c1 = x[i]
-            c2 = x[i+1]
-            cost = self.dist_matrix[c1, c2]
-        
-        # Costo per tornare al primo
-        c1 = x[-1]
-        c2 = x[0]
-        cost+= self.dist_matrix[c1,c2]
-
+		cost=0
+		for i in range(0,self.n_cities-1):
+			c1=x[i]
+			c2=x[i+1]
+			cost+=self.dist_matrix[c1,c2]
+		# Costo per tornare al primo
+		c1=x[-1]
+		c2=x[0]
+		cost+=self.dist_matrix[c1,c2]
+		
         return cost
-    
-    def get_dim(self):
-        return self.n_cities
+
+
+	def get_dim(self):
+		return self.n_cities
 ```
 È ora necessario modificare l'algoritmo genetico definito per il problema del MAX-CUT in modo tale che sia possibile utilizzarlo per il problema TSP (vedi file `permutation_genetic_algorithm.py`).
 ```python
@@ -1395,37 +1398,39 @@ class Permutation_genetic_algorithm:
 		self.pmut=pmut
 		self.num_gen=num_gen
 
-    # Questo metodo rimane invariato perchè è assolutamente genetico
 	def run(self):
+		self.improvements=[]
 		self.init_population()
-		for gen in range(0,self.num_gen):
+		for gen in range(1,self.num_gen+1):
 			mating_pool=self.select_mating_pool()
 			children=self.do_crossover(mating_pool)
 			self.do_mutation(children)
-			self.select_new_population(children)
-		return self.best, self.best_f
+			#self.select_new_population_best(children,gen)
+			self.select_new_population_elit(children,gen)
+		return self.best, self.best_f, self.improvements
 
 	def init_population(self):
 		self.population=[]
 		self.f_obj=np.zeros(self.num_elem)
 		self.best=None
-		self.best_f= 1e300 # Numero molto alto
+		self.best_f=1e300 # very large number
 		for i in range(0,self.num_elem):
-            l = list(range(0, self.n_cities))
-			ind = np.random.shuffle(l)
+			ind=list(range(0,self.num_nodes))
+			np.random.shuffle(ind)
 			self.population.append(ind)
 			self.f_obj[i]=self.problem.objective_function(ind)
-			self.update_best(ind,self.f_obj[i])
+			self.update_best(ind,self.f_obj[i],0)
 		
-	def update_best(self, x, fx):
-		if fx < self.best_f:
+	def update_best(self, x, fx, g):
+		if fx<self.best_f:
 			self.best_f=fx
 			self.best=x
-			print("new best ",fx)
+			print("new best ",fx," at gen. ",g)
+			self.improvements.append((g,fx))
 	
 	def select_mating_pool(self):
 		mating_pool=[]
-        self.fitness = np.array([1/f for f in self.f_obj])
+		self.fitness=np.array([1/f for f in self.f_obj])
 		for i in range(0,self.num_elem//2):
 			p1=self.roulette_wheel()
 			p2=self.roulette_wheel()
@@ -1454,40 +1459,49 @@ class Permutation_genetic_algorithm:
 		return children
 
 	def crossover_operator(self, p1, p2):
-        ok = False
-        while not ok:
-            i1 = np.random.randint(1, self.n_cities-1)
-            i2 = np.random.randint(1, self.n_cities-1)
-            if i1 != i2:
-                ok = True
-        j1 = min(i1, i2)
-        j2 = max(i1, i2)
-        c1 = ordered_crossover(p1, p2, j1, j2)
-        c2 = ordered_crossover(p2, p1, j1, j2)
+		ok=False
+		while not ok:
+			i1=np.random.randint(1,self.num_nodes-1)
+			i2=np.random.randint(1,self.num_nodes-1)
+			if i1!=i2:
+				ok=True
+		j1=min(i1,i2)
+		j2=max(i1,i2)
+		c1=Permutation_genetic_algorithm.ordered_crossover(p1,p2,j1,j2)
+		c2=Permutation_genetic_algorithm.ordered_crossover(p2,p1,j1,j2)
 		return c1,c2
 
-    def ordered_crossover(p1, p2, j1, j2):
-        n = len(p1)
-        c = [None]*n
-        for j in range(j1, j2+1):
-            c[j] = p1[j]
-        h = 0
-        for j in range(n):
-            if p2[j] not in c:
-                assert(c[h] == None)
-                c[h] = p2[j]
-                h+= 1
-                if h == j1:
-                    h = j2 + 1
-
-        return c
+	def ordered_crossover(p1,p2,j1,j2):
+		n=len(p1)
+		c=[None]*n
+		for j in range(j1,j2+1):
+			c[j]=p1[j]
+		h=0
+		for j in range(n):
+			if p2[j] not in c:
+				assert(c[h]==None)
+				c[h]=p2[j]
+				h+=1
+				if h==j1:
+					h=j2+1
+		return c
 
 	def do_mutation(self,children):
 		for c in children:
-				if np.random.random()<self.pmut:
-					pass
+			if np.random.random()<self.pmut:
+				Permutation_genetic_algorithm.perform_exchanges(c,1)
 
-	def select_new_population(self,children):
+	def perform_exchanges(c,ns):
+		for i in range(ns):
+			ok=False			
+			while not ok:
+				i1=np.random.randint(1,len(c)-1)
+				i2=np.random.randint(1,len(c)-1)
+				if i1!=i2:
+					ok=True
+			c[i1],c[i2]=c[i2],c[i1]
+					
+	def select_new_population_best(self,children,g):
         '''
         Ricapitolando:
             Ho messo insieme i padri (self.population) e i figli.
@@ -1502,13 +1516,98 @@ class Permutation_genetic_algorithm:
             Infine ho chiamato la funzione update_best.
             Questo meccanismo in generale si potrebbe usare come select new population anche per i problemi binari.
         '''
-        l = self.population+children
-        fc = [self.problem.objective_function(c) for c in children]
-        f = list(self.f_obj)+fc
-        l1 = list(range(2*self.num_elem))
-        l1.sort(key=lambda i: f[i])
-        l1_best = l1[:self.num_elem]
-        self.population = [l[i] for i in l1_best]
-        self.f_obj = [f[i] for i in l1_best]
-        self.update_best(self.population[0], self.f_obj[0])
+		l=self.population+children
+		fc=[self.problem.objective_function(c) for c in children]
+		f=list(self.f_obj)+fc
+		l1=list(range(2*self.num_elem))
+		l1.sort(key=lambda i: f[i])
+		l1best=l1[:self.num_elem]
+		self.population=[l[i] for i in l1best]
+		self.f_obj=[f[i] for i in l1best]
+		self.update_best(self.population[0],self.f_obj[0],g)
+		
+	def select_new_population_elit(self,children,g):
+		# find the best among the children and the parents
+		f_child=np.array([self.problem.objective_function(c) for c in children])
+		ib1=np.argmin(self.f_obj)
+		ib2=np.argmin(f_child)
+		# first case: the best child is better than the the best parent
+		if f_child[ib2]<self.f_obj[ib1]:
+			self.population=children
+			self.f_obj=f_child
+			self.update_best(children[ib2],f_child[ib2],g)
+		else:
+			iw=np.argmax(f_child)
+			children[iw]=self.population[ib1]
+			f_child[iw]=self.f_obj[ib1]
+			self.population=children
+			self.f_obj=f_child
 ```
+È comunque possibile ottimizzare i vari paranetri come pCross e pMut per avere i migliori risultati. <br>
+È inoltre consigliato fissare un seed per rendere i risultati riproducibili.
+
+Non sempre la migliore soluzione è generare istanze di cui la soluzione non è nota, un'opzione migliore potrebbe essere quella di utilizzare istanze preparate appositamente per vedere se si raggiunge la soluzione ottima o quanto ci si avvicina ad essa. Per questo è disponibile una libreria apposita, come già detto, contente istanze per il problema del TSP.
+
+Si possono anche osservare le curve di convergenza, plottandole. Per vedere delle prove, fare riferimento all'apposito file di test.
+
+<hr>
+
+### **Parametri su cui si può agire in un GA e la loro influenza**
+- ***N*** -> *dimensione della popolazione*
+- ***maxgen*** -> *numero di generazioni*
+- ***pCross*** -> *probabilità di Crossover*
+- ***pMut*** -> *probabilità di Mutazione*
+
+#### **N dimensione della popolazione**
+*Che effetto ha aumentare la dimensione della popolazione?* <br>
+È chiaro intiutivamente che più la popolazione è piccola e minore è la ricchezza del patrimonio genetico (una popolazione piccola è più soggetta alla perdita di diversità in modo molto veloce). Allo stesso modo è chiaro che N influenza il tempo di esecuzione dell'algoritmo.
+- Quando **N è piccolo**, il rischio di perdere diversità è molto alto -> **non c'è più evoluzione**
+- Quando **N è alto**, il tempo di computazione cresce (il tempo di calcolo è proporzionale a N)
+- I GA non sono così sensibili ai valori di N, tranne quando N è troppo piccolo
+- In genere si sceglie N in modo da essere proporzionale alla dimensione del problema
+
+#### **maxgen Numero di generazioni**
+*Influenza direttamente la terminazione*. <br>
+Se lo faccio terminare troppo presto, è probabile che le soluzioni trovate non siano buone. Anche questo parametro dipende dalla dimensione del problema. <br>
+Solitamente un buon valore per max-gen può essere calcolato dalla dimensione del problema
+- **Idea generale**: più è grande la dimensione del problema, più è grande lo spazio di ricerca e quindi servono più generazioni.
+- Quindi: ***problem size -> search space size -> number of generation needed***
+
+#### **pCross probabilità di Crossover**
+È la probabilità di utilizzare l'operazione di Crossover su una coppia del mating pool. <br>
+***Normalmente pCross è alta -> tra 0.8 e 1***
+
+#### **pMut probabilità di Mutazione**
+Nelle stringhe di bit è la probabilità di mutare il singolo gene (se muto ogni singolo gene in maniera indipendente, allora possiamo fare una singola mutazione per genere che deve essere mutato). <br>
+Nel TSP invece non c'è il discorso dei geni (perchè si ha a che fare con permutazioni), ma il discorso dei cromosomi (io quindi devo specificare quanto mutare il cromosoma. Quanto lo muto? Nella nostra implementazione si considerava il numero degli scambi).
+
+***pMut è la probabilità di mutare il gene/cromosoma***
+
+Nelle **permutazioni** non si può fare la mutazione a livello di gene perchè non si può alterare un singolo elemento della permutazione. <br>
+**NOTA**: Nelle permutazioni, l'operatore di Mutazione deve essere applicato all'intera permutazione e non ad un singolo gene.
+***Esempio***:
+0 5 **1** 4 3 2 <br>
+Qualsiasi individuo che metto al posto di **1**, produce una lista che non è una permutazione!
+
+1. La Mutazione è necessaria (nell'esempio del TSP se si mette pMut=0 si rimane bloccati alle prime iterazioni) perchè **senza di essa non c'è evoluzione** (o ce ne è veramente poca). Il motivo è che la mutazione è l'unico modo per introdurre del materiale genetico non esistente.
+2. Quando la Mutazione è troppo forte, produce degli individui che sono molto diversi dallo ***standard*** della popolazione. <br>
+Un buon valore per la probabilità di mutazione è tendenzialmente basso, es: <br>
+0.01; 0.001; 0.02 <br>
+Nonostante deve essere bassa, la Mutazione deve comunque essere presente.
+
+### **Metodi di Rimpiazzamento/Replacement (selezione della nuova popolazione)**
+1. **Generazionale**
+    - I figli vanno al posto dei geniori
+    - Non importa quanto sono peggio o meglio dei genitori
+2. **Elitismo**
+    - Conserva il migliore individuo della popolazione, o i migliori individui
+3. **I migliori individui tra i genitori e i figli**
+
+Negli algoritmi genetici si privilegia l'elitismo o il far sopravvivere i migliori (punto 3). <br>
+In generale l'elitismo funziona abbastanza bene. Favorisce uno svecchiamento della popolazione.
+
+- L'elitismo può rinnovare la popolazione senza perdere i migliori individui. Qui vince l'*età*.
+- Selezionare i migliori ***n*** individui tra i genitori e i figli solitamente funziona meglio. Qui ha la meglio la *fitness* (più gli individui sono buoni più sopravvivono).
+    - Questo meccanismo ha però più proabilità di bloccarsi perchè possono rimanere sempre gli stessi individui
+
+Si può vedere la differenza tra l'elitismo e la scelta dei migliori n individui nel problema del TSP in cui sono state implementate entrambe le versioni per la scelta della nuova popolazione. Per maggiori informazioni vedere il codice di `permutation_genetic_algorithm.py`.
