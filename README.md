@@ -34,6 +34,10 @@
     - [Implementazione GA per il problema MAX-CUT](#implementazione-di-un-algoritmo-genetico-per-il-problema-max-cut)
     - [Implementazione GA per il problema TSP](#implementazione-di-un-algoritmo-genetico-per-il-problema-tsp)
     - [Influenza dei parametri negli algoritmi](#parametri-su-cui-si-può-agire-in-un-ga-e-la-loro-influenza)
+- [Problemi Vincolati](#problemi-vincolati)
+    - [Algoritmi genetici per problemi vincolati](#algoritmi-genetici-per-problemi-vincolati)
+    - [Penalizzazione e Riparazione](#riparazione-e-penalizzazione)
+        - [Confronto](#confronto-tra-i-due-metodi-penalizzazione-e-riparazione)
 
 
 ### Informazioni sul corso
@@ -1611,3 +1615,175 @@ In generale l'elitismo funziona abbastanza bene. Favorisce uno svecchiamento del
     - Questo meccanismo ha però più proabilità di bloccarsi perchè possono rimanere sempre gli stessi individui
 
 Si può vedere la differenza tra l'elitismo e la scelta dei migliori n individui nel problema del TSP in cui sono state implementate entrambe le versioni per la scelta della nuova popolazione. Per maggiori informazioni vedere il codice di `permutation_genetic_algorithm.py`.
+
+<hr>
+
+### **Info sugli algoritmi**
+***Caratteristiche implementative*** <br>
+Supponiamo di avere due o più metodi per fare la stessa operazione (ad es. selezione dei migliori e selezione per elitismo). Dal punto di vista implementativo conviene fare due classi (che non contengono l'intero algoritmo ma i due codici).
+
+Esempio sulla selezione (elitismo e migliori):
+- classe che implementa la selezione:
+    ```python
+    class selection_best:
+    def __call__(self, pop, children): #call permette di vedere l'oggetto di questa classe come se fosse una funzione
+        #implement the selection
+        # i migliori individui trai i genitori e i figli
+    ```
+- Fare stessa cosa per l'altro metodo:
+    ```python
+    class selection_elite:
+        def __call__(self, pop, children):
+        # implement the elitism selection
+    ```
+Si hanno quindi due classi che si possono utilizzare come se fossero due funzioni. <br>
+Nell'algoritmo genetico:
+```python
+class gentic_algorithm:
+    def __init__(self, problem, num_elem, pCross, pMut, . . ., sel_method):
+    .
+    .
+    .
+    .
+    .
+    if sel_method == 'best':
+        self.selection = selection_best()
+    elif sel_method == 'elite'
+        self.selection = selection_elite()
+
+
+
+    def run(self):
+        self.selection(self.population, children) # invoca il metodo scelto nel costruttore
+```
+Questa cosa può essere fatta in più linguaggi di programmazione oltre a python. <br>
+È raccomandato utilizzare questo **design pattern** per tutte le alternative del nostro algoritmo. In questo modo è possibile controllare l'esecuzione da riga di comando, non c'è bisogno di duplicare il codice ed è veloce.
+
+Ci sono molti operatori di crossover e mutazione.
+Per esempio, una permutazione può essere mutata con un'inserzione
+
+In particolare, ci sono alcuni operatori di crossover studiati appositamente per il TSP.
+
+<hr>
+
+# **Problemi vincolati**
+(applicazione degli algoritmi genetici ad un problema vincolato)
+## **Algoritmi genetici per Problemi Vincolati**
+**vincolato** = ho uno spazio di ricerca ottenuto partendo da uno spazio di ricerca più ampio e poi **elimando** alcune soluzioni.
+
+***Spazio di ricerca***: <br>
+X = {x ∈ Y: x soddisfa una condizione C} <br>
+Y spazio di ricerca più grande.
+
+Esempio: <br>
+***0-1 Knapsack***
+- n **oggetti** 1, 2, . . ., n
+- ogni oggetto ha un **peso** w1, w2, ..., wn
+- ogni oggetto ha un **valore** v1, v2, ..., vn
+- **Zaino** con **capacità** C in kg
+
+L'obiettivo è trovare la composizione ottimale: <br>
+**Seleziona qualche oggetto tale che la somma dei pesi(sommatoria pesi) è <= C e la somma dei valori (sommatoria valori) è massima.**
+
+È possibile ricondurre questo problema ad un problema binario. <br>
+Rappresentazione come un vettore binario x1, x2, ... , xn
+
+![01zaino](./imgs/01zaino.png) <br>
+(st = such that)
+
+Tutte le stringhe di n-bit possono essere **ammissibili** <br>
+![01zaino1](./imgs/01zaino1.png)
+
+o **non ammissibili**: <br>
+![01zaino2](./imgs/01zaino2.png)
+
+In generale una soluzione per un problema vincolato **è ammissibile se rispetta i vincoli**.
+
+## **Penalizzazione e Riparazione**
+Negli algoritmi genetici si hanno due possibilità per quanto riguarda le soluzioni da considerare nella popolazione:
+- **Non ammettere soluzioni non ammissibili nella popolazione**.
+    1. Serve un meccanismo che quando inizializza la popolazione, crea solo soluzioni ammissibili
+    2. Il crossover e la Mutazione devono generare solo funzioni ammissibili
+    
+    Ci sono problemi di ottimizzazione in cui è difficile perfino creare soluzini ammissibili ed **è ancora più difficile garantire che crossover e mutazione producano soluzioni ammissibili**.
+
+    Si consideri che il 1-point crossover non funziona sulle permutazioni.
+
+    Vediamo come è possibile invece risolvere il problema del knapsack con un algoritmo genetico.
+- **Ammettere soluzioni non ammissibili**. <br>
+    Una soluzione non ammissibile è una soluzione che non risolve il problema, tuttavia potrebbe non essere lontana dall'essere ammissibili. Di conseguenza valuto quanto è lontana dall'essere ammissibile e, valuto anche quello. <br>
+    funzione obiettivo (come **fitness**) -> invece di fare max f(x), faccio max f(x) - k * p(x) <br>
+    dove p rappresenta la penalità. <br> <br>
+    p(x) = 0 se x è ammissibile <br>
+    altrimenti p(x) quantifica "*quanto x è distante dall'essere ammissibile*". <br>
+    ![01zaino3](./imgs/01zaino3.png)
+
+    Nel problema dello zaino: <br>
+    ![01zaino4](./imgs/01zaino4.png)
+
+    La valutazione della funzione obiettivo è quella considerando la penalità.
+
+Per implementare il secondo approccio, è necessario utilizzare:
+- problem.objective_function(x) - penality_coefficient * problem.penalization(x) <br>
+    per valutare gli individui della popolazione.
+
+k = penality_coefficient, deve essere grande abbastanza per far si che la penalità sia minore del minimo valore di f(x), quando x è ammissibile. <br>
+![01zaino5](./imgs/01zaino5.png) <br>
+In altre parole x è sempre meglio di y (una soluzione ammissibile è sempre meglio di una soluzione non ammissibile).
+
+Ricordare che la **fitness function** utilizzata ad esempio nella roulette wheel deve essere positiva (aggiungere una costante a f(x) segnato).
+
+Il principio dietro la penalizzazione è che all'inizio le soluzioni potrebbero essere tutte non ammissibili, ma pian piano emergono soluzioni ammissibili. Le soluzioni ammissibili diventano sempre più presenti nella popolazione, perchè l'algoritmo genetico privilegia le soluzioni ammissibili nella popolazione e prova a ridurre il "gap di non aamissibilità" (penalità). <br>
+Questo metodo si può sempre utilizzare per risolvere problemi di ottimizzazione vincolati. I due criteri generali sono:
+1. Definisci una funzione di penalizzazione per quantificare la non ammissibilità (ovvero per valutare soluzioni ammissibili)
+2. Trovare il valore per **k**
+
+Tuttavia, è necessario calcolare **f anche se x non è ammissibile**. Quando questo non è possibile, si può definire così:<br>
+![01zaino6](./imgs/01zaino6.png) <br>
+Non è possibile calcolarlo quando ad esempio f non è definito. <br>
+***Es.*** <br>
+x deve essere diverso da 0. Che succede se x è 0 ? È un vincolo e in questo caso f non è calcolabile.
+
+Questo non è l'unico modo, c'è un altro approccio: **riparare le solzuzioni non ammissibili**. <br>
+**Riparare** = utilizzare un metodo che parte da una soluzione non ammissibile y e produce una soluzione ammissibile x, effettuando il minor numero possibile di modifiche su y. <br>
+![01zaino7](./imgs/01zaino7.png)
+
+Nell'inizializzazione:
+```pseudocode
+for N individuals
+    generate a random solution
+    if not feasible, repair it
+    evaluate it
+```
+Nel ciclo principale si ha uno step in più (riparazione):
+```pseudocode
+    CROSSOVER
+    MUTATION
+    REPAIR IF UNFEASIBLE
+    EVALUATION
+```
+
+### ***Come si fa a riparare una soluzione nel problema dello zaino?***
+Per il problema dello zaino, un meccanismo di riparazione ragionevole (basso costo computazionale) per le soluzioni non ammissibili x:
+1. Rimuovi alcuni oggetti da x, finchè x non diventa ammissibile <br>
+    ![01zaino8](./imgs/01zaino8.png) <br>
+    Posso scegliere gli oggetti da rimuovere secondo diversi criteri (randomico, secondo un ordine, rapporto peso/valore ecc...)
+2. Aggiungi alcuni oggetti a x, fintanto che x rimane ammissibile.
+
+**Il meccanismo di riparazione** dipende dal problema (dipende dalla forma dei vincoli). <br>
+Definire un operatore di riparazione è molto più difficile dello scrivere una funzione di penalizzazione.
+
+#### **Confronto tra i due metodi (penalizzazione e riparazione):**
+- La penalizzazione porta il GA a cercare soluzioni ammissibili (che possono, soprattutto inizialemnte, non esserlo). Le generazioni sono più veloci.
+- La riparazione porta il GA a lavorare sempre con soluzioni ammissibili (minor spreco di calcolo per effettuare generazioni, in quanto ne vengono effettuate di meno. Tuttavia può essere più pesante dal punto di vista computazionale l'effettuare le riparazioni)
+
+![01zaino9](./imgs/01zaino9.png) <br>
+![01zaino10](./imgs/01zaino10.png) <br>
+
+Ci sono anche altre alternative alla riparazione e alla penalizzazione: <br>
+**Scartare le soluzioni non ammissibili**: nell'inizializzazione, ogni volta che genero una soluzione non ammissibile, la rigenero. Quando crossover e mutazione producono una soluzione non ammissibile, non la metto nella lista dei children.
+
+Nella fase di inizializzazione si looppa finche N soluzioni ammissibili non vengono create (non strettamente necessario). <br>
+Nel main loop non vengono memorizzate soluzioni non ammissibili nella lista dei children.
+
+La penalizzazione ritiene che tutti gli individui siano utili nell'evoluzione, anche quelli non ammissibili. In quanto è possibile trovare soluzioni ammissibili partendo da soluzioni non ammissibili.
