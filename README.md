@@ -38,7 +38,12 @@
     - [Algoritmi genetici per problemi vincolati](#algoritmi-genetici-per-problemi-vincolati)
     - [Penalizzazione e Riparazione](#riparazione-e-penalizzazione)
         - [Confronto](#confronto-tra-i-due-metodi-penalizzazione-e-riparazione)
-
+- [Algoritmi evolutivi per l'ottimizzazione continua](#algoritmi-evolutivi-per-lottimizzazione-continua)
+    - [Strategie evolutive](#strategie-evolutive)
+        - [(1+1)-ES](#11-es)
+        - [(λ, μ)-ES](#λ-μ-es)
+        - [(λ + μ)-ES](#λ--μ-es)
+        - [CMA-ES](#cma-es)
 
 ### Informazioni sul corso
 - **Esame** (2 parti):
