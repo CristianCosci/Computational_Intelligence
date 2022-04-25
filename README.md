@@ -1787,3 +1787,140 @@ Nella fase di inizializzazione si looppa finche N soluzioni ammissibili non veng
 Nel main loop non vengono memorizzate soluzioni non ammissibili nella lista dei children.
 
 La penalizzazione ritiene che tutti gli individui siano utili nell'evoluzione, anche quelli non ammissibili. In quanto è possibile trovare soluzioni ammissibili partendo da soluzioni non ammissibili.
+
+<hr>
+
+## **Algoritmi evolutivi per l'ottimizzazione continua**
+**continua** = opposto di discreta
+
+Objective function <br>
+![es1](./imgs/es1.png)
+
+L'obiettivo è (come per l'ottimizzazione discreta) trovare **x*** **∈ D tale che f(x*** **) è massimo (o minimo)**.
+
+Un elemento di D è un elemento di **d** numeri reali.
+
+Per usare un algoritmo genetico è possibile discretizzare il problema, utiizzando **p** bits per rappresentare un numero reale. Quindi una soluzione potrebbe essere rappresentata come stringa di **p x d** bits. <br>
+In linea teorica è quindi possibile applicare un algoritmo genetico per ottimizzare f.
+
+L'ottimizzazione di una funzione continua è più facile in generale rispetto ad ottimizzare una funzione discreta. <br>
+***Come mai?*** <br>
+Matematicamente, se io mi muovo in uno spazio continuo e sono in x, se mi muovo di un Δ piccolo: <br>
+from x to x + Δx <br>
+f(x) -> f(x + Δx) ≈ f(x)<br>
+La differenza |f(x+ Δx) - f(x)| può essere **piccola**
+
+***Perche è più facile?***:
+- **Prima motivazione**: <br>
+    se f è differenziabile, è possibile utilizzare algoritmi molto efficienti di ottimizzazione, basati sul **gradiente** di f (gradiente = vettore delle derivate).<br>
+    **Il gradiente di f in un punto x ∈ D da un'informazione su quale è la direzione in cui la f cresce e decresce.** <br>
+    Calcolare il gradiente aiuta gli algoritmi, in quanto quest'ultimi sono guidati dal gradiente. <br>
+    L'algoritmo più famoso basato sul gradiente è: "**L'algoritmo di discesa del gradiente**" (per la minimizzazione -> è utilizzato per allenare le reti neurali). <br>
+    Esistono anche molti altri algoritmi basati sulle derivate. Tuttavia questi algoritmi trovano sempre un **minimo locale**, perchè questi algoritmi nel minimo locale hanno gradiente = 0. <br>
+    ![es2](./imgs/es2.png) <br>
+- **Seconda motivazione**: <br>
+    Ci sono degli algoritmi di ottimizzazione chiamati "***derivative-free***", i quali possono trovare il minimo o massimo globale di f in modo efficiente. Esempi (già implementati nella libreria **scipy** di python):
+    - Nelder-mead;
+    - Poquel;
+    - LBFGS;
+    - ecc...
+
+#### **Differenza tra spazio discreto e spazio continuo**
+![es3](./imgs/es3.png)
+
+### **Risultati di Complessità** per cui l'ottimizzazione discreta è più difficile di quella continua
+Se f è lineare e D è definito in termini di vincoli lineari, il problema di ottimizzare f si chiama problema di programmazione lineare. <br>
+- Per spazi discreti, è un problema NP-HARD. <br>
+- Per spazi continui, c'è un algoritmo che risolve il problema in tempo polinomiale.
+
+L'utilizzo di algoritmi genetici e altri algoritmi evolutivi per l'ottimizzazione continua è giustificata nelle seguenti situazioni:
+1. Ci sono dei problemi dove gli algoritmi evolutivi trovano soluzioni migliori rispetto agli algoritmi classici. Questo per esempio per problemi in cui la funzione obiettivo f ha molti minimi (o massimi) locali. Oppure quando l'obiettivo non è trovare più minimi (o massimi).
+2. Quando f non è esattamente una funzione continua. Ci sono due possibilità:
+    - La funzione ha dei punti di discontinuità -> **Discontinuità**. <br>
+    ![es4](./imgs/es4.png) <br>
+    - f può essere scritta in termini di variabili continue e variabili discrete -> **Ibrido: variabili continue e discrete**<br>
+    ![es5](./imgs/es5.png)
+
+Altre situazioni in cui sono utilizzati gli algoritmi evolutivi in problemi di ottimizzazione continua:
+1. f è dinamica -> f cambia nel tempo -> **Dinamicità**
+2. f è alterata dal rumore esterno (la f quando viene valutata non è esatta, potrebbe quindi succedere che valutando la f nello stesso punto ritorna valori diversi. Un algoritmo traduzionale non riuscirebbe ad andare avanti o ad esempio calcolarsi il gradiente, a differenza degli algoritmi evolutivi.) -> **Casualità**
+
+## **Strategie evolutive**
+### **(1+1)-ES**
+```pseudocode
+    x <-- random point in D
+    for g <-- 1 to max_gen
+        ε <-- random vector of dimension d
+        x' <-- x + ε    # è una sorta di mutazione
+        z' <-- f(x')
+        if z' <-- z
+            x <-- x'
+            z <-- z'
+    return x, z
+```
+***Come viene generato il vettore ε ?*** <br>
+ε può essere generato usando una distribuzione normale di dimensione d. <br>
+![es6](./imgs/es6.png) <br>
+![es7](./imgs/es7.png) <br>
+![es8](./imgs/es8.png)
+
+Tutte le componenti di ε sono indipendenti (le estraggo indipendentemente dalle altre). <br>
+Per estrarre ε si può fare così:
+```python
+    eps = np.zeros(d)
+    for in range(0,d):
+        eps[i] = random.normal(0, sigma2)
+```
+Lo schema evolutivo precedenete non fa utilizzo di una popolazione. <br>
+La **popolazione** può essere introdotta dal seguente schema di generalizzazione:
+### **(λ, μ)-ES**
+**λ = dimensione della popolazione** <br>
+**μ = numero di figli** <br>
+λ > μ
+```pseudocode
+    for i <-- 1 to λ
+        generate xi
+    for g <-- 1 to max_gen
+        for i <-- 1 to μ
+            generate x'i by manipulating some xj
+        select the best λ individuals among the children as new value x1, ..., xλ for next iteration # Non c'è elitismo
+    return the best individuals ever found 
+```
+
+Un'altra alternativa è di utilizzare:
+### **(λ + μ)-ES**
+La selezione prende i migliori λ individui tra i genitori e i figli.
+- λ = 1 e μ = 1 --> **(1+1)-ES** <br>
+- λ > 1 e μ = 1 --> **mutare un individuo tra la popolazione** o scelto secondo qualche 
+criterio come tornei o roulette wheel. <br>
+    L'unico figlio può sostituire il peggiore della popolazione.
+- λ > 1 e μ > 1 --> **caso generale** <br>
+
+Parametri di una ES (evolutionary strategies):
+- λ
+- μ
+- σ^2 (o in generale Σ)
+
+Le strategie evolutive possono usare anche meccanismi per adattare σ^2 o farlo evolvere:
+- **rule 1/5** : adatta σ in modo da mantenere la percentuale di **mutazione con successo** intorno a 1/5 <br>
+    Mutazione con successo = genero un individuo che è migliore. La mutazione se io genero un x' la cui f è migliore di x.
+- Un'altra tecnica è assegnare ad ogni individuo un valore per σ <br>
+    ![es9](./imgs/es9.png)
+
+### **CMA-ES**
+È una delle strategie evolutive più performanti. <br>
+Non fa utilizzo della popolazione, al suo posto fa uso di un modello probabilistico. <br>
+Invece di generare μ figli dalla popolazione (ad esempio tramite mutazione), i figli sono campionati dal modello M.
+
+Il modello probabilistico utilizzato è un modello Gaussiano (utilizza la distribuzione normamle) con **n** come vettore delle medie.
+
+### **CMA-ES abstract scheme**
+```pseudocode
+    genera i valori iniziali per i parametri di M
+    for g <-- 1 to max_gen
+        genera μ individuo da M     # utilizzare un generatore di numeri pseudo casuali da M e estrarre μ individui x1, ... , xμ
+        scegliere i migliori λ individui
+        usare x(1), ... , x(λ) per aggiornare i parametri di M
+    return il miglior individuo
+```
+Aggiornare i parametri di M dovrebbe produrre individui sempre migliori (non è certo). L'idea è che l'aggiornamento dovrebbe spingere sia la media che la varianza della popolazione verso individui buoni.
