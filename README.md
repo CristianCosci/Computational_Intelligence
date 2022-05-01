@@ -44,6 +44,10 @@
         - [(λ, μ)-ES](#λ-μ-es)
         - [(λ + μ)-ES](#λ--μ-es)
         - [CMA-ES](#cma-es)
+        - [Differential Evolution (DE)](#differential-evolution-de)
+            - [Mutazione Differenziale](#mutazuione-differenziale-rand1)
+            - [Crossover Binomiale](#crosover-binomiale-bin)
+            - [Aggiornamento della popolazione](#aggiornamento-della-popolazione)
 
 ### Informazioni sul corso
 - **Esame** (2 parti):
@@ -1914,7 +1918,7 @@ Le strategie evolutive possono usare anche meccanismi per adattare σ^2 o farlo 
 
 ### **CMA-ES**
 È una delle strategie evolutive più performanti. <br>
-Non fa utilizzo della popolazione, al suo posto fa uso di un modello probabilistico. <br>
+**Non fa utilizzo della popolazione, al suo posto fa uso di un modello probabilistico**. <br>
 Invece di generare μ figli dalla popolazione (ad esempio tramite mutazione), i figli sono campionati dal modello M.
 
 Il modello probabilistico utilizzato è un modello Gaussiano (utilizza la distribuzione normamle) con **n** come vettore delle medie.
@@ -1929,3 +1933,107 @@ Il modello probabilistico utilizzato è un modello Gaussiano (utilizza la distri
     return il miglior individuo
 ```
 Aggiornare i parametri di M dovrebbe produrre individui sempre migliori (non è certo). L'idea è che l'aggiornamento dovrebbe spingere sia la media che la varianza della popolazione verso individui buoni.
+
+**CMA-ES** aggiorna i parametri *m* e *c* attraverso delle formule matematiche basate sull'algebra lineare. 
+
+<hr>
+
+## **Differential Evolution (DE)**
+È uno dei metodi più utilizzati in assoluto per fare l'ottimizzazione di funzioni continue. <br>
+È uno dei **migliori** e **più semplici** algoritmi per l'ottimizzazione continua (caratteristiche difficili da trovare combinate insieme). Soprattutto nella sua versione base è sia efficiente che semplice da implementare.
+
+**DE** è una specie di algoritmo genetico che lavora su **vettori** (gli algoritmi genetici solitamente lavorano su stringhe. Infatti le operazioni di base come crossover sono operazioni sulle stringe, stessa cosa la mutazione).  
+
+Nella sua forma base, chiamata **DE/RAND/1/BIN**:
+- **RAND** -> perchè la mutazione è fatta casualmente
+- **BIN** -> perchè il crossover è fatto in maniera binomiale
+
+Abbiamo:
+- **f (objective function)**
+- **d** -> dimensione dello spazio (vettori di dimensioni d)
+- **D** -> dominio della funzione f
+
+```pseudocode
+Crea N vettori iniziali x1, ..., xn (ad esempio in modo casuale)
+for gen <-- 1 to max_gen
+    crea la popolazione di mutanti y1, ..., yn (mediante la mutazione)
+    crea la popolazione di candidati z1, ..., zn (tramite il crossover)
+    aggiorna la popolazione
+end for
+return il migliore elemento ever found
+```
+(da notare che l'ordine in cui vengono eseguiti crossover e mutazione è invertito). <br>
+Un'altra cosa importante è che gli operatori di crossover e mutazione operano su vettori.
+
+### **Mutazuione differenziale (RAND/1)**
+Io devo trovare yi.
+```pseudocode
+for i <-- 1 to N
+    seleziona tre vettori differenti tra loro r1, r2, r3 e diversi da i
+    y1 <-- xr1 + F * (xr2 - xr3)
+                parametro (scalare)        differenza tra vettori
+            somma tra vettori
+    questa operazione per calcolare y1 corrisponde a:
+    for j <-- 1 to d
+        y1[j] = xr1[j] + F * (xr2[j] - xr2[j])
+    end for
+```
+
+### **Crosover binomiale (BIN)**
+Noi abbiamo xi e yi e li vogliamo fondere insieme per dare luogo a zi. <br>
+Quindi il crossover prende alcune componenti di xi e alcune componenti di yi. 
+
+![de1](./imgs/de1.png)
+
+### **Aggiornamento della popolazione**
+La popolazione è così aggiornata:
+```pseudocode
+for i <-- 1 to N
+    if f(zi) < f(xi) then
+        xi <-- zi
+    end if
+end for
+```
+
+Quindi ricapitolando, il Differential Evolution:
+- ha un **ciclo esterno per max_gen generazioni** -> max_gen iterazioni (G = max numero di generazioni), in cui ad ogni iterazione abbiamo:
+    - **Mutazione** -> richiede O(N*d) operazioni
+    - **Crossover** -> richiede O(N*d) operazioni
+    - **Selezione** -> richiede O(N*f_(f segnato)) -> f_ è il costo di calcolare f(zi)
+
+Complessivamente **il costo del DE è polinomiale** rispetto a G, N, d, f_
+
+Il Differential Evolution può essere usato per l'ottimizzazione numerica ma anche per altri tipi di ottimizzazione.
+
+L'idea del DE è quella di utilizzare due tipologie diverse di operatori genetici:
+- **mutazione** del DE è di tipo **vettoriale** (sono operazioni vettoriale)
+- **crossover** è di tipo combinatorio (vede i vettori come stringhe). 
+
+È come se il DE lavorasse a due livelli, un livello numerico per la mutazione e livello crossover nella ricombinazione.
+
+Il Differential Evolution si può estendere facilmente anche ad altri tipi di problemi:
+- **ottimizzazione vincolata**
+- **ottimizzazione mista (reali/discreta)**
+- **ottimizzazione combinatoria** (DE per le permutazioni)
+
+Il DE lavora sia a **livello vettoriale (mutazione) che al livello d stringhe (crossover)**. Qui si nota già una prima differenza con gli algoritmi genetici, i quali lavorano solo a livello di stringhe. <br>
+Altre differenze:
+- **Mutazione**: normalmente dovrebbe essere un operatore unario (*prendo un individuo e lo muto*). In questo caso invece, **crea un nuovo vettore** combinando in modo lineare i tre vettori della popolazione (questo per ogni elemento della popolazione). <br>
+    ***Come mai questa cosa?*** <br>
+    ![de2](./imgs/de2.png) <br>
+    Con 0 < F <= 2 <br>
+    ![de3](./imgs/de3.png) <br>
+    Ora qui di seguito ci sono 2 scenari per capire cosa fa la mutazione:
+    1. Soprattutto all'inizio gli elementi (vettori) della popolazione sono molto diversi tra di loro. <br>
+    ![de4](./imgs/de4.png) <br>
+    Quindi yi è probabilmente molto diverso dagli altri elementi (dagli altri vettori). 
+    2. ***Cosa succede se gli elementi della popolazione sono simili tra di loro?*** (tutti i vettori sono simili tra di loro) <br>
+    In questo caso succede l'esatto contrario <br>
+    ![de6](./imgs/de6.png) <br>
+    Quindi yi è vicino a qualche vettore della popolazione. <br> <br>
+    In conclusione possiamo dire che se la popolazione è molto diversificata, anche i mutanti restano diversi. Al contrario se la popolazione è poco diversificata, allora anche i mutanti sono simili agli elementi della popolazione. <br>
+    In pratica il DE si autoregola, perchè all'inizio è più probabile che ci si trovi nel primo scenario (quindi la mutazione fa dei salti importanti -> prendo degli individui e li muto molto). Se l'algoritmo invece sta convergendo (gli individui diventano sempre più simili) ci troviamo nel secondo scenario e la mutazione fa piccoli salti (picccole variazioni). <br>
+    Il DE usa una forma di **auto-adattamento** nella forza della **Mutazione**. <br>
+    La popolazione del DE tende a convergere perchè è **automaticamente elitista** (il miglior individuo della popolazione rimane sempre). <br>
+    Tuttavia non c'è un meccanismo in cui sopravvivono tutti i migliori individui, ma ogni individuo è confrontato con un altro, quindi alcuni elementi buoni potrebbero essere scartati (c'è una competizione uno a uno). <br>
+    ![de5](./imgs/de5.png) 
