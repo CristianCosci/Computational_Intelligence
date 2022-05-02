@@ -2151,6 +2151,7 @@ Fino ad ora abbiamo visto che:
 ![de10](./imgs/de10.png) <br>
 In pratica anzichè scegliere come base della mutazione un elemento a caso, sceglie l'elemento migliore della popolazione. Questa variante converge più velocemente. Vi è tuttavia un rischio che quest'ultima si stabilizza prima (potrebbe essere una scelta non molto sensata).
 - (**RAND/2**) <br>
+![de12](./imgs/de12.png) <br>
 Significa che ho due differenze, anzichè una sola (si è meno legati al caso).
 
 Ci sono tante altre varianti:
