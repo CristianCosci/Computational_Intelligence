@@ -48,6 +48,9 @@
             - [Mutazione Differenziale](#mutazuione-differenziale-rand1)
             - [Crossover Binomiale](#crosover-binomiale-bin)
             - [Aggiornamento della popolazione](#aggiornamento-della-popolazione)
+            - [Implementazione dell'algoritmo di Differential Evolution](#implementazione-dellalgoritmo-di-differential-evolution)
+            - [Altre varianti per il DE](#altre-varianti-del-differential-evolution)
+            - [Ottimizzazione dei parametri](#ottimizzazione-dei-parametri)
 
 ### Informazioni sul corso
 - **Esame** (2 parti):
@@ -2037,3 +2040,133 @@ Altre differenze:
     La popolazione del DE tende a convergere perchè è **automaticamente elitista** (il miglior individuo della popolazione rimane sempre). <br>
     Tuttavia non c'è un meccanismo in cui sopravvivono tutti i migliori individui, ma ogni individuo è confrontato con un altro, quindi alcuni elementi buoni potrebbero essere scartati (c'è una competizione uno a uno). <br>
     ![de5](./imgs/de5.png) 
+
+<hr>
+
+## **Implementazione dell'algoritmo di Differential Evolution**
+```python
+# Una semplice implementazione dell'algoritmo Differential Evolution
+import numpy as np
+
+class Objective_Function:
+    def __init__(self, fun, dim, domains):
+        '''
+        - fun è la definzione della funzione
+        - dim è il numero di parametri
+        - domains è la lista degli intervalli [x_i_min, x_i_max] per ogni variabile x_i
+        '''
+        self.fun = fun
+        self.dim = dim
+        self.domains = domains
+
+    def __call__(self, x):
+        return self.fun(x) 
+
+
+class Differential_Evolution:
+    def __init__(self, objf, np, f, cr, max_gen):
+        self.objf = objf
+        self.np = np
+        self.f = f
+        self.cr = cr
+        self.max_gen = max_gen
+
+    def initialize(self): # Serve ad inizializzare l'algoritmo (Ad esempio è necessario creare i vettori della popolazione)
+        d = self.objf.dim
+        self.population = []
+        self.values = []
+        for i in range(self.np):
+            r = np.random.random(d)
+            for j in range(d):
+                l, u = self.objf.domains[j] # intervallo della j-esima variabile della funzione
+                r[j] = l + (u - l) * r[j]
+            self.population.append(r)
+            self.values.append(self.objf(r))
+        self.best_f = 1e300
+        self.find_best()
+
+    def find_best(self):# trovo il miglior elemento della popolazione
+        self.i_best = 0
+        for i in range(1, self.np): 
+            if self.values[i] < self.values[self.i_best]:
+                self.i_best = i
+        if self.values[self.i_best] < self.best_f:
+            self.best_f = self.values[self.i_best]
+            self.best = self.population[self.i_best]
+            print("found new best with f = {}".format(self.best_f))
+
+    def evolution(self):
+        self.initialize()
+        for g in range(1, self.max_gen+1):
+            mutants = self.differential_mutation()
+            trials = self.crossover(mutants) # gli elementi prodotti dal crossover nel differential evolution si chiamano trials
+            self.selection(trials)
+            self.find_best()
+        return self.best_f, self.best
+
+    def differential_mutation(self):
+        mutants = []
+        for i in range(self.np):
+            # RAND/1 implementations
+            l = [j for j in range(self.np) if j != i]
+            r1, r2, r3 = np.random.choice(l, 3, replace=False)
+            m = self.population[r1] + self.f * (self.population[r2] -  self.population[r3])
+            mutants.append(m)
+        return mutants
+
+    def crossover(self, mutants):
+        trials = []
+        d =  self.objf.dim
+        for i in range(self.np):
+            j_rand = np.random.randint(0, d)
+            tr = np.zeros(d)
+            for j in range(d):
+                if np.random.random() < self.cr or j == j_rand:
+                    tr[j] = mutants[i][j]
+                else:
+                    tr[j] = self.population[i][j]
+            trials.append(tr)
+        return trials
+
+    def selection(self, trials):
+        for i in range(self.np):
+            fx = self.objf(trials[i])
+            if fx < self.values[i]:
+                self.population[i] = trials[i]
+                self.values[i] = fx
+```
+Per quanto riguarda il codice completo e i comandi per testare l'algoritmo vedere nell'apposita directory in cui è riportata l'implementazione dell'algoritmo DE. <br>
+Successivamente ai test con questo primo esempio: <br>
+![de7](./imgs/de7.png) <br>
+, è possibile effettuare dei test cambiando il tipo di funzione con cui si ha a che fare. Un esempio è la funzione **RASRIGIN** (la quale è difficilmente ottimizzabile utilizzando la tecnica di discesa del gradiente, a differenza del DE con la quale si riesce ad ottimizzare abbastanza bene). <br>
+![de8](./imgs/de8.png) <br>
+
+<hr>
+
+### **Altre varianti del Differential Evolution**
+Fino ad ora abbiamo visto che:
+- (**RAND/1**) <br>
+![de9](./imgs/de9.png) <br>
+- (**BEST/1**) <br>
+![de10](./imgs/de10.png) <br>
+In pratica anzichè scegliere come base della mutazione un elemento a caso, sceglie l'elemento migliore della popolazione. Questa variante converge più velocemente. Vi è tuttavia un rischio che quest'ultima si stabilizza prima (potrebbe essere una scelta non molto sensata).
+- (**RAND/2**) <br>
+Significa che ho due differenze, anzichè una sola (si è meno legati al caso).
+
+Ci sono tante altre varianti:
+- **Current-to-Best** <br> 
+![de11](./imgs/de11.png) <br>
+Questa si usa senza crossover, perchè xi è già dentro la formula -> yi dipende anche da xi.
+
+<hr>
+
+### **Ottimizzazione dei parametri**
+***Quali sono i corretti valori per f e cr?***
+Esistono molti metodi per assegnare i valori di f e cr (che sono i valori più complicati da controllare).
+- Le implementazioni più semplici utilizzano dei valori fissi
+- Ma ci sono due approcci migliori:
+    1. Utilizzare una strategia fissa per modificare f e cr. <br>
+        Inizialemente si hanno dei valori alti per f e cr e poi scendono mano a mano (inizialmente si tende ad esplorare molto)
+    2. **Self-adapting** f e cr. <br>
+        Si ha un algoritmo che modifica f e cr in base alla risposta della popolazione stessa.
+
