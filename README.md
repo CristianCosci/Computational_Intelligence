@@ -51,6 +51,7 @@
             - [Implementazione dell'algoritmo di Differential Evolution](#implementazione-dellalgoritmo-di-differential-evolution)
             - [Altre varianti per il DE](#altre-varianti-del-differential-evolution)
             - [Ottimizzazione dei parametri](#ottimizzazione-dei-parametri)
+            - [DE per problemi di ottimizzazione discreti](#de-per-problemi-di-ottimizzazione-discreti)
 
 ### Informazioni sul corso
 - **Esame** (2 parti):
@@ -2171,3 +2172,98 @@ Esistono molti metodi per assegnare i valori di f e cr (che sono i valori più c
     2. **Self-adapting** f e cr. <br>
         Si ha un algoritmo che modifica f e cr in base alla risposta della popolazione stessa.
 
+<hr>
+
+### **Breve recap sul DE**
+**I parametri del DE:** <br>
+- **NP** -> dimensione della popolazione
+- **f** -> parametro della mutazione
+- **cr** -> parametro del crossover
+- **max_gen** -> numero di generazioni
+
+Il DE, come altre metaeuristiche, ha diverse varianti in base alle operazioni di **mutazione** e **crossover** utilizzate. Ad esempio:
+- Varianti sulla **mutazione**: RAND/1, RAND/2, BEST/1, BEST/2, CURR-TO-BEST, etc...
+- Varianti sul **crossover**: BIN, EXP, etc...
+
+È difficile scegliere quali parametri e quali varianti utilizzare. Ci sono tuttavia delle tecniche che permettono di scegliere in maniera sensata:
+- **Self-Adapting**: l'algoritmo sceglie da solo in maniera automatica, mano a mano che la risoluzione va avanti. L'algoritmo lavora a due livelli, allo stesso tempo:
+    - cerca la migliore soluzione (rispetto alla funzione obiettivo)
+    - cerca i parametri/varianti migliori
+
+L'algoritmo contemporaneamente fa evolvere la soluzione del problema (la popolazione) e i parametri di se stesso.
+
+Un semplice schema dell'algoritmo **Self-Adapting** per *f* e *cr* è il **jDE** schema. <br>
+In questo schema, ogni elemento della popolazione comprende:
+1. un vettore x_i
+2. un valore f_i
+3. un valore cr_i
+
+**Funzionamento**: <br>
+Con una certa probabilità t1 = 0.1 il trial z1 è creato utilizzando nuovi valori *f_i'* e *cr_i'*, altrimenti il trial zi è creato con f_i e cr_i. In pratica ogni individuo ha un proprio f e un proprio cr, ad ogni iterazione dell'algoritmo (per creare il trial) scelgo un numero a caso, se viene più piccolo di 0.1 uso dei nuovi valori per f e cr (*f_i'* e *cr_i'*) generati a caso, altrimenti uso i vecchi valori *f_i'* = f_i e *cr_i'* = cr_i. <br>
+Al passaggio di selezione,
+```pseudocode
+if f(zi) < f(xi) then
+    xi <- zi e 
+    f_i <- f_i'     # se sono diversi  
+    cr_i = cr_i'    # se sono diversi
+```
+Altre forme del **Self-Adapting** sono utilizzate in algoritmi **Jade** e **Shaede** (sono versioni del DE). Questi algoritmi utilizzano delle tecniche statistiche per evolvere f e cr.
+
+Un altro approccio completamente differente per trovare la migliore combinazione di parametri e varianti **(tuning dei parametri)** è il Machine Learning:
+1. Creare un set di combinazioni possibili. Ad esempio f = {0.1, 0.2, 0.5, 0.7, 1, 1.5, 2} e cr = {0.1, 0.3, 0.5, 0.7, 0.9}, qui si hanno 35 possibili combinazioni.
+2. Crea un insieme di test (che in realtà è un insieme di training) con istanze del problema di ottimizzazione f1, f2, ..., fk
+3. Eseguire l'algoritmo DE in ogni istanza utilizzando ogni possibile combinazione: *35 combinazioni x 10 istanze x 10 run (essendo un algoritmo stocastico bisogna limitare l'influenza del caso) = 3500 run*
+4. Calcolare per ogni passaggio alcune statistiche sui risultati (ad esempio la media o la mediana)
+5. Scegliere la combinazione con il miglior punteggio (per esempio la media più bassa)
+
+È simile ad un vero approccio di Machine Learning. <br>
+Ci sono tuttavia delle problematiche che possono occorrere:
+1. **Overtuning**: La combinazione trovata con questo approccio, dipende **fortemente** dalle istanze di test. È possibile che le prestazioni su una nuova istanza non siano buone.
+2. Le performance dell'algoritmo dipendono anche dai parametri iniziali scelti (discretization). Per ridurre il tempo necessario nel tuning:
+    - si può ridurre il numero di combinazioni, scartando quelle che sembrano poco promettenti.
+    - selezionare solo istanze rappresentative
+
+In generale la fase di **parameter tuning** può essere eseguita da dei tools automatizzati (irace, smac, ...), dovendo comunque fornire:
+- un insieme di istanze
+- insiemi di valori possibili per ogni parametro
+
+Le implementazioni che si trovano nelle principali librerie (nevergrad, scipy.optimize, ...) hanno dei parametri di default per i parametri.
+
+<hr>
+
+## **DE per Problemi di Ottimizzazione Discreti**
+Utilizzare una funzione di decodifica: trasforma un vettore di numeri reali in una soluzione per il prblema di ottimizzazione. <br>
+***Esempio***: Risolvere il probelema del Number Partitioning utilizzando il DE <br>
+Implementare il DE con degli accorgimenti per fare in modo che ogni vettore è composto da numeri reali in [0, 1]. <br>
+Nello step di selezione si calcola f(zi') al posto di f(zi) con questa conversione (utilizzando la funzione di decodifica). <br>
+![dedisc](./imgs/dedisc.png) <br>
+![dedisc2](./imgs/dedisc2.png) <br>
+Questo però causa il fatto che infiniti vettori di numeri reali corrispondono alla stessa soluzione per il problema originale. <br>
+Questo approccio è sempre applicabile (è sufficiente trovare una funzione di decoding) ma l'intero processo di ricerca è distorto in quanto: <br>
+*Vettori simili possono corrispondere a soluzioni differenti e vettori molto diversi possono corrispondere alla stessa soluzione*. <br>
+In generale per risolvere un problema di otttimizzazione discreta è possibile utilizzare:
+1. Un algoritmo per problemi di ottimizzazione continua
+2. Una funzione di decodifica
+
+Ad esempio, per risolvere il TSP utilizzando il DE. <br>
+Utilizzare la **Random Key** decoding function (trasformare un vettore in una permutazione). <br>
+zi = (0.5, 07, 0.8, 0.9, 0.3, 0.2) <br>
+zi' = (3, 4, 5, 6, 2, 1)
+
+Un secondo approccio per usare il DE, o altri algoritmi per l'ottimizzazione continua, è di definire operazioni "*numeriche*" per la soluzione:
+1. soluzione + soluzione
+2. soluzione - soluzione
+3. soluzione * soluzione
+
+La mutazione RAND/1 è interpretata come segue:
+```pseudocode
+yi <- xr1 + F * (xr2 * xr3)
+```
+Nel NPP yi, xr1, xr2, xr3 sono vettori di bit. Nel TSP sono permutazioni.
+
+I due approcci sono molto diversi:
+- Nel primo approccio si fanno evolvere i vettori ma poi i vettori hanno un significato diverso.  Il vettore rappresenta l'evoluzione la soluzione la valutazione (il vettore è una codifica/decodifica della soluzione)
+- Nel secondo approccio si fanno evolvere direttamente le soluzioni, che sono contemporaneamente sia la valutazione che l'evoluzione.
+
+***Perchè utilizzare un algoritmo per l'ottimizzazione continua su un problema di ottimizzazione discreta?*** <br>
+Non ci sono così tanti algoritmi per spazi discreti, la maggior parte delle nuove implementazioni si basano su algoritmi continui. Questo perchè è più facile lavorare su spazi continui. La spinta ad utilizzare questi algoritmi nel discreto è che quest'ultimi sono più difficili.
