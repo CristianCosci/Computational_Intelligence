@@ -2277,7 +2277,7 @@ Ad esempio, ho una funzione g(x1, ..., xn) e conoscono per alcuni esempi i valor
 ![pg1](./imgs/pg1.png) <br>
 
 N esempi di g e per ogni esempi di g. Per ogni esempio:
-![pg2](./imgs/pg2.png) <br>
+![pg2](./imgs/pgerrore.png) <br>
 **L'obiettivo è trovare g** <br>
 Questo problema è legato alla **regressione lineare** (la regressione lineare ne è un caso particolare) <br>
 ![pg3](./imgs/pg3.png) <br>
