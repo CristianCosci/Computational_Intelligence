@@ -52,6 +52,7 @@
             - [Altre varianti per il DE](#altre-varianti-del-differential-evolution)
             - [Ottimizzazione dei parametri](#ottimizzazione-dei-parametri)
             - [DE per problemi di ottimizzazione discreti](#de-per-problemi-di-ottimizzazione-discreti)
+- [Programmazione Genetica](#programmazione-genetica)
 
 ### Informazioni sul corso
 - **Esame** (2 parti):
@@ -2162,7 +2163,7 @@ Questa si usa senza crossover, perchè xi è già dentro la formula -> yi dipend
 
 <hr>
 
-### **Ottimizzazione dei parametri**
+### **Ottimizzazione (Tuning) dei parametri**
 ***Quali sono i corretti valori per f e cr?***
 Esistono molti metodi per assegnare i valori di f e cr (che sono i valori più complicati da controllare).
 - Le implementazioni più semplici utilizzano dei valori fissi
@@ -2172,9 +2173,6 @@ Esistono molti metodi per assegnare i valori di f e cr (che sono i valori più c
     2. **Self-adapting** f e cr. <br>
         Si ha un algoritmo che modifica f e cr in base alla risposta della popolazione stessa.
 
-<hr>
-
-### **Breve recap sul DE**
 **I parametri del DE:** <br>
 - **NP** -> dimensione della popolazione
 - **f** -> parametro della mutazione
@@ -2267,3 +2265,157 @@ I due approcci sono molto diversi:
 
 ***Perchè utilizzare un algoritmo per l'ottimizzazione continua su un problema di ottimizzazione discreta?*** <br>
 Non ci sono così tanti algoritmi per spazi discreti, la maggior parte delle nuove implementazioni si basano su algoritmi continui. Questo perchè è più facile lavorare su spazi continui. La spinta ad utilizzare questi algoritmi nel discreto è che quest'ultimi sono più difficili.
+
+<hr>
+
+## **Programmazione Genetica**
+L'inventore della programmazione genetica è John Koza (anni 80).
+- **È un algoritmo che fa evolvere una popolazione di programmi.**
+- ***g(p)*** = indica quanto è buono ***p*** per il problema che voglio risolvere
+
+Ad esempio, ho una funzione g(x1, ..., xn) e conoscono per alcuni esempi i valori di x e g (valori delle variabili e quanto vale la funzione in quel punto). <br>
+![pg1](./imgs/pg1.png) <br>
+
+N esempi di g e per ogni esempi di g. Per ogni esempio:
+![pg2](./imgs/pg2.png) <br>
+**L'obiettivo è trovare g** <br>
+Questo problema è legato alla **regressione lineare** (la regressione lineare ne è un caso particolare) <br>
+![pg3](./imgs/pg3.png) <br>
+Ad esempio la regressione lineare utilizza il metodo dei minimi quadrati.
+
+Questo problema è legato ai task supervisionati del Machine Learning. Supponendo di avere una rete neurale e di volerla addestrare.
+![pg4](./imgs/pg4.png) <br>
+g ha una forma funzionale fissa e l'***unica cosa che deve essere trovata sono i valori dei pesi e dei bias.***
+
+Ho quindi un training set con N esempi e devo trovare i pesi tali che
+![pg5](./imgs/pg5.png) <br>
+(somma funzione di perdita)
+
+Nella programmazione genetica g non ha una forma funzionale fissa (io devo imparare la funzione).
+
+L'esempio più semplice di **GP (genetic programming)** è la ***regressione simbolica***. <br>
+- g è un'espressione sconosciuta. <br>
+    può contenere:
+    - ***x1, ..., xn*** variabili di input
+    - ***k1, ..., kh*** costanti (numeri reali)
+    - operazioni: **somma, sottrazione, prodotto, elevamento a potenza**
+    - **( )** parentesi
+
+![pg6](./imgs/pg6.png) <br>
+
+**GP prova a minimizzare la funzione di loss esattamente come fanno le reti neurali**. <br>
+![pg7](./imgs/pg7.png) <br>
+La differenza con le reti neurali è che la g la deve trovare l'algoritmo. <br>
+Non c'è una forma fissa e l'algoritmo deve trovare i pesi. G può essere qualsiasi espressione e l'algoritmo deve trovarla. **Se la funzione di perdita fosse 0 significa che io ho trovato esattamente la funzione (forma funzionale) che genera la yi in funzione di x1, ..., xn** (non è detto che ciò è possibile). <br>
+In generale, GP restituisce la migliore g trovata in un dato numero di generazioni (o altri criteri. Ad esempio si potrebbe interrompere l'algoritmo appena trovo una g tale per cui la funzione di perdita sia minore di un certo valore).
+
+**GP è un algoritmo genetico che lavora con espressioni o porzioni di codice.**
+
+Ci concentreremo su algoritmi che lavorano con espressioni.
+1. Come prima regola **non posso trattare un'espressione come stringa**. <br>
+    Ad esempio, con il crossover ad un punto (one-point crossover) se tratto le espressioni come stringhe si creano elementi che non hanno senso. Esempio se io taglio dopo i primi 4 caratteri: <br>
+    ![pg8](./imgs/pg8.png) <br> <br>
+    Questo perchè si ottengono figli sintatticamente non corretti. <br>
+    **Lo stesso problema si verifica con la mutazione**.
+
+**L'idea è quella di cambiare rappresentazione per le istruzioni e per le espressioni.**
+
+La rappresentazione utilizzata è simile al linguaggio di programmazione Lisp (linguaggio più moderno -> closure). Tuttavia, è possibile anche utilizzare una *rappresentazione diversa*, come quella ***basata su alberi.*** <br>
+![pg9](./imgs/pg9.png)
+
+- Le **foglie** rappresentano:
+    - ***costanti***
+    - ***variabili***
+- I **nodi interni** sono:
+    - ***operazioni*** (i figli sono gli argomenti dell'operazione --> *operandi*)
+
+Per valutare un'espressione ***E*** rappresentata come un albero con i valori *(v1, ..., vn)* per le variabili di input si utilizza una strategia di **visita post-order** dell'albero che permettono di calcolare un valore per ciascun nodo dell'albero. <br>
+
+### **Descrizione strategia**
+```pseudocode
+V(n) = valore asssegnato al nodo n
+
+if n is a leaf
+    if n is a constant
+        V(n) <-- n.costant
+    if n is a variable
+        V(n) <-- n[n.var_index]
+else
+    V(n) <-- n.op(V(c1), ..., V(ck)) # dove c1, ..., ck sono i figli di n
+```
+Solitamente le operazioni hanno uno o due operandi. Tuttavia ci sono operazioni con più operandi, ad esempio l'operatore condizionale ha tre operandi (un nodo di un operatore condizionale ha tre figli)
+
+### **GP pseudo-code**
+```pseudocode
+initalize the population
+    create NP elements # devo avere un generatore di espressioni casuali
+
+evaluate all the population elements
+for g <-- 1 to max_gen
+    selection of the mating pool
+    crossover
+    mutation
+    evaluation
+    population update
+end for
+
+return the best individuals ever found
+```
+### **Inizializzazione**
+```pseudocode
+create NP tree
+start with the root
+    with probability p it is a leaf (variabile o costante)
+    with probability 1-p it is an internal node -> scegli l'operazione e per ogni operando crea un sottoalbero
+```
+Alcune limitazioni possibili:
+- **massima profondità D**
+    - se un nodo è ad una profondità D, è una foglia (lo si forza ad essere una foglia, altrimenti l'espressione risults troppo complessa da trattare e/o l'albero è troppo complesso)
+- **esattamente profondità D**
+    - se un nodo non è ad una profondità D, è considerato come un nodo interno
+
+### **Valutazione**
+calcolare la funzione di perdita (loss) L per ciascun individuo
+```pseudocode
+for j <-- 1 to NP
+    sum <-- 0
+    for i <-- 1 to N                    # N = numero di esempi
+        y <-- evaluate(g_j, x_i)        # valuta g_j sull'esempio x_i --> 
+                                        #g_j, funzione ricorsiva per valutare l'albero con gli input x_i
+        sum <-- sum + L(y, y_i)         # y = valore trovato, y_i valore reale
+    end for
+    fobj[j] <-- sum
+end for
+```
+Questo processo è molto pesante computazionalmente perchè devo farlo per ciascun individuo. Non è neanche facile parallelizzare il tutto anche perchè il codice di una g può essere molto diverso da quello di un'altra g.
+
+### **Crossover**
+![pg10](./imgs/pg10.png) <br>
+Per sceglierlo ci sono vari criteri (casualmente o dando più probabilità ai nodi foglia o ai nodi interni, a seconda della situazione in cui mi trovo, come ad esempio in base alla profondità).
+
+![pg11](./imgs/pg11.png)
+
+### Alcune considerazioni
+I figli prodotti in questo modo sono espressioni sintatticamente corrette. Non importa come vengono selezionati i punti di scambio. Questo perchè io mi porto dietro l'intero sottoalbero (che produrrà un numero o un altro elemento, ma è comunque sintatticamente corretto). <br>
+Quello che cambia è che i figli possono avere un'altezza diversa rispetto ai genitori. <br>
+In generale, gli alberi possono avere altezze diversi (in un algoritmo genetico standard invece tendo ad avere elementi della stessa dimensione -> altrimenti non riuscirei a fare il crossover). <br>
+Durante l'evoluzione si tende a generare alberi sempre più alti perchè l'evoluzione tende a privilegiare individui sempre più alti. Questo fenomeno si chiama **ploting** e va combattuto perche aumenta la complessità computazionale e temporale richiesta per valutare alberi troppo alti. <br>
+Bisogna quindi stare attenti ad alberi troppo alti:
+- Si incorre in tempi computazionali maggiori per la **valutazione** e per le altre operazioni
+- Gli alberi troppo grandi possono essere anche difficili da leggere. <br>
+    Nonostante: <br>
+    *È importante notare che uno degli scopi della programmazione genetica è produrre espressioni **leggibili** (o almeno il più possibile leggibili). La programmazione genetica rientra nell'explainable artificial intelligence in quanto vengono prodotti risultati ed espressioni facilmente interpretabili dall'uomo (a differenza ad esempio di una rete neurale).*
+
+### **Mutazione**
+Inizialmente non veniva utilizzata nella GP e si utilizzava solo il crossover. Tuttavia, è un'operazione abbastanza semplice. <br>
+![pg12](./imgs/pg12.png) <br>
+Più in alto è il nodo che scelgo e maggiore è l'effetto del cambiamento (perchè sto sostituendo una parte significativa dell'albero). Di conseguenza bisogna tenere in considerazione questo fattore per evitare un cambiamento eccessivo, si necessita quindi una calibratura sul cambiamento.
+
+La selezione del mating pool e l'aggiornamento della popolazione possono essere fatti come negli algoritmi genetici standard.
+
+### **Riassumendo**
+Con la programmazione genetica posso fare una forma particolare di Machine Learning, in cui tento di imparare non i pesi di una rete neurale, non i coefficienti di un modello lineare ecc, ma addirittura cerco di ricostruire la forma funzionale che mi permette di ottenere gli output a partire dagli input. <br>
+Con questo posso ad esempio creare circuiti, controllori, costruire policy per il reinforcement learning ecc.. <br>
+Le limitazioni sono essenzialmente due:
+- avere a disposizione il training set
+- avere a disposizione delle risorse di calcolo non indifferenti (anche se nello svolgimento di alcuni compiti la programmazione genetica riesce ad essere competitiva rispetto alle reti neurali, ma tendenzialmente non lo è ma anzi richiede molta più computazione)
