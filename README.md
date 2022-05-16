@@ -53,6 +53,9 @@
             - [Ottimizzazione dei parametri](#ottimizzazione-dei-parametri)
             - [DE per problemi di ottimizzazione discreti](#de-per-problemi-di-ottimizzazione-discreti)
 - [Programmazione Genetica](#programmazione-genetica)
+    - [Caratteristiche principali](#caratteristiche-principali)
+    - [Vanataggi e Svantaggi della Programmazione Genetica](#vantaggi-e-svanataggi-della-programmazione-genetica)
+    - [Altre forme di programmazione genetica](#altre-forme-della-programmazione-genetica)
 
 ### Informazioni sul corso
 - **Esame** (2 parti):
@@ -2269,6 +2272,8 @@ Non ci sono così tanti algoritmi per spazi discreti, la maggior parte delle nuo
 <hr>
 
 ## **Programmazione Genetica**
+
+### **Caratteristiche principali**
 L'inventore della programmazione genetica è John Koza (anni 80).
 - **È un algoritmo che fa evolvere una popolazione di programmi.**
 - ***g(p)*** = indica quanto è buono ***p*** per il problema che voglio risolvere
@@ -2419,3 +2424,62 @@ Con questo posso ad esempio creare circuiti, controllori, costruire policy per i
 Le limitazioni sono essenzialmente due:
 - avere a disposizione il training set
 - avere a disposizione delle risorse di calcolo non indifferenti (anche se nello svolgimento di alcuni compiti la programmazione genetica riesce ad essere competitiva rispetto alle reti neurali, ma tendenzialmente non lo è ma anzi richiede molta più computazione)
+
+![pg13](./imgs/pg13.png) <br>
+f viene rappresentata come  un albero:
+- gli operatori di crossover e mutazione sono definiti per gli alberi
+
+### **Vantaggi e Svanataggi della Programmazione Genetica**
+- **Vantaggi**
+    - È capace di apprendere un oggetto sintatticamente complesso (alberi, espressioni con operatori unari e binari, operazioni di assegnamento, iterarive, espressioni condizionali, porte logiche e circuiti ecc...).
+- **Svantaggi**
+    - La funzione obiettivo è computazionalmente difficile. <br>
+    Questo perchè ogni elemento deve essere valutato per ogni esempio (ad esempio con una visita post-order) e ciò non può essere meccanizzato facilemente (a meno che non vengano utilizzati dei mini-batch come nel Machine Learning).
+    - Non è facile migliorare la valutazione. <br>
+    T1, ..., Tn --> alberi <br>
+    E1, ..., En --> esempi <br>
+    **La valutazione viene fatta come una interoperazione**. <br>
+    Altrimenti l'alternativa sarebbe quella di utilizzare qualche forma di compilazione, ogni volta che viene generato un nuovo albero. Il tempo di compilazione ovviamente va preso in considerazione e quindi dal punto di vista computazionale potrebbe non dare vantaggi (non è quindi sempre conveniente utilizzare questa strategia).
+
+Da un lato lo scopo della programmazione genetica è quello di addestrare, ottenere e sintetizzare espressioni e piccoli programmi. Inoltre la programmazione genetica ha l'obiettivo di produrre oggetti leggibili (non sempre). Due importanti caratteristiche sono quindi:
+- **espressività**
+- **leggibilità**
+
+Dall'altro lato, la programmazione genetica **è (molto) più pesante del machine learning**:
+- **non** c'è la back propagation
+- **non si può parallelizzare** per l'utilizzo su GPU (perchè tutti gli elementi usano codici diversi)
+
+Ciò pone la GP in svantaggio rispetto al Machine Learning. Ci sono comunque stati dei tentativi per unire la GP al Machine Learning (Neural Network), la difficoltà per ottenere una modello simile è molto alta.
+- Reti Neurali: presuppongono una rappresentazione puramente numerica del programma, è quindi stato necessario un gran lavoro -> **Neural Tuning Machine** (corrisponde ad un approccio ibrido) in cui è possibile utilizzare la Back Propagation.
+
+### **Altre forme della Programmazione Genetica**
+### **Progammazione Genetica Lineare**
+Rappresenta i programmi come una sequenza di codici d'istruzione (istruction codes). <br>
+Ad esempio si possono rappresentare con delle sequenze di **bytecodes**, con il vantaggio di mantere crossover e mutazione come sequenze (più facile mantenerli). Lo svantaggio è che l'interprede deve essere **limitato**, altrimenti potrebbe andare in loop. Si può usare un limite di tempo: se entro un tot tempo l'interprete non ritorna un risultato la sequenza non è considerata valida. Inoltre è molto facile generare dei programmi senza senso.
+
+Un altro svantaggio della gp lineare è che potrebbe produrre dei risultati che sono difficili da interpretare dagli umani (leggere il bytecode è difficile). Sarebbe necessaro avere un decompilatore.
+
+### **Programmazione genetica Cartesiana**
+![pg14](./imgs/pg14.png) <br>
+![pg15](./imgs/pg15.png)
+
+
+Il vantaggio di questo approccio è che non è necessaria la ricorsione ne per generare ne per creare elementi. È possibile utilizzare solo cicli for per generare e valutare gli individui della popolazione. Inoltre anche la decodifica è totalmente numerica, per ogni individuo devo quindi conservare solo gli indici e l'operazione da fare, è quindi molto veloce rispetto alla classica gp basata sugli alberi.
+
+
+Alcune forme di programmazione genetica (o altri algoritmi evolutivi) potrebbe essere utilizzate per migliorare (o correggere) dei programmi già esistenti (invece di crearli da zero). Questa forma si chiama **genetic (o software) improvement**.
+
+### **Bloat**
+La programmazione genetica tende a creare elementi con **molte componenti**:
+- Questo causa un incremento notevole dei tempi di computazione.
+- Inoltre gli elementi diventano difficile da capire e interpretare (sia per l'umano che a livello computazionale).
+
+![pg16](./imgs/pg16.png)
+
+Per evitare il fenomeno di **Bloat**:
+1. Si **limita la crescita**, ad esempio penalizzando oggetti troppo grandi. <br>
+    Funzione obiettivo di un oggetto e: <br>
+    ***f_obj(e) = Loss(e) + k * Size(e)*** --> questo favorisce oggetti piccoli.
+2. Utilizzare degli **operatori che riducono gli oggetti** (**operatori sheink**). Questi operatori prendono un oggetto e lo riducono. <br>
+3. **Semplificare gli oggetti**. La semplificazione potrebbe essere computazionalmente pesante. <br>
+![pg17](./imgs/pg17.png) 
