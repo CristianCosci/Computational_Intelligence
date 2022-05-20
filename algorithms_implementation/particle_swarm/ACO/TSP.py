@@ -31,3 +31,21 @@ class Tsp_problem:
 
 	def get_dim(self):
 		return self.n_cities
+        
+    def read_file(self, fname): # il file deve essere riscritto a mano per evitare l'errore
+        f = open(fname, "r")
+        lines = f.readlines()
+        f.close()
+        lx = []
+        ly = []
+        for l in lines:
+            _, x, y = l.strip().split(" ")
+            lx.append(float(x))
+            ly.append(float(y))
+        n = len(lines)
+        m = np.zeros((n,n))
+        for i in range(n):
+            for j in range(n):
+                m[i,j]=np.sqrt((lx[i]-lx[j])**2+(ly[i]-ly[j])**2)
+        
+        return Tsp_problem(n,m)
