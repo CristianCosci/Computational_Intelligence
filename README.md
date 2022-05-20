@@ -48,6 +48,24 @@
             - [Mutazione Differenziale](#mutazuione-differenziale-rand1)
             - [Crossover Binomiale](#crosover-binomiale-bin)
             - [Aggiornamento della popolazione](#aggiornamento-della-popolazione)
+            - [Implementazione dell'algoritmo di Differential Evolution](#implementazione-dellalgoritmo-di-differential-evolution)
+            - [Altre varianti per il DE](#altre-varianti-del-differential-evolution)
+            - [Ottimizzazione dei parametri](#ottimizzazione-dei-parametri)
+            - [DE per problemi di ottimizzazione discreti](#de-per-problemi-di-ottimizzazione-discreti)
+- [Programmazione Genetica](#programmazione-genetica)
+    - [Caratteristiche principali](#caratteristiche-principali)
+    - [Vanataggi e Svantaggi della Programmazione Genetica](#vantaggi-e-svanataggi-della-programmazione-genetica)
+    - [Altre forme di programmazione genetica](#altre-forme-della-programmazione-genetica)
+- [Swarm Intelligence](#swarm-intelligence)
+    - [Particle Swarm Optimization (PSO)](#particle-swarm-optimization-pso)
+        - [Descrizione](#descrizione-pso)
+        - [Altri aspetti interessanti](#altri-aspetti-interessanti)
+        - [Pseudocodice e Spiegazione](#pseudocodice-algoritmo)
+    - [Ant Colony Optimization (ACO)](#ant-colony-optimization)
+        - [Problema del TSP utilizzando ACO](#tsp-utilizzando-aco)
+        - [Pseudocodice](#pseudocodice-dellalgoritmo-aco)
+        - [I Parametri di ACO](#i-parametri-di-aco)
+        - [Altre applicazioni di ACO](#applicazioni-di-aco)
 
 ### Informazioni sul corso
 - **Esame** (2 parti):
@@ -2037,3 +2055,732 @@ Altre differenze:
     La popolazione del DE tende a convergere perchè è **automaticamente elitista** (il miglior individuo della popolazione rimane sempre). <br>
     Tuttavia non c'è un meccanismo in cui sopravvivono tutti i migliori individui, ma ogni individuo è confrontato con un altro, quindi alcuni elementi buoni potrebbero essere scartati (c'è una competizione uno a uno). <br>
     ![de5](./imgs/de5.png) 
+
+<hr>
+
+## **Implementazione dell'algoritmo di Differential Evolution**
+```python
+# Una semplice implementazione dell'algoritmo Differential Evolution
+import numpy as np
+
+class Objective_Function:
+    def __init__(self, fun, dim, domains):
+        '''
+        - fun è la definzione della funzione
+        - dim è il numero di parametri
+        - domains è la lista degli intervalli [x_i_min, x_i_max] per ogni variabile x_i
+        '''
+        self.fun = fun
+        self.dim = dim
+        self.domains = domains
+
+    def __call__(self, x):
+        return self.fun(x) 
+
+
+class Differential_Evolution:
+    def __init__(self, objf, np, f, cr, max_gen):
+        self.objf = objf
+        self.np = np
+        self.f = f
+        self.cr = cr
+        self.max_gen = max_gen
+
+    def initialize(self): # Serve ad inizializzare l'algoritmo (Ad esempio è necessario creare i vettori della popolazione)
+        d = self.objf.dim
+        self.population = []
+        self.values = []
+        for i in range(self.np):
+            r = np.random.random(d)
+            for j in range(d):
+                l, u = self.objf.domains[j] # intervallo della j-esima variabile della funzione
+                r[j] = l + (u - l) * r[j]
+            self.population.append(r)
+            self.values.append(self.objf(r))
+        self.best_f = 1e300
+        self.find_best()
+
+    def find_best(self):# trovo il miglior elemento della popolazione
+        self.i_best = 0
+        for i in range(1, self.np): 
+            if self.values[i] < self.values[self.i_best]:
+                self.i_best = i
+        if self.values[self.i_best] < self.best_f:
+            self.best_f = self.values[self.i_best]
+            self.best = self.population[self.i_best]
+            print("found new best with f = {}".format(self.best_f))
+
+    def evolution(self):
+        self.initialize()
+        for g in range(1, self.max_gen+1):
+            mutants = self.differential_mutation()
+            trials = self.crossover(mutants) # gli elementi prodotti dal crossover nel differential evolution si chiamano trials
+            self.selection(trials)
+            self.find_best()
+        return self.best_f, self.best
+
+    def differential_mutation(self):
+        mutants = []
+        for i in range(self.np):
+            # RAND/1 implementations
+            l = [j for j in range(self.np) if j != i]
+            r1, r2, r3 = np.random.choice(l, 3, replace=False)
+            m = self.population[r1] + self.f * (self.population[r2] -  self.population[r3])
+            mutants.append(m)
+        return mutants
+
+    def crossover(self, mutants):
+        trials = []
+        d =  self.objf.dim
+        for i in range(self.np):
+            j_rand = np.random.randint(0, d)
+            tr = np.zeros(d)
+            for j in range(d):
+                if np.random.random() < self.cr or j == j_rand:
+                    tr[j] = mutants[i][j]
+                else:
+                    tr[j] = self.population[i][j]
+            trials.append(tr)
+        return trials
+
+    def selection(self, trials):
+        for i in range(self.np):
+            fx = self.objf(trials[i])
+            if fx < self.values[i]:
+                self.population[i] = trials[i]
+                self.values[i] = fx
+```
+Per quanto riguarda il codice completo e i comandi per testare l'algoritmo vedere nell'apposita directory in cui è riportata l'implementazione dell'algoritmo DE. <br>
+Successivamente ai test con questo primo esempio: <br>
+![de7](./imgs/de7.png) <br>
+, è possibile effettuare dei test cambiando il tipo di funzione con cui si ha a che fare. Un esempio è la funzione **RASRIGIN** (la quale è difficilmente ottimizzabile utilizzando la tecnica di discesa del gradiente, a differenza del DE con la quale si riesce ad ottimizzare abbastanza bene). <br>
+![de8](./imgs/de8.png) <br>
+
+<hr>
+
+### **Altre varianti del Differential Evolution**
+Fino ad ora abbiamo visto che:
+- (**RAND/1**) <br>
+![de9](./imgs/de9.png) <br>
+- (**BEST/1**) <br>
+![de10](./imgs/de10.png) <br>
+In pratica anzichè scegliere come base della mutazione un elemento a caso, sceglie l'elemento migliore della popolazione. Questa variante converge più velocemente. Vi è tuttavia un rischio che quest'ultima si stabilizza prima (potrebbe essere una scelta non molto sensata).
+- (**RAND/2**) <br>
+![de12](./imgs/de12.png) <br>
+Significa che ho due differenze, anzichè una sola (si è meno legati al caso).
+
+Ci sono tante altre varianti:
+- **Current-to-Best** <br> 
+![de11](./imgs/de11.png) <br>
+Questa si usa senza crossover, perchè xi è già dentro la formula -> yi dipende anche da xi.
+
+<hr>
+
+### **Ottimizzazione (Tuning) dei parametri**
+***Quali sono i corretti valori per f e cr?***
+Esistono molti metodi per assegnare i valori di f e cr (che sono i valori più complicati da controllare).
+- Le implementazioni più semplici utilizzano dei valori fissi
+- Ma ci sono due approcci migliori:
+    1. Utilizzare una strategia fissa per modificare f e cr. <br>
+        Inizialemente si hanno dei valori alti per f e cr e poi scendono mano a mano (inizialmente si tende ad esplorare molto)
+    2. **Self-adapting** f e cr. <br>
+        Si ha un algoritmo che modifica f e cr in base alla risposta della popolazione stessa.
+
+**I parametri del DE:** <br>
+- **NP** -> dimensione della popolazione
+- **f** -> parametro della mutazione
+- **cr** -> parametro del crossover
+- **max_gen** -> numero di generazioni
+
+Il DE, come altre metaeuristiche, ha diverse varianti in base alle operazioni di **mutazione** e **crossover** utilizzate. Ad esempio:
+- Varianti sulla **mutazione**: RAND/1, RAND/2, BEST/1, BEST/2, CURR-TO-BEST, etc...
+- Varianti sul **crossover**: BIN, EXP, etc...
+
+È difficile scegliere quali parametri e quali varianti utilizzare. Ci sono tuttavia delle tecniche che permettono di scegliere in maniera sensata:
+- **Self-Adapting**: l'algoritmo sceglie da solo in maniera automatica, mano a mano che la risoluzione va avanti. L'algoritmo lavora a due livelli, allo stesso tempo:
+    - cerca la migliore soluzione (rispetto alla funzione obiettivo)
+    - cerca i parametri/varianti migliori
+
+L'algoritmo contemporaneamente fa evolvere la soluzione del problema (la popolazione) e i parametri di se stesso.
+
+Un semplice schema dell'algoritmo **Self-Adapting** per *f* e *cr* è il **jDE** schema. <br>
+In questo schema, ogni elemento della popolazione comprende:
+1. un vettore x_i
+2. un valore f_i
+3. un valore cr_i
+
+**Funzionamento**: <br>
+Con una certa probabilità t1 = 0.1 il trial z1 è creato utilizzando nuovi valori *f_i'* e *cr_i'*, altrimenti il trial zi è creato con f_i e cr_i. In pratica ogni individuo ha un proprio f e un proprio cr, ad ogni iterazione dell'algoritmo (per creare il trial) scelgo un numero a caso, se viene più piccolo di 0.1 uso dei nuovi valori per f e cr (*f_i'* e *cr_i'*) generati a caso, altrimenti uso i vecchi valori *f_i'* = f_i e *cr_i'* = cr_i. <br>
+Al passaggio di selezione,
+```pseudocode
+if f(zi) < f(xi) then
+    xi <- zi e 
+    f_i <- f_i'     # se sono diversi  
+    cr_i = cr_i'    # se sono diversi
+```
+Altre forme del **Self-Adapting** sono utilizzate in algoritmi **Jade** e **Shaede** (sono versioni del DE). Questi algoritmi utilizzano delle tecniche statistiche per evolvere f e cr.
+
+Un altro approccio completamente differente per trovare la migliore combinazione di parametri e varianti **(tuning dei parametri)** è il Machine Learning:
+1. Creare un set di combinazioni possibili. Ad esempio f = {0.1, 0.2, 0.5, 0.7, 1, 1.5, 2} e cr = {0.1, 0.3, 0.5, 0.7, 0.9}, qui si hanno 35 possibili combinazioni.
+2. Crea un insieme di test (che in realtà è un insieme di training) con istanze del problema di ottimizzazione f1, f2, ..., fk
+3. Eseguire l'algoritmo DE in ogni istanza utilizzando ogni possibile combinazione: *35 combinazioni x 10 istanze x 10 run (essendo un algoritmo stocastico bisogna limitare l'influenza del caso) = 3500 run*
+4. Calcolare per ogni passaggio alcune statistiche sui risultati (ad esempio la media o la mediana)
+5. Scegliere la combinazione con il miglior punteggio (per esempio la media più bassa)
+
+È simile ad un vero approccio di Machine Learning. <br>
+Ci sono tuttavia delle problematiche che possono occorrere:
+1. **Overtuning**: La combinazione trovata con questo approccio, dipende **fortemente** dalle istanze di test. È possibile che le prestazioni su una nuova istanza non siano buone.
+2. Le performance dell'algoritmo dipendono anche dai parametri iniziali scelti (discretization). Per ridurre il tempo necessario nel tuning:
+    - si può ridurre il numero di combinazioni, scartando quelle che sembrano poco promettenti.
+    - selezionare solo istanze rappresentative
+
+In generale la fase di **parameter tuning** può essere eseguita da dei tools automatizzati (irace, smac, ...), dovendo comunque fornire:
+- un insieme di istanze
+- insiemi di valori possibili per ogni parametro
+
+Le implementazioni che si trovano nelle principali librerie (nevergrad, scipy.optimize, ...) hanno dei parametri di default per i parametri.
+
+<hr>
+
+## **DE per Problemi di Ottimizzazione Discreti**
+Utilizzare una funzione di decodifica: trasforma un vettore di numeri reali in una soluzione per il prblema di ottimizzazione. <br>
+***Esempio***: Risolvere il probelema del Number Partitioning utilizzando il DE <br>
+Implementare il DE con degli accorgimenti per fare in modo che ogni vettore è composto da numeri reali in [0, 1]. <br>
+Nello step di selezione si calcola f(zi') al posto di f(zi) con questa conversione (utilizzando la funzione di decodifica). <br>
+![dedisc](./imgs/dedisc.png) <br>
+![dedisc2](./imgs/dedisc2.png) <br>
+Questo però causa il fatto che infiniti vettori di numeri reali corrispondono alla stessa soluzione per il problema originale. <br>
+Questo approccio è sempre applicabile (è sufficiente trovare una funzione di decoding) ma l'intero processo di ricerca è distorto in quanto: <br>
+*Vettori simili possono corrispondere a soluzioni differenti e vettori molto diversi possono corrispondere alla stessa soluzione*. <br>
+In generale per risolvere un problema di otttimizzazione discreta è possibile utilizzare:
+1. Un algoritmo per problemi di ottimizzazione continua
+2. Una funzione di decodifica
+
+Ad esempio, per risolvere il TSP utilizzando il DE. <br>
+Utilizzare la **Random Key** decoding function (trasformare un vettore in una permutazione). <br>
+zi = (0.5, 07, 0.8, 0.9, 0.3, 0.2) <br>
+zi' = (3, 4, 5, 6, 2, 1)
+
+Un secondo approccio per usare il DE, o altri algoritmi per l'ottimizzazione continua, è di definire operazioni "*numeriche*" per la soluzione:
+1. soluzione + soluzione
+2. soluzione - soluzione
+3. soluzione * soluzione
+
+La mutazione RAND/1 è interpretata come segue:
+```pseudocode
+yi <- xr1 + F * (xr2 * xr3)
+```
+Nel NPP yi, xr1, xr2, xr3 sono vettori di bit. Nel TSP sono permutazioni.
+
+I due approcci sono molto diversi:
+- Nel primo approccio si fanno evolvere i vettori ma poi i vettori hanno un significato diverso.  Il vettore rappresenta l'evoluzione la soluzione la valutazione (il vettore è una codifica/decodifica della soluzione)
+- Nel secondo approccio si fanno evolvere direttamente le soluzioni, che sono contemporaneamente sia la valutazione che l'evoluzione.
+
+***Perchè utilizzare un algoritmo per l'ottimizzazione continua su un problema di ottimizzazione discreta?*** <br>
+Non ci sono così tanti algoritmi per spazi discreti, la maggior parte delle nuove implementazioni si basano su algoritmi continui. Questo perchè è più facile lavorare su spazi continui. La spinta ad utilizzare questi algoritmi nel discreto è che quest'ultimi sono più difficili.
+
+<hr>
+
+## **Programmazione Genetica**
+
+### **Caratteristiche principali**
+L'inventore della programmazione genetica è John Koza (anni 80).
+- **È un algoritmo che fa evolvere una popolazione di programmi.**
+- ***g(p)*** = indica quanto è buono ***p*** per il problema che voglio risolvere
+
+Ad esempio, ho una funzione g(x1, ..., xn) e conoscono per alcuni esempi i valori di x e g (valori delle variabili e quanto vale la funzione in quel punto). <br>
+![pg1](./imgs/pg1.png) <br>
+
+N esempi di g e per ogni esempi di g. Per ogni esempio:
+![pg2](./imgs/pgerrore.png) <br>
+**L'obiettivo è trovare g** <br>
+Questo problema è legato alla **regressione lineare** (la regressione lineare ne è un caso particolare) <br>
+![pg3](./imgs/pg3.png) <br>
+Ad esempio la regressione lineare utilizza il metodo dei minimi quadrati.
+
+Questo problema è legato ai task supervisionati del Machine Learning. Supponendo di avere una rete neurale e di volerla addestrare.
+![pg4](./imgs/pg4.png) <br>
+g ha una forma funzionale fissa e l'***unica cosa che deve essere trovata sono i valori dei pesi e dei bias.***
+
+Ho quindi un training set con N esempi e devo trovare i pesi tali che
+![pg5](./imgs/pg5.png) <br>
+(somma funzione di perdita)
+
+Nella programmazione genetica g non ha una forma funzionale fissa (io devo imparare la funzione).
+
+L'esempio più semplice di **GP (genetic programming)** è la ***regressione simbolica***. <br>
+- g è un'espressione sconosciuta. <br>
+    può contenere:
+    - ***x1, ..., xn*** variabili di input
+    - ***k1, ..., kh*** costanti (numeri reali)
+    - operazioni: **somma, sottrazione, prodotto, elevamento a potenza**
+    - **( )** parentesi
+
+![pg6](./imgs/pg6.png) <br>
+
+**GP prova a minimizzare la funzione di loss esattamente come fanno le reti neurali**. <br>
+![pg7](./imgs/pg7.png) <br>
+La differenza con le reti neurali è che la g la deve trovare l'algoritmo. <br>
+Non c'è una forma fissa e l'algoritmo deve trovare i pesi. G può essere qualsiasi espressione e l'algoritmo deve trovarla. **Se la funzione di perdita fosse 0 significa che io ho trovato esattamente la funzione (forma funzionale) che genera la yi in funzione di x1, ..., xn** (non è detto che ciò è possibile). <br>
+In generale, GP restituisce la migliore g trovata in un dato numero di generazioni (o altri criteri. Ad esempio si potrebbe interrompere l'algoritmo appena trovo una g tale per cui la funzione di perdita sia minore di un certo valore).
+
+**GP è un algoritmo genetico che lavora con espressioni o porzioni di codice.**
+
+Ci concentreremo su algoritmi che lavorano con espressioni.
+1. Come prima regola **non posso trattare un'espressione come stringa**. <br>
+    Ad esempio, con il crossover ad un punto (one-point crossover) se tratto le espressioni come stringhe si creano elementi che non hanno senso. Esempio se io taglio dopo i primi 4 caratteri: <br>
+    ![pg8](./imgs/pg8.png) <br> <br>
+    Questo perchè si ottengono figli sintatticamente non corretti. <br>
+    **Lo stesso problema si verifica con la mutazione**.
+
+**L'idea è quella di cambiare rappresentazione per le istruzioni e per le espressioni.**
+
+La rappresentazione utilizzata è simile al linguaggio di programmazione Lisp (linguaggio più moderno -> closure). Tuttavia, è possibile anche utilizzare una *rappresentazione diversa*, come quella ***basata su alberi.*** <br>
+![pg9](./imgs/pg9.png)
+
+- Le **foglie** rappresentano:
+    - ***costanti***
+    - ***variabili***
+- I **nodi interni** sono:
+    - ***operazioni*** (i figli sono gli argomenti dell'operazione --> *operandi*)
+
+Per valutare un'espressione ***E*** rappresentata come un albero con i valori *(v1, ..., vn)* per le variabili di input si utilizza una strategia di **visita post-order** dell'albero che permettono di calcolare un valore per ciascun nodo dell'albero. <br>
+
+### **Descrizione strategia**
+```pseudocode
+V(n) = valore asssegnato al nodo n
+
+if n is a leaf
+    if n is a constant
+        V(n) <-- n.costant
+    if n is a variable
+        V(n) <-- n[n.var_index]
+else
+    V(n) <-- n.op(V(c1), ..., V(ck)) # dove c1, ..., ck sono i figli di n
+```
+Solitamente le operazioni hanno uno o due operandi. Tuttavia ci sono operazioni con più operandi, ad esempio l'operatore condizionale ha tre operandi (un nodo di un operatore condizionale ha tre figli)
+
+### **GP pseudo-code**
+```pseudocode
+initalize the population
+    create NP elements # devo avere un generatore di espressioni casuali
+
+evaluate all the population elements
+for g <-- 1 to max_gen
+    selection of the mating pool
+    crossover
+    mutation
+    evaluation
+    population update
+end for
+
+return the best individuals ever found
+```
+### **Inizializzazione**
+```pseudocode
+create NP tree
+start with the root
+    with probability p it is a leaf (variabile o costante)
+    with probability 1-p it is an internal node -> scegli l'operazione e per ogni operando crea un sottoalbero
+```
+Alcune limitazioni possibili:
+- **massima profondità D**
+    - se un nodo è ad una profondità D, è una foglia (lo si forza ad essere una foglia, altrimenti l'espressione risults troppo complessa da trattare e/o l'albero è troppo complesso)
+- **esattamente profondità D**
+    - se un nodo non è ad una profondità D, è considerato come un nodo interno
+
+### **Valutazione**
+calcolare la funzione di perdita (loss) L per ciascun individuo
+```pseudocode
+for j <-- 1 to NP
+    sum <-- 0
+    for i <-- 1 to N                    # N = numero di esempi
+        y <-- evaluate(g_j, x_i)        # valuta g_j sull'esempio x_i --> 
+                                        #g_j, funzione ricorsiva per valutare l'albero con gli input x_i
+        sum <-- sum + L(y, y_i)         # y = valore trovato, y_i valore reale
+    end for
+    fobj[j] <-- sum
+end for
+```
+Questo processo è molto pesante computazionalmente perchè devo farlo per ciascun individuo. Non è neanche facile parallelizzare il tutto anche perchè il codice di una g può essere molto diverso da quello di un'altra g.
+
+### **Crossover**
+![pg10](./imgs/pg10.png) <br>
+Per sceglierlo ci sono vari criteri (casualmente o dando più probabilità ai nodi foglia o ai nodi interni, a seconda della situazione in cui mi trovo, come ad esempio in base alla profondità).
+
+![pg11](./imgs/pg11.png)
+
+### Alcune considerazioni
+I figli prodotti in questo modo sono espressioni sintatticamente corrette. Non importa come vengono selezionati i punti di scambio. Questo perchè io mi porto dietro l'intero sottoalbero (che produrrà un numero o un altro elemento, ma è comunque sintatticamente corretto). <br>
+Quello che cambia è che i figli possono avere un'altezza diversa rispetto ai genitori. <br>
+In generale, gli alberi possono avere altezze diversi (in un algoritmo genetico standard invece tendo ad avere elementi della stessa dimensione -> altrimenti non riuscirei a fare il crossover). <br>
+Durante l'evoluzione si tende a generare alberi sempre più alti perchè l'evoluzione tende a privilegiare individui sempre più alti. Questo fenomeno si chiama **ploting** e va combattuto perche aumenta la complessità computazionale e temporale richiesta per valutare alberi troppo alti. <br>
+Bisogna quindi stare attenti ad alberi troppo alti:
+- Si incorre in tempi computazionali maggiori per la **valutazione** e per le altre operazioni
+- Gli alberi troppo grandi possono essere anche difficili da leggere. <br>
+    Nonostante: <br>
+    *È importante notare che uno degli scopi della programmazione genetica è produrre espressioni **leggibili** (o almeno il più possibile leggibili). La programmazione genetica rientra nell'explainable artificial intelligence in quanto vengono prodotti risultati ed espressioni facilmente interpretabili dall'uomo (a differenza ad esempio di una rete neurale).*
+
+### **Mutazione**
+Inizialmente non veniva utilizzata nella GP e si utilizzava solo il crossover. Tuttavia, è un'operazione abbastanza semplice. <br>
+![pg12](./imgs/pg12.png) <br>
+Più in alto è il nodo che scelgo e maggiore è l'effetto del cambiamento (perchè sto sostituendo una parte significativa dell'albero). Di conseguenza bisogna tenere in considerazione questo fattore per evitare un cambiamento eccessivo, si necessita quindi una calibratura sul cambiamento.
+
+La selezione del mating pool e l'aggiornamento della popolazione possono essere fatti come negli algoritmi genetici standard.
+
+### **Riassumendo**
+Con la programmazione genetica posso fare una forma particolare di Machine Learning, in cui tento di imparare non i pesi di una rete neurale, non i coefficienti di un modello lineare ecc, ma addirittura cerco di ricostruire la forma funzionale che mi permette di ottenere gli output a partire dagli input. <br>
+Con questo posso ad esempio creare circuiti, controllori, costruire policy per il reinforcement learning ecc.. <br>
+Le limitazioni sono essenzialmente due:
+- avere a disposizione il training set
+- avere a disposizione delle risorse di calcolo non indifferenti (anche se nello svolgimento di alcuni compiti la programmazione genetica riesce ad essere competitiva rispetto alle reti neurali, ma tendenzialmente non lo è ma anzi richiede molta più computazione)
+
+![pg13](./imgs/pg13.png) <br>
+f viene rappresentata come  un albero:
+- gli operatori di crossover e mutazione sono definiti per gli alberi
+
+### **Vantaggi e Svanataggi della Programmazione Genetica**
+- **Vantaggi**
+    - È capace di apprendere un oggetto sintatticamente complesso (alberi, espressioni con operatori unari e binari, operazioni di assegnamento, iterarive, espressioni condizionali, porte logiche e circuiti ecc...).
+- **Svantaggi**
+    - La funzione obiettivo è computazionalmente difficile. <br>
+    Questo perchè ogni elemento deve essere valutato per ogni esempio (ad esempio con una visita post-order) e ciò non può essere meccanizzato facilemente (a meno che non vengano utilizzati dei mini-batch come nel Machine Learning).
+    - Non è facile migliorare la valutazione. <br>
+    T1, ..., Tn --> alberi <br>
+    E1, ..., En --> esempi <br>
+    **La valutazione viene fatta come una interoperazione**. <br>
+    Altrimenti l'alternativa sarebbe quella di utilizzare qualche forma di compilazione, ogni volta che viene generato un nuovo albero. Il tempo di compilazione ovviamente va preso in considerazione e quindi dal punto di vista computazionale potrebbe non dare vantaggi (non è quindi sempre conveniente utilizzare questa strategia).
+
+Da un lato lo scopo della programmazione genetica è quello di addestrare, ottenere e sintetizzare espressioni e piccoli programmi. Inoltre la programmazione genetica ha l'obiettivo di produrre oggetti leggibili (non sempre). Due importanti caratteristiche sono quindi:
+- **espressività**
+- **leggibilità**
+
+Dall'altro lato, la programmazione genetica **è (molto) più pesante del machine learning**:
+- **non** c'è la back propagation
+- **non si può parallelizzare** per l'utilizzo su GPU (perchè tutti gli elementi usano codici diversi)
+
+Ciò pone la GP in svantaggio rispetto al Machine Learning. Ci sono comunque stati dei tentativi per unire la GP al Machine Learning (Neural Network), la difficoltà per ottenere una modello simile è molto alta.
+- Reti Neurali: presuppongono una rappresentazione puramente numerica del programma, è quindi stato necessario un gran lavoro -> **Neural Tuning Machine** (corrisponde ad un approccio ibrido) in cui è possibile utilizzare la Back Propagation.
+
+### **Altre forme della Programmazione Genetica**
+### **Progammazione Genetica Lineare**
+Rappresenta i programmi come una sequenza di codici d'istruzione (istruction codes). <br>
+Ad esempio si possono rappresentare con delle sequenze di **bytecodes**, con il vantaggio di mantere crossover e mutazione come sequenze (più facile mantenerli). Lo svantaggio è che l'interprede deve essere **limitato**, altrimenti potrebbe andare in loop. Si può usare un limite di tempo: se entro un tot tempo l'interprete non ritorna un risultato la sequenza non è considerata valida. Inoltre è molto facile generare dei programmi senza senso.
+
+Un altro svantaggio della gp lineare è che potrebbe produrre dei risultati che sono difficili da interpretare dagli umani (leggere il bytecode è difficile). Sarebbe necessaro avere un decompilatore.
+
+### **Programmazione genetica Cartesiana**
+![pg14](./imgs/pg14.png) <br>
+![pg15](./imgs/pg15.png)
+
+
+Il vantaggio di questo approccio è che non è necessaria la ricorsione ne per generare ne per creare elementi. È possibile utilizzare solo cicli for per generare e valutare gli individui della popolazione. Inoltre anche la decodifica è totalmente numerica, per ogni individuo devo quindi conservare solo gli indici e l'operazione da fare, è quindi molto veloce rispetto alla classica gp basata sugli alberi.
+
+
+Alcune forme di programmazione genetica (o altri algoritmi evolutivi) potrebbe essere utilizzate per migliorare (o correggere) dei programmi già esistenti (invece di crearli da zero). Questa forma si chiama **genetic (o software) improvement**.
+
+### **Bloat**
+La programmazione genetica tende a creare elementi con **molte componenti**:
+- Questo causa un incremento notevole dei tempi di computazione.
+- Inoltre gli elementi diventano difficile da capire e interpretare (sia per l'umano che a livello computazionale).
+
+![pg16](./imgs/pg16.png)
+
+Per evitare il fenomeno di **Bloat**:
+1. Si **limita la crescita**, ad esempio penalizzando oggetti troppo grandi. <br>
+    Funzione obiettivo di un oggetto e: <br>
+    ***f_obj(e) = Loss(e) + k * Size(e)*** --> questo favorisce oggetti piccoli.
+2. Utilizzare degli **operatori che riducono gli oggetti** (**operatori sheink**). Questi operatori prendono un oggetto e lo riducono. <br>
+3. **Semplificare gli oggetti**. La semplificazione potrebbe essere computazionalmente pesante. <br>
+![pg17](./imgs/pg17.png) 
+
+<hr>
+
+# **Swarm Intelligence**
+È un'area di ricerca che crea algoritmi di ottimizzazione prendendo ispirazione dalla natura (in particolare da grandi gruppi di animali). <br>
+Questo branca è particolarmente interessante perchè questi gruppi sono formati da **individui** con basse capacità di comunicazione e calcolo. Tuttavia **l'intero gruppo è in grato di risolvere task molto più complessi** rispetto al singolo individuo.
+
+Ogni singolo individuo comporta poco sforzo nel lato di programmazione, tuttativa quando si combinano questi individui si riesce a risolvere problemi molto complicati.
+
+**Applicazioni dello Swarm Intelligence**:
+- **Ottimizzazione**
+- Computer Grafica
+- Robotica
+
+In generale, nello Swarm Intelligence si ha una **popolazione di individui** (chiamati in realtà **particelle** o **particles**). Ogni individuo si muove nello spazio di ricerca e la **funzione obiettivo** è ottimizzata dall'intera popolazione (non dal singolo individuo in modo diretto).
+
+I compiti che possono essere svolti dalla popolazione non sono seomplicemente la somma dei comportamenti dei singoli individui, ma sono qualcosa di più complesso --> **Emergenza**
+
+## **Particle Swarm Optimization (PSO)**
+### **Descrizione PSO**
+È un algoritmo che fa utilizzo della Swarm Intelligence, ed è pensato per l'**ottimizzazione continua** (è quindi un diretto rivale del Differential Evolution). <br>
+Il PSO è stato inventato a metà degli anni 90.
+
+### **Piccolo Recap sui problemi di Ottimizzazione Continua**
+Si ha una funzione obiettivo che è definita per variabili reali. Queste variabili reali sono rappresentate come vettori di dimensione ***d***. <br>
+![swarm1](./imgs/swarm1.png) 
+
+### **Principio guida del PSO**
+**Attrazione** <br>
+![swarm2](./imgs/swarm2.png) <br>
+***x_a' = x_a + C * (x_b - x_a)*** con c < 1 (numero reale)<br>
+a' è ottenuto spostando A verso B
+
+Questa tecnica è ad esempio utilizzata nei videogiochi. Si pensi alla situazione in cui un elemento nel videogioco deve inseguire un altro elemento nel videogioco che si sta muovendo. Per dire al primo elemento di inseguire il primo, non lo si può far muovere direttamente nella posizione dell'altro, ma si deve utilizzare questa tecnica.
+
+Si ha una popolazione di **N** individui, in cui ciascun individuo ha le seguenti caratteristiche:
+- **posizione corrente** pi (i sta per i-esimo individuo)
+- **velocità corrente** vi (si deve immaginare che questi individui si muovono ed hanno una velocità)
+- **memoria** bi (detto anche **personal best**) che corrisponde alla migliore posizione da lui trovata. Il migliore è inteso in termini della funzione obiettivo f.
+
+Inoltre la popolazione ha anche una variabile globale g chiamata **global best** che corrisponde alla migliore posizione trovata da tutti gli individui. <br>
+**Global Best è il migliore dei Personal Best**.
+
+L'idea è di far muovere le particelle secondo due direzioni diverse (che si devono compensare l'una con l'altra). Da un lato la particella viene attratta dal suo personal best e dall'altro viene attratta dal global best. Queste due forze spingono la particella a cambiare velocità. Queste due forze danno l'idea del movimento di uno sciame perchè il global best fa puntare tutte le particelle verso la stessa direzione e il personal best fa puntare le particelle ognuna in una direzione diversa (tranne l'individuo migliore che ha il personal best uguale al global best). Questo fa esplorare lo spazio di ricerca.
+
+Il comportamento del Particle Swarm è dato da due semplici equazioni. 
+
+Ciascun individuo aggiorna la sua posizione e la sua velocità con le seguenti regole:
+- **nuova posizione pi** <-- pi (posizione corrente) + vi (velocità corrente) <br>
+    Nella fisica tradizionale la velocità vi è moltiplicata per Δt ma in questo caso lo valutiamo implicitamente uguale a 1 <br>
+    ![swarm3](./imgs/swarm3.png)
+- ![swarm4](./imgs/swarm4.png)
+    - Dove c1 e c2 sono due coefficienti -> **parametri del PSO** (solitamente sono fissati a 2.04)
+    - vi è la velocità corrente <br>
+    - bi è la miglior posizione trovata dalla particella <br>
+    - g è la miglior posizione dell'intera popolazione <br>
+    - r1 e r2 sono due **vettori casuali** di dimensione ***d*** <br>
+    - ⊙ è la moltiplicazione elemento per elemento (**element-wise multiplication**) <br>
+    `(1, 2, 3) ⊙ (0, 2, 5) --> (0, 4, 15)`
+
+`bi - pi` è una componente che sposta pi verso bi = la particella i-esima tende ad andare verso la migliore posizione che essa aveva trovato -> **Componente Cognitiva** <br>
+Tuttavia in quanto si ha `r1 ⊙ (bi - pi)`, si ha una distorsione della forza di attrazione in ogni dimensione. <br>
+Il coefficiente c1 serve invece a calibrare quanto è forza la forza di attrazione (quanto è forte questa spinta).
+
+**N.B**: Solo la particella che ha raggiunto **g** sa che è una buona posizione. Le altre non lo sanno. In un certo qual modo le altre si "fidano".
+
+`(g - pi)` muove pi verso ****g**** -> **Componenete Sociale** = tutti gli individui sono attratti verso lo stesso punto ***g***
+
+![swarm5](./imgs/swarm5.png) <br>
+
+<hr>
+
+### Altri aspetti interessanti
+***Quando viene aggiornata la posizione ? E quando la velocità?*** <br>
+Ci sono due alternative possibili:
+- La posizione viene aggiornata dopo la velocità. <br>
+    ![swarm6](./imgs/swarm6.png)
+- Prima viene aggiornata la posizione poi viene aggiornata la velocità **utilizzando la vecchia posizione**. <br>
+![swarm7](./imgs/swarm7.png)
+
+Entrambi gli approcci funzionano.
+
+***bi*** è aggiornato quando la nuova posizione pi è migliore della bi corrente. <br>
+***g*** è invece aggiornata in modo similare
+
+### **Pseudocodice Algoritmo**
+```pseudocode
+    Inizializzazione della popolazione:
+        1. Scegliere posizione e velocitàù
+        2. bi = pi
+    g è il miglior bi
+    for gen <-- 1 ti max_gen
+        for i <-- 1 to N 
+            update pi
+            update vi
+            update bi       # evaluate f(pi)
+        end for
+        update g
+    end for
+    return g                # g sarà il miglior elemento trovato da tutta la popolazione
+```
+
+### **Dettagli aggiuntivi**
+Una rete di comunicazione tra le particelle (individui) può essere così rappresentata. <br>
+![swarm8](./imgs/swarm8.png) <br>
+dove i numeri corrispondo alle particelle i. Inoltre va aggiunto il fatto che il grafo (Rete di comunicazione) è fisso, non dipende dalle posizioni (viene creato in maniera arbitraria).<br>
+Le particelle si scambiano delle informazioni -> si scambiano la miglior posizione che esse hanno trovato. <br>
+Non tutte le particelle sono in comunicazione diretta. Ciascuna particella può comunicare solo con quelle direttamente collegate. <br>
+Invece di utilizzare `c2 r2 ⊙ (g - pi)` la componente sociale è data da `c2 r2 ⊙ (li - pi)`<br>
+dove ***li*** è la migliore posizione (***bi***) tra le particelle che comunicano con i. È una pratica comune includere anche i stesso per calcolare ***li***. <br>
+***g*** è la situazione in cui il grafo è completamente connesso (ogni particella comunica con tutte le altre, quindi `li = g`). <br>
+Non è sempre così, infatti in genere è frequente utilizzare dei grafi con una connettività bassa.
+
+Un grafo che viene utilizzato spesso è il **grafo ad anello**: <br>
+![swarm9](./imgs/swarm9.png)
+
+Questi grafi di comunicazione sono utilizzati per ridurre la possibilità di una convergenza troppo rapida. In sostanza si rallenta la convergenza.<br>
+La **componente sociale** è importante perchè senza di essa ogni particella andrebbe per conto suo e non ci sarebbe una convergenza. È come se ci fossero n esecuzioni indipendenti dello stesso codice, non ci sarebbe un concetto di popolazione. <br>
+La componente sociale da comunque l'idea di una popolazione -> **di un obiettivo comune**. Tuttavia pian piano si rischia che ogni personal best vada verso ***g*** e non si avrebbe ulteriore esplorazione. Si limita quindi la comunicazione per far continuare l'esplorazione più a lungo (non vanno tutte nella stessa direzione).
+
+<hr>
+
+### Informazioni aggiuntive sul PSO
+- **Componente di inerzia**
+Un terzo coefficiente è la **componente d'inerzia** <br>
+![swarm10](./imgs/swarm10.png)
+
+dipende dalla velocità corrente.
+
+- È inoltre necessario utilizzare un limite per la velocità. Nel caso di una velocità troppo alta la particella salta da un punto all'altro nello spazio in maniera esagerata e non si avrebbe una buona esplorazione. <br>
+Ad esempio si possono limitare tutte le componenti di vi nell'intervallo [-v_max, +v_max].
+- Il PSO **può essere implementato e utilizzato per problemi di ottimizzazione discreti**. <br>
+    La tecnica è simile a quella vista per il DE. <br>
+    Ad *esempio* -> **PSO binario**: <br>
+    ![swarm11](./imgs/swarm11.png) <br>
+    In questo modo si ha una stringa di 3 bit. <br>
+    ***velocità*** --> stringa di bit
+
+<hr>
+
+## **Ant Colony Optimization**
+È uno dei migliori algoritmi di ottimizzazione basato su Swarm Intelligence. È ispirato dal comportamento delle formiche. <br>
+Le formiche **tendono** a preferire percorsi più brevi. Per trovare il percorso più breve è sufficiente che le formiche tendano ad andare dove sono passate più spesso le altre formiche (seguire percorsi già battuti da altre formiche). Questo perchè in tali percorsi vi è una maggiore quantità di ferormone.
+![swarm12](./imgs/swarm12.png) <br>
+Tuttavia il feromone tende lentamente ad evaporare e quindi, se un percorso non è più seguito, sparisce.
+
+L'idea è quella di simulare una colonia di formiche con lo scopo di risolvere problemi di ottimizzazione. In particolare per problemi di ottimizzazione combinatori su grafo (ottimizzazione discreta). --> ***Ant Colony Optimization***
+
+La naturale applicazione è quindi quella di risolvere problemi legati ai grafi. <br>
+![swarm13](./imgs/swarm13.png) <br>
+Il grafo potrebbe essere costruito ogni volta che la formica arriva in un nuovo nodo.
+
+Qui di seguito è mostrato come risolvere il TSP utilizzando **ACO** (Ant Colony Optimization)
+
+### **TSP utilizzando ACO**
+**Asimmetric TSP**:
+- n citta
+- Dij = distanza tra ci e cj
+- **Scopo**: trovare il percorso cπ(1), cπ(2), ..., cπ(n), cπ(1) con il costo minore
+    - π è l'ordine di visita
+    - il percorso parte da una città, tocca tutte le città una sola volta e infine si deve tornare al punto di partenza.
+
+![swarm14](./imgs/swarm14.png) <br>
+
+Il costo di una soluzione è la somma di tutte le distanze percorse.<br>
+![swarm15](./imgs/swarm15.png) <br>
+
+Il grafo su cui si muovono le formiche è cosi composto:
+![swarm16](./imgs/swarm16.png) <br>
+La sua dimensione è enorme, ragionare su questa rappresentazione è quindi molto difficile.
+
+Il ragionamento da fare è quindi necessariamente diverso ed è descritto qui di seguito.
+```pseudocode
+create_solution():
+    Una formica parte da un percorso vuoto π
+    while |π| < n
+        seleziona una città cj non appartenente al percorso π
+        aggiungi cj a π
+    end while
+    aggiungi cπ(1) a π
+    return π
+```
+***Come fa la formica a scegliere un percorso?*** <br
+La scelta della prossima città da visitare è una scelta probabilistica ed è influenzata da due valori:
+- **Feromone** τ_ij ("tau")
+- **Funzione euristica** ϑ_ij ("teta")
+
+dove i è la città corrente (ultima città visitata) e j è la città successiva.
+- I valori di feromone sono memorizzati in una matrice che è gestita dalla colonia. <br>
+**τ_ij rappresenta quanto la colonia ritiene buono andare da ci a cj** (è un numero reale. In genere più è alto e più la colonia ritiene buono andare da ci a cj). <br>
+- Il valore di euristica ϑ_ij è un'informazione esterna che valuta la bontà della scelta ci -> cj <br> 
+Nel nostro caso ϑ_ij = 1/Dij <br>
+in questo modo ciascuna formica **tende** (la scelta è probabilistica) ad andare alla città non visitata più vicina.
+- **Probabilistic Choice**: La probabilità di scegliere j come città successiva del percorso è data dalla seguente formula: <br>
+![swarm17](./imgs/swarm17.png) <br>
+Per scegliere un numero basandosi sulle probabilità si fa utilizzo della **roulette wheel**.
+
+Il valore probabilitico non esiste in natura ma viene aggiunto per migliorare le prestazioni.
+
+La scelta della prossima città (in base al valore probabilistico) avviene in due passaggi:
+1. calcolare p(i->j) per tutte le città cj non ancora visitate
+2. selezionare cj con il metodo della roulette wheel
+
+### **Pseudocodice dell'algoritmo ACO**
+```pseudocode
+    Inizializzare la matrice dei feromoni τ
+    for g <-- 1 to max_gen
+        for i <-- 1 to num_ants
+            si <-- create_solution()
+        end for
+        eseguire l'evaporazione di τ
+        update_best_solutions
+    end for
+    return the best solution ever found
+```
+### Descrizione delle varie fasi: 
+
+#### **Inizializzazione**
+La fase di inizializzazione è abbastanza semplice:
+![swarm18](./imgs/swarm18.png) <br>
+
+All'inizio mettendo tutti i valori uguali, le formiche scelgono solo in base all'euristica -> **il feromone all'inizio non ha nessun contributo nella scelta delle formiche**
+
+#### **Create Solution**
+```pseudocode
+create_solution():
+    Una formica parte da un percorso vuoto π
+    while |π| < n
+        seleziona una città cj non appartenente al percorso π
+        aggiungi cj a π
+    end while
+    aggiungi cπ(1) a π
+    return π
+```
+
+#### **Evaporazione**
+L'evaporazione è simulata nel seguente modo:
+![swarm19](./imgs/swarm19.png) <br>
+ῥ (rho) è un valore **piccolo** <br>
+Esempio: ῥ = 0.05 ; 1-ῥ = 0.95 -> τ_ij è **diminuito del 5%** <br>
+L'evaporazione è una sorta di decadimento esponenziale del feromone.
+
+#### **Aggiornamento**
+L'aggiornamento non esiste in natura. <br>
+Questo processo da una piccola reward (ricompensa) ad ogni coppia ci, cj che appare in buone soluzioni. <br>
+***Quali sono le buone soluzioni?*** <br>
+In natura se ne distinguono 2:
+1. ***Best_So_Far*** -> è la migliore soluzione di sempre ***s_bs*** (sarà anche il risultato finale restituito dall'algoritmo)
+2. ***Iteration_Best*** -> è la migliore soluzione trovata in questa generazione ***s_ib***
+
+```pseudocode
+rewars(s, k):      # reward in base alla soluzione s
+    for all ci , cj che appaiono in s
+        τ_ij <-- τ_ij + K/Ls
+```
+Ls è il costo della soluzione s. <br>
+Ci sono 3 possibilità:
+1. reward(***s_bs***, w_bs)
+2. reward(***s_ib***, w_ib)
+3. reward(***s_bs***, w_bs) <br>
+    reward(***s_ib***, w_ib)
+
+w_bs e w_ib sono pesi che dipendono dal problema e devono essere calibrati. Ci sono anche varianti in cui non viene premiata una sola soluzione ma ad esempio anche la seconda migliore ecc...
+
+### **I parametri di ACO**
+- ***α*** -> indica quanto è importante τ nella scelta delle formiche
+- ***β*** -> indica quanto è importante ϑ nella scelta delle formiche
+- ***ῥ*** -> indica quanto velocemente evapora il feromone (influenza l'evaporazione: tanto più è alto, tanto più velocemente evapora il feromone)
+- ***n_ants*** (numero di formiche) -> può influenzare la bontà dell'Iteretion_Best: più è alto il numero di formiche e più tentativi vengono fatti ad ogni iterazione. Facendo più tentativi è più probabile che vengano fuori soluzioni migliori ad ogni generazione (solitamente sta tra 20 e 50). 
+- ***w_ib*** -> indica quale soluzione viene premiata maggiormente: *"premiare l'Iteration_Best significa premiare le novità"* -> **Exploration**
+- ***w_bs*** -> indica quale soluzione viene premiata maggiormente: *"premiare il Best_So_Far significa spingere verso una convergenza"* -> **Exploitation**
+- ***max_gen***
+
+La **matrice dei feromoni** rappresenta la memoria collettiva della colonia. <br>
+La ricompensa non è della soluzione in sè, ma è data alle componenti della soluzione (archi/edges).
+
+I **valori euristici** aiutano le formiche a scegliere, soprattuto all'inizio, perchè all'inizio il feromone non da contributo.
+
+### **Applicazioni di ACO**
+ACO risolve problemi discreti. ACO funziona creando, in modo incrementale, soluzioni di un problema combinatorio. <br>
+ACO viene ad esempio utilizzato per il TSP e per il VRP (Vehicle Routing Problem)<br>
+![swarm20](./imgs/swarm20.png) <br>
+L'obiettivo è trovare n percorsi, in modo tale che la somma dei costi dei percorsi sia minimo. <br> 
+Il VRP si riduce al TSP se si utilizza un solo veicolo.
+
+ACO può essere utilizzato anche per risolvere problemi di scheduling e per problemi di assegnamento. <br>
+**Problemi di assegnamento**:
+![swarm21](./imgs/swarm21.png) <br>
+
+**Problemi di Scheduling**: <br>
+Si hanno n operazioni e si deve assegnare uno start_time a ciascuna operazione (possono anche essereci dei vincoli. Ad esempio: vincoli di precedenza tra le varie operazioni. Possono anche esserci dei vincoli di compatibilità: non possono esserci operazioni eseguite contemporaneamente tra loro.). La funzione obiettivo di un problema del genere è ad esempio quella di far terminare l'insieme di n operazioni nel minor tempo possibile.
