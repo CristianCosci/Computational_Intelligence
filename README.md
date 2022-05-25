@@ -66,6 +66,12 @@
         - [Pseudocodice](#pseudocodice-dellalgoritmo-aco)
         - [I Parametri di ACO](#i-parametri-di-aco)
         - [Altre applicazioni di ACO](#applicazioni-di-aco)
+- [Probelmi di Ottimizzazione Multi-Obiettivo](#problemi-di-ottimizzazione-multi-obiettivo)
+    - [Dominanza di Pareto](#dominanza-di-pareto)
+    - [NSGA-II](#nsga-ii)
+        - [Non-Dominated Sort](#non-dominated-sort)
+        - [Crowding Distance](#crowding-distance---calcolo-del-fattore-distanza)
+
 
 ### Informazioni sul corso
 - **Esame** (2 parti):
@@ -2784,3 +2790,161 @@ ACO può essere utilizzato anche per risolvere problemi di scheduling e per prob
 
 **Problemi di Scheduling**: <br>
 Si hanno n operazioni e si deve assegnare uno start_time a ciascuna operazione (possono anche essereci dei vincoli. Ad esempio: vincoli di precedenza tra le varie operazioni. Possono anche esserci dei vincoli di compatibilità: non possono esserci operazioni eseguite contemporaneamente tra loro.). La funzione obiettivo di un problema del genere è ad esempio quella di far terminare l'insieme di n operazioni nel minor tempo possibile.
+
+<hr>
+
+## **Implementazione codice ecc**
+
+<hr>
+
+Lo Swarm Intelligence è una tecnica ispirata al comportamente di gruppi di animali. Precedentemete abbiamo visto le seguenti tipologie (sono i più famosi):
+- **Particle Swarm Optimization** -> pensato principalmente per problemi continui (non deve essere utilizzato necessariamente per problemi continui, può essere utilizzato anche per problemi discreti adattandolo)
+- **Ant Colony Optimization** -> pensato principalmente per problemi discreti (allo stesso modo del PSO può comunque essere utilizzato per problemi continui ma è meno performante)
+
+Ci sono altri algoritmi degni di essere citati. Qui di seguito verranno trattati.
+- ### **Artificial Bee Colony (ABC)**
+    È ispirato al comportamento delle api. <br>
+    Divide gli individui del gruppo in due:
+    - **Explorer** -> cercano in uno spazio più ampio
+    - **Worker** -> cercano in uno spazio minore <br>
+    ![swarm22](./imgs/swarm22.png) <br>
+- ### **Cuckoo Search**
+    È ispirato al comportamento di un particolare tipo di uccelli. La metafora a cui si ispira è di un particolare tipo di uccelli che fa covare le sue uova in nidi di altri uccelli. Quello che succede è che i pulcini di questo uccelli prendono il sopravvento sull'altro nido.
+- ### **Firefly Optimization**
+    Ispirato al comportamento delle lucciole. 
+
+Esistono molti altri algoritmi di Swarm Intelligence. Sono più o meno tutti ispirati al comportamento animale ma non sono necessariamente tutti innovativi e/o performanti.
+
+<hr>
+
+### **No Freee Lunch Theorem**
+Qualsiasi algoritmo di ottimizzazione si scriva, esisterà comunque un problema per cui tale algoritmo funzionerà male. <br>
+*Definizione Formale*: **Per qualsiasi algoritmo è sempre possibile trovare un problema in cui tale algoritmo produce risultati peggiori rispetto ad un altro algoritmo.** <br>
+Non c'è quindi un modo semplice per affrontare i problemi di ottimizzazione. <br>
+
+Solitamente, gli algoritmi vengono confrontati tra loro. <br>
+Ad esempio per confrontare 2 algoritmi, l'idea è di utilizzare un benchmark con molte istanze di uno o più problemi e si fa successivamente girare ogni algoritmo su ogni singola istanza (questo passaggio viene ripetuto per più volte).\\
+Successivamente si utilizzano dei test statistici sui risultati sperimentali, per determinare in modo scientifico quali sono i migliori algoritmi sui problemi di benchmark. <br>
+Il risultato di un test statistico è ad esempio: *"L'algoritmo A1 è significativamente (al 95%) migliore di A2"* 
+
+Ci sono inoltre delle competizioni internazionali in cui si devono implementare degli algoritmi per ottenere il miglior risultato su delle istanze di problemi dati.
+
+<hr>
+
+# **Problemi di Ottimizzazione Multi-Obiettivo**
+Multi-Obiettivo significa che devo massimizzare (o minimizzare) più funzioni obiettivo e non solo una.
+
+Ad esempio ho due funzioni obiettivo $f_1(x)$ e $f_2(x)$, ed il nostro obiettivo è quello di trovare un valore $x^*$ tale che: <br>
+$f_1(x^*) <= f_1(x)$ e $f_2(x^*) <= f_2(x)$ ∀ x ∈ D.
+
+Formulato in questo modo, il problema non sembra così difficile ma non è sempre risolvibile. <br>
+Io voglio trovare un punto che minimizza contemporanemanete due funzione. Allora provo a trovare un valore che minimizza $f_1(x)$ e di conseguenza tale valore minimizza anche l'altra. Tuttavia in molte situazioni questo valore $x^*$ non c'è, questo perchè potrebbe ad esempio esserci una situaizione in cui una funzione cresce e l'altra decresce. <br>
+Un esempio è il TSP in cui le funzioni obiettivo sono il **tempo** e il **consumo**. In questo modo io non riesco a minimizzare le due funzioni, in quanto queste due sono in conflitto tra di loro, questo perchè ad esempio, minimizzare il tempo potrebbe equivalere ad aumentare il consumo.
+
+### **Dominanza di Pareto**
+Date due soluzioni $x_1$ e $x_2$, $x_1$ domina secondo pareto $x_2$ se <br> 
+$f_1(x_1) <= f_1(x_2)$ <br>
+$f_2(x_1) <= f_2(x_2)$ <br>
+. <br>
+. <br>
+. <br>
+$f_k(x_1) <= f_k(x_2)$ con k = numero di funzioni obiettivo <br>
+e per almeno una o più j=1,...,k $f_j(x_1) < f_j(x_2)$
+
+![swarm23](./imgs/swarm23.png)
+
+S1 non domina S2 e S2 non domina S1.
+
+![swarm24](./imgs/swarm24.png)
+
+In questo caso S1 e S2 non sono confrontabili.
+
+Quando si opera con una sola funzione obiettivo, ci sono 3 possibilità:
+- le due soluzioni sono uguali
+- S1 è migliore di S2
+- S2 è migliore di S1 
+
+Per quanto riguarda i problemi multi-obiettivo abbiamo una possibilità aggiuntiva alle 3 precedenti:
+- le due soluzioni sono uguali
+- S1 è migliore di S2
+- S2 è migliore di S1 
+- **S1 e S2 non sono confrontabili**
+
+I problemi multi-obiettivo richiedono di trovare un insieme di **buone** soluzioni che non sono comparabili tra loro.
+
+![swarm25](./imgs/swarm25.png)
+
+Dall'insieme di soluzioni poi posso scegliere in maniere autonoma la soluzione che preferisco secondo criteri personali.
+
+**Un insieme di soluzioni non comparabili è chiamato Pareto Front**.
+
+Nei problemi di ottimizzazione multi-obiettivo, il ruolo degli algoritmi evolutivi è molto importanti, soprattutto gli algoritmi evolutivi basati sulle popolazioni, questo perchè io faccio evolvere una Pareto Front.
+
+Uno degli algoritmi più famosi è il seguente:
+
+## **NSGA-II**
+È un algoritmo genetico basato su una tecnica che permette di velocizzare i calcoli della Pareto Front -> **Non Dominated Sorting**. <br>
+L'idea è di utilizzare un algoritmo genetico standard aggiungendo altre operazioni. In particolare questo algoritmo seleziona gli individui utilizzando due fattori:
+- **rank**: indica quanto l'individuo è meglio rispetto agli altri
+- **distanza** -> meccanismo che preserva la diversità: indica quanto l'individuo è distante rispetto agli altri
+
+### **Non-Dominated Sort**
+**input**: una popolazione di individui <br>
+**output**: ogni individuo p viene etichettato con un rank -> p.rank
+```pseudocode
+    for each p in P
+        Sp <-- []
+        np <-- 0
+        for each q in P
+            if p domina q then
+                Sp.append(q)
+            else if q domina p then
+                np <-- np+1
+        end for
+        if np == 0 then
+            p_rank <-- 1
+            F[1].append(p)
+    end for             # finito questo for ho trovato tutti gli individui di rank = 1, 
+    i <-- 1             # ora devo trovare gli altri
+    while F[i] != []
+        Q <-- []
+        for each p in F[i]
+            for each q in Sp
+                nq <-- nq - 1
+                if nq == 0 then
+                    q_rank <-- i + 1
+                    Q.append(q)
+                i <-- i + 1
+                F[i] <-- Q
+            end for
+        end for
+    end while
+```
+![swarm26](./imgs/swarm26.png)
+
+Questo viene utilizzato per aggiornare i valori dei rank, per quanto riguarda la distanza vedere qui di seguito.
+
+### **Crowding Distance - Calcolo del fattore distanza**
+
+![swarm27](./imgs/swarm27.png)
+
+Ordinando le soluzioni in ciascun $F_i$ rispetto a una funzione obiettivo $f_j$. <br>
+Il fattore **distanza** per $S_i$ è calcolato tramine le soluzioni $S_{i-1}$ e $S_{i+1}$.
+```pseudocode
+    l = #p          # numero di p
+    for each p in P
+        p.distance  <-- 0
+    for j <-- 1 to k        # k è il numero delle funzioni obiettivo
+        sort p rispetto a fj
+        p[0].distance <-- infinito
+        p[-1].distance <-- infinito
+        for i <--1 to l-2
+            p[i].distance <-- p[i].distance + ( p[i+1].fj - p[i-1].fj )/ (fj_max - fj_min)    
+```
+Una volta che ho applicato il **Non-Dominated sorting** e la **Crowding Distance**, p è **migliore** di q se <br>
+***p.rank < q.rank o (p.rank = q.rank AND p.distance > q.distance)***
+
+![swarm28](./imgs/swarm28.png)
+
+Seleziono tutti gli individui con rank più basso e poi mano a mano che mi servono più individui seleziono tutti i migliori individui con rank maggiore ma rispetto alla distanza. <br>
+In questo modo ho una popolazione ben diversificata (rispetto alla semplice Pareto Front in cui avrei solo quelli di rank 1 e poitrei non poter migliorare più la mia popolazione).
