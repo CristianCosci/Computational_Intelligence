@@ -2948,3 +2948,132 @@ Una volta che ho applicato il **Non-Dominated sorting** e la **Crowding Distance
 
 Seleziono tutti gli individui con rank più basso e poi mano a mano che mi servono più individui seleziono tutti i migliori individui con rank maggiore ma rispetto alla distanza. <br>
 In questo modo ho una popolazione ben diversificata (rispetto alla semplice Pareto Front in cui avrei solo quelli di rank 1 e poitrei non poter migliorare più la mia popolazione).
+
+Esistono in letteratura molte proposte di miglioramento per NSGA-II. <br>
+Queste proposte consistono nell'utilizzare il DE, il PSO e altre metaeuristiche e altri criteri per selezionare la popolazione.
+
+<hr>
+
+## **Decomposizione**
+Uno dei metodi alternativi per risolvere i problemi multi-obiettivo è quello di utilizzare la **decomposizione**. Quest'ultima è una tecnica che non usa la dominanza di Pareto. <br>
+L'idea è quella di avere una linearizzazione della funzione obiettivo: anzichè ragionare sulle singole funzioni obiettivo e cercare una soluzione che le minimizza tutte, la **decomposizione crea una singola funzione obiettivo**. <br>
+Sono possibili vari approcci:
+- **Somma pesata (weighted sum)** <br>
+    m funzioni obiettivo *$f_1, ..., f_n$* <br>
+    m pesi *$ \lambda_1, ..., \lambda_n$* tali che $x_i$ >= 0 ∀i = 1, ..., m e $\sum_{i=1}^{n}\lambda_i = 1$ <br>
+    I pesi devono essere maggiori uguali di 0 perchè ogni obiettivo deve contribuire in modo positivo (Altrimenti il contributo sarebbe l'opposto).<br>
+    L'idea è di avere una funzione $g^{ws}(x|\lambda) = \sum_{i=1}^{n}\lambda_i f_i(x)  $ con x che rappresenta la soluzione e $\lambda$ i pesi. <br>
+    Un modo per risolvere il problema è quello di minimizzare $g^{gs}$ rispetto a x. <br>
+    I $\lambda_i$ indicano il contributo relativo di $f_i$. <br>
+    A priori non esiste un vettore $\lambda$ che lavora meglio degli altri. <br>
+    Gli algoritmi basati sulla decomposizione utilizzano una popolazione di "***minimizzatori***", ciascuno dei quali minimizza $g^{gs}(x | \lambda)$, utilizzando il proprio vettore $\lambda$. Ogni ***minimizzatore*** produce una soluzione $x^{(i)}$.
+- Un modo differente per aggregare le funzioni obiettivo $f_i$ è il **Tchebycheff's approaches**. <br>
+    Si valuta $z^{**} = (min f_1, min f_2, ..., min f_m)$ che in realtà non è un punto raggiungibile ma ci si può chiedere quanto è lontano. <br>
+    $z = z(x) = (f_1(x), f_2(x), ..., f_m(x))$ ci chiediamo quanto è buono x a seconda di quanto è la distanza tra questo vettore e quello ideale. <br>
+    La funzione di aggregazione sarà fatta in questo modo: <br>
+    $g^{tc}(x | \lambda, z^*) = max_{i =1, ..., m} {\lambda_i | f_i(x) - z^*_i|}$ con $z^*$ come punto di riferimento. <br>
+    $z^* = (\mu_1, ..., \mu_m)$ dove $\mu_i$ è il valore minimo per $f_i$ fino all'iterazione corrente. Probabilmente anche questo punto non è raggiungibile. <br>
+    Il termine a destra della formula per $g^{ts}$ è una specie di distanza tra il vettore $z(x)$ e il vettore di riferimento $z^*$. <br>
+    Anche qui si ha una popolazione di ***minimizzatori***, ciscuno dei quali utilizza dei valori diversi per $\lambda^{(i)}$.
+
+Entrambe le funzioni di aggregazione hanno la seguente proprietà: <br>
+utilizzando $\lambda^{(i)} != \lambda^{(j)}$, i punti $x^{(i)}$ e $x^{(j)}$, i quali minimizzano $g^{ws}$ (o $g^{tc}$ non sono comparabili. 
+
+
+
+### **MOEA/D Algorithm (multi-objective evolutionary algorithm decomposition based)**
+- Si ha una popolazione di n individui
+- ogni individuo ha:
+    - un vettore $\lambda^{(i)}$
+    - una soluzione iniziale $x^{(i)}$
+    - un vettore $F^{(i)} = (f_1(x^{(i)}), ..., f_n(x^{(i)})$
+
+Per 2 funzioni obiettivo, la scelta dei $\lambda^{(i)}$ è facile <br>
+![swarm29](./imgs/swarm29.png)
+
+```pseudocode
+    for each individual
+        let B(i) be the of T "neighbors" of i, that is the seto of T individuals whose lambda is closer to lambda(i)
+```
+Ad esempio per T = 2 <br>
+$\lambda^{(i)} = (0.7, 0.3)$ <br>
+B(i) = {i-1, i+1} <br>
+$\lambda^{(i+1)} = (0.8, 0.2)$ <br>
+$\lambda^{(i-1)} = (0.6, 0.4)$ <br>
+$d(\lambda^{(i)}, \lambda^{(i+1)}) = \sqrt{0.1^2 + 0.1^2} = \sqrt{0.02} $ <br>
+Tutte la altre $\lambda^{(i)}$ hanno una distanza maggiore da $\lambda^{(i)}$ <br>
+
+```pseudocode
+    ep <- []    #(external population. Questa variabile servirà per conservare gli individui migliori che sono stati creati durante l'esecuzione dell'algoritmo. Vorremmo mantenere in ep le soluzioni che non sono dominate da altre.)
+    generate the initial values for x^(i), lambda^(i), F^(i)
+    initialize z^*
+    for g <- 1 to num_gen
+        for i <- 1 to N
+            select k,l in B(i) (k != l)
+            generate y^(i) from x^(k) and x^(l) #utilizzando ad esempio qualche forma di crossover o altri operatori binari
+            update x^* by considering f_j(y^(i))
+            for each h appartente a B(i)
+                if g(y^(i) | lambda^(h), z^*) < g(x^(h) | lambda^(h), z^*)
+                    x^(h) <- y^(i)
+                    F^(h) <- (f_1(y^i), ..., f_m(y^(i)))
+                end if
+            end for
+            remove all the elements of EP which dominated by y^(i)
+            add y^(i) if it is not dominal
+        end for
+    end for
+    return ep
+```
+![swarm30](./imgs/swarm30.png)
+
+Ci sono molti modi per generare $y^{(i)}$, l'approccio più semplice è ad esempio mediante il crossover.
+
+<hr>
+
+Un problema facile da rendere multi-obiettivo è il knapsack:
+#### **Multi-objective Knapsack**
+Trovare un vettore binario x tale che $\sum_{i=1}^{n} w_{ij}x_i <= c_j$ con j = 1, ..., k che minimizza o massimizza m funzioni obiettivo. <br>
+Ad esempio:
+- $f_1(x)$ = valore in euro
+- $f_2(x)$ = utilità
+
+Con
+- $w_{i1}$ = peso dell'oggetto i
+- $w_{i2}$ = volume dell'oggetto i
+
+$f_i(x) = \sum_{i=1}^{n} p_{ij}x_i$ con $p_{ij}$ valore dell'oggetto i rispetto all'obiettivo j.
+
+<hr>
+
+#### **Scheduling -> Flow-Shop**
+Un altro problema multi-obiettivo interessante è quello dello scheduling.
+- n jobs $j_1, ..., j_n$
+- m macchine $M_1, ..., M_m$
+
+Ogni job $j_i$ è composto da m operazioni $o_{i1}, ..., o_{im}$:
+- $o_{i1}$ deve essere eseguito da $M_1$
+- $o_{im}$ deve essere eseguito da $M_m$
+
+Ogni operazione $o_{ij}$ ha un tempo di processamento $p_{ij}$. <br>
+Inoltre le operazioni di ogni job devono essere eseguite in questo ordine: $o_{i1} -> o_{i2} -> o_{i3} -> ... -> o_{i, m-1} -> o_{i,m}$ <br>
+Ciascuna macchina ad ogni momento può eseguire al più un'operazione $o_{jk}$ ed una volta che l'operazione è iniziata non può essere interrotta.
+
+Il problema del **Flow-Shop** è quello di trovare una schedulazione per tutte le operazioni. <br>
+Ad esempio: <br>
+trovare tutti i $s_{ij}$ = start time tale che sono denotati da $c_1, ... c_n$, ovvero il tempo di completamento di ogni job (istante in cui il job finisce). <br>
+$c_i = s_{i,m} + p_{i,m}$ -> tempo finale dell'ultima operazione <br>
+dove s è lo start time e p il tempo di processamento. <br>
+L'obiettivo è quindi minimizzare $max{c_1, ..., c_n}$ detto **makespan**.
+
+![swarm31](./imgs/swarm31.png)
+
+Possibili funzioni obiettivo:
+- **Total flow-time** = $\sum_{i=1}^{n} c_j$
+- **Tardiness** =$\sum_{i=1}^{n} max(c_i - d_i, 0)$ con $d_i$ = istante in cui il job dovrebbe completarsi.
+
+Lo scheduling multi-obiettivo consiste nel trovare uno schedule che minimizza alcune funzioni obiettivo.
+
+I problemi di scheduling hanno molte applicazioni industriali. <br>
+Inoltre anche il TSP può avere formulazioni multi-obiettivo considerando **tempo** e **consumo**.
+
+Il decision maker può scegliere una qualsiasi soluzione tra quelle prodotte dal nostro ottimizzatore multi-obiettivo (perchè non essendoci tra queste relazioni di dominanza, possono essere viste come equivalenti) utilizzando un altro criterio.
