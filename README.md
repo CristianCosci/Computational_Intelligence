@@ -71,6 +71,8 @@
     - [NSGA-II](#nsga-ii)
         - [Non-Dominated Sort](#non-dominated-sort)
         - [Crowding Distance](#crowding-distance---calcolo-del-fattore-distanza)
+    - [Decomposizione](#decomposizione)
+        - [MOEA/D](#moead-algorithm-multi-objective-evolutionary-algorithm-decomposition-based)
 
 
 ### Informazioni sul corso
