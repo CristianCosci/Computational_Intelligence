@@ -3165,7 +3165,7 @@ Questo significa che:
 - quando **tutte le proposizioni sono indipendenti tra loro**, sono necessarie le sole probabilita $x_i$ -> $O(n)$
 
 ***Esempio*** <br>
-![prob1](./imgs/prob1.png) <br>
+![model1](./imgs/model1.png) <br>
 *Conoscere solo $E_2$ o conoscere $E_1$ e $E_2$ influisce sulla probabilità di $E_3$ ?* <br>
 **No**, sapere anche $E_1$ è irrilevante. <br>
 $P(E_3 | E_1, E_2) = P(E_3 | E_2)$ ---> $E_1$ non da nessuna informazione aggiuntiva.
