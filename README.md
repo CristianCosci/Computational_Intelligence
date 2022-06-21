@@ -73,6 +73,9 @@
         - [Crowding Distance](#crowding-distance---calcolo-del-fattore-distanza)
     - [Decomposizione](#decomposizione)
         - [MOEA/D](#moead-algorithm-multi-objective-evolutionary-algorithm-decomposition-based)
+- [Modelli Probabilistici](#modelli-probabilistici)
+    - [Recap sul calcolo probabilistico](#piccolo-recap-sul-calcolo-probabilistico)
+    - [Conditional Indipendence](#conditional-indipendence)
 
 
 ### Informazioni sul corso
@@ -3079,3 +3082,127 @@ I problemi di scheduling hanno molte applicazioni industriali. <br>
 Inoltre anche il TSP può avere formulazioni multi-obiettivo considerando **tempo** e **consumo**.
 
 Il decision maker può scegliere una qualsiasi soluzione tra quelle prodotte dal nostro ottimizzatore multi-obiettivo (perchè non essendoci tra queste relazioni di dominanza, possono essere viste come equivalenti) utilizzando un altro criterio.
+
+<hr>
+<hr>
+
+# **Modelli Probabilistici**
+**Ragionamento in termini di incertezza** -> l'*incertezza* può essere introdotta in termini:
+- **qualitativi** ("*È **probabile** che domani ci sia brutto tempo*", "*È **improbabile** che Napoleone sia stato avvelenato*")
+- **quantitativi** ("*La probabilità che domani piova è 0.6*" -> P(R) = 0.6)
+
+Esistono altre forme per rappresentare l'incertezza:
+- **belief functions**
+- **possibility**
+- **qualitative probability**
+- ma la più utilizzata è la **probabilità**
+
+Il problema delle probabilità è il **costo computazionale** (lavorare con le probabilità porta spesso a dover risolvere problemi computazionalmente difficili) ma ci sono molte tecniche per ridurre tale costo.
+
+## **Piccolo recap sul calcolo probabilistico**
+P(x) = probabilità che la proposizione x è vera 
+
+**Leggi del calcolo delle probabilità**:
+- 0 <= P(x) <= 1 per tutte le proposizioni
+- P(not x) = 1 - P(x)
+- P(x OR y) = P(x) + P(y) se x AND y è impossibile (se è una contraddizione)
+
+***Esempio 1***<br>
+Lancio di due dadi:
+- $E_1$: il risultato del primo dado è > 4 ---> ($\dfrac{2}{6}$)
+- $E_2$: il risultato del secondo dado è > 4 ---> ($\dfrac{2}{6}$)
+- P($E_1$ AND $E_2$) = ?
+
+Se x è **indipendente** da y allora P($E_1$ AND $E_2$) = $\dfrac{2}{6} * \dfrac{2}{6}$ <br>
+
+### **Probabilità condizionale**
+- P(x|y) con x e y proposizioni ---> è la probabilità che x sia vero sapendo che y è vero (considerando le sole situazioni in cui y è vero)
+
+***Esempio 2***<br>
+Lancio di un dado:
+- P(il risultato è >= 3 | il risultato è dispari)
+
+P(x | y) = $\dfrac{P(x AND y)}{P(y)}$ se P(y) > 0 <br>
+Notare che P(y) può essere 0 ma questo non significa che y sia impossibile (ad esempio una contraddizione.)
+
+x **è indipendente** da y se P(x | y) = P(X), ovvero conoscere che y è vero non influisce sulla probabilità di y.
+
+In generale: P(x AND y) = P(x | y) * P(y) <br>
+se x è indipendente da y (ovvero P(x AND y) = P(x) * P(y))
+
+<hr>
+
+Supponiamo di avere n proposizioni elementari $x_1, ..., x_n$ <br>
+Con una proposozione posso creare $2^n$ proposizioni composte. <br>
+Per ragionare su $x_1, ..., x_n$ è necessario avere $P(y_0), P(y_1), ..., P(y_{2^{n-1}})$ dato che l'ultima è ricavabile conoscendo le altre. <br>
+Dato che $y_{2^n-1}$ = NOT $(y_0 OR ... y_{2^n-2}) = \sum_{i=0}^{2^n-1}P(y_i) = 1$ <br>
+Da $P(y_i) per i=0, ..., 2^n-1$ è possibile calcolare P(z) dove z è qualsiasi espressione booleana di $x_1, ..., x_n$.
+
+$P(z) = \sum{P(y_j) dove z è vero se y_j è vero}$
+
+È importante sapere che senza la relazione di indipendenza, $P(y_k)$ è completamente scollegata rispetto alle probabilita $P(x_1), ..., P(x_n)$. 
+
+***Esempio*** <br>
+$x_1$ <br>
+$x_2$ <br>
+$x_3$ <br>
+$y_0$ <br>
+$y_1$ <br>
+$y_2$ <br>
+$y_3$ <br>
+$y_4$ <br>
+$y_5$ <br>
+$y_6 = x_1 AND x_2 AND NOT x_3$ <br>
+$y_7 = x_1 AND x_2 AND x_3$
+
+$P(x_1 AND x_2) = P(y_6) + P(y_7)$
+
+Nel caso in cui ogni proposizione è indipendente da tutte le altre <br>
+$P(y_0) = P(NOT x_1 AND NOT x_2 AND NOT x_3) = P(NOT x_1) * P(NOT x_2) * P(NOT x_3) = (1-P(x_1)) * (1-P(x_2)) * (1-P(x_3))$ e in modo simile per tutti gli altri $P(y_j)$.
+
+Questo significa che:
+- **se non c'è indipendenza** tra le n proposizioni elementari, sono necessari $2^n$ valori di probabilità per calcolare P(z) -> $O(2^n)$
+- quando **tutte le proposizioni sono indipendenti tra loro**, sono necessarie le sole probabilita $x_i$ -> $O(n)$
+
+***Esempio*** <br>
+![prob1](./imgs/prob1.png) <br>
+*Conoscere solo $E_2$ o conoscere $E_1$ e $E_2$ influisce sulla probabilità di $E_3$ ?* <br>
+**No**, sapere anche $E_1$ è irrilevante. <br>
+$P(E_3 | E_1, E_2) = P(E_3 | E_2)$ ---> $E_1$ non da nessuna informazione aggiuntiva.
+
+Questo concetto è chiamato:
+### **Conditional Indipendence**
+P(x) = P(x | y) ----> **indipendence** <br>
+P(x|y) = P(x| y, z) ----> **conditional indipendence**
+
+Nell'esempio della staffetta:
+- $E_1$
+- $E_2$
+- $E_3$
+- $P(E_3 | E_1, E_2) = P(E_3 | E_2)$
+
+$P(E_1 AND E_2 AND E_3) = P(E_1) * P(E_2 | E_1) * P(E_3 |  E_2, E_1)$ -> **è sempre vera**, ma in questo caso può essere così semplificata <br>
+= $P(E_1) * P(E_2 | E_1) * P(E_3 | E_2)$
+
+1.  **Situazione di NO conditional indipendence**:
+    - $P(E_1)$
+    - $P(E_2 | E_1)$
+    - $P(E_2 | NOT E_1)$
+    - $P(E_3 | E_1, E_2)$
+    - $P(E_3 | NOT E_1, E_2)$
+    - $P(E_3 | E_1, NOT E_2)$
+    - $P(E_3 | NOT E_1, NOT E_2)$ <br>
+    Servono quindi 7 valori in totale.
+2.  **Situazione di conditional indipendence**:
+    - $P(E_1)$
+    - $P(E_2 | E_1)$
+    - $P(E_2 | NOT E_1)$
+    - $P(E_3 | E_2)$
+    - $P(E_3 | NOT E_2)$ <br>
+    Servono quindi 5 valori in totale.
+
+In generale: <br>
+n proposizioni elementari <br>
+$P(E_j | E_1, ..., E_{j-1})$ = $P(E_i | E_{i-1})$ per ogni i = 1, ..., n ---> 1+2*(n-1) valori di probabilità necessari.
+
+È veramente importante trovare il maggior numero di relazioni di indipendenza condizionta. È necessario individuare per ogni variabile, quali sono le variabili a cui essa è strettamente collegata.
