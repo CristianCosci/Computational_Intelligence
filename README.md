@@ -3206,3 +3206,6 @@ n proposizioni elementari <br>
 $P(E_j | E_1, ..., E_{j-1})$ = $P(E_i | E_{i-1})$ per ogni i = 1, ..., n ---> 1+2*(n-1) valori di probabilità necessari.
 
 È veramente importante trovare il maggior numero di relazioni di indipendenza condizionta. È necessario individuare per ogni variabile, quali sono le variabili a cui essa è strettamente collegata.
+
+
+
