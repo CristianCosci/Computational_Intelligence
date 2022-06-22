@@ -3168,7 +3168,9 @@ Questo significa che:
 
 ***Esempio*** <br>
 <img src="./imgs/model1.png" width="800" />
+
 ![model1](./imgs/model1.png) <br>
+
 *Conoscere solo $E_2$ o conoscere $E_1$ e $E_2$ influisce sulla probabilità di $E_3$ ?* <br>
 **No**, sapere anche $E_1$ è irrilevante. <br>
 $P(E_3 | E_1, E_2) = P(E_3 | E_2)$ ---> $E_1$ non da nessuna informazione aggiuntiva -> la conoscenza di $E_2$ è sufficiente per dire cosa accade a $E_3$.
