@@ -76,7 +76,9 @@
 - [Modelli Probabilistici](#modelli-probabilistici)
     - [Recap sul calcolo probabilistico](#piccolo-recap-sul-calcolo-probabilistico)
     - [Conditional Indipendence](#conditional-indipendence)
-
+    - [Bayesian Network](#bayesian-networks)
+        - [Algortimo di Variable Elimination](#algortimo-di-variable-elimination)
+- [Logica Fuzzy](#logica-fuzzy)
 
 ### Informazioni sul corso
 - **Esame** (2 parti):
@@ -3278,7 +3280,7 @@ Nell'esempio in figura Pa($x_4$) = {$x_3$} e di conseguenza:
 - $x_4$ è indipendente da $x_1$ | $x_3$
 - $x_4$ è indipendente da $x_2$ | $x_3$
 
-### ***Come calcolare il numero di parametri del modello in generale**
+### ***Come calcolare il numero di parametri del modello in generale***
 In generale il modello ha $\sum_{i=1}{n}(n_j -1)c_j$ dove $n_i = |D_i|$ e $c_i$ è il numero di combinazioni dei valori di Pa($x_i$).
 
 Nel caso in cui tutte le variabili sono binarie $c_i = 2^{|Pa(x_i)|}$ dove $|Pa(x_i)|$ <= k --> $c_i$ <=$2^k$. <br>
@@ -3329,3 +3331,131 @@ Ci sono degli algoritmi per calcolare $P(x_A = a | x_B = b)$ e $P(x_C = c)$ dove
     Utilizzato nel riconoscimento del parlato (speech recognition).
 - **Naive Bayes** ---> utilizzato ad esempio per la classificazione <br>
     ![model6](./imgs/model6.png) <br>
+
+<hr>
+
+### **Recap sulle Reti Bayesiane**
+Le reti Bayesiane sono costituite da un DAG i cui:
+- **nodi**: sono variabili casuali discrete
+- **tabelle di probabilità**: per ogni nodo vi è la distribuzione di probabilità condizioanta su tutti i valori dei genitori
+
+<hr>
+
+### **Esempio: ASIA Bayesian Network**
+![model7](./imgs/model7.png)
+
+- visit to asia: 1 parametro (probabilità di essere vero)
+- smoking: 1 parametro (probabilità di essere vero)
+- tubercolosi: 2 parametri ->
+    - P(T=1 | A=0)
+    - P(T=1 | A=1)
+- cancro ai polmoni: 2 parametri ->
+    - P(L=1 | S=0)
+    - P(L=1 | S=1)
+- dispnoea: 4 parametri ->
+    - P(D=1 | L=0, B=0)
+    - P(D=1 | L=1, B=0)
+    - P(D=1 | L=0, B=1)
+    - P(D=1 | L=1, B=1)
+
+**Inferenza** <br>
+P(T=1 | A=1, S=1, X=0, D=1) = ? <br>
+Il primo parametro è la **diagnosi** e il secondo è l'**evidenza**
+
+### **Algortimo di Variable Elimination**
+```pseudocode
+    scegli un ordine delle variabili X_1, ..., X_n
+    per ciascuna variabile X_i          #secondo l'ordine
+        trovare tutte le tabelle dove appare X_i 
+        moltiplicare le tabelle trovate, ottenendo un'unica tabella T
+        eliminare X_i da T ottenendo T'
+        sostituisci le tabelle usate con T'
+```
+
+***Esempio*** <br>
+![model8](./imgs/model8.png) <br>
+![model9](./imgs/model9.png) <br>
+![model10](./imgs/model10.png) <br>
+![model11](./imgs/model11.png) <br>
+![model12](./imgs/model12.png) <br>
+![model13](./imgs/model13.png)
+ 
+Il costo computazionale dell'eliminazione delle variabili dipende dalla forma del grafo, in particolare se è simile ad un albero oppure no. Questa proprietà è chiamata **tree-with**. Se ogni nodo ha al più **k** genitori, il costo computazionale è $O(n^k)$.
+
+È disponibile un'implementazione relativa alle Reti Bayesiane e al calcolo delle inferenze nell'apposita directory del codice. Viene utilizzata la libreria pgmpy.
+
+Una Rete Bayesiana può produrre risultati interpretabili perchè tutto si basa sulle teorie delle probabilità. Tuttavia una rete Bayesiana richiede una grande potenza computazionale per eseguire le inferenze e l'apprendimento.
+
+### **Apprendimento di una Rete Bayesiana dai dati** <br>
+Non è particolarmente difficile quando il grafo è noto. <br>
+Per allenare una Rete Bayesiana è necessario un dataset e la funzione di 'loss' (rifacimento alle Neural Network) e la **verosimiglianza** -> trovare la rete che attribuisce ai campioni del dataset la maggior probabilità possiile.
+
+![model14](./imgs/model14.png)
+
+**Lo scopo del learning è trovare la Rete Bayesiana che da agli esempi del training set la maggiore probabilità possibile.**
+
+- Se il grafo **è noto** allora le tabelle della rete sono quelle che si ottengono **contando** e **dividendo per il numero degli esempi**.
+- Se il grafo **non è noto**, il problema è molto più difficile e viene risolto utilizzando alcune strategie, come le seguenti:
+    - utilizzare **test statistici** per scoprire le relazioni di indipendenza condizionata
+    - **approccio di ricerca** --> corrisponde ad un problema di ottimizzazione (ho un insieme di possibili grafi e devo scegliere quello che da al training set il punteggio più alto)
+    - **approccio basato sui vincoli** -> costruisce la rete Bayesiana con dei meccanismi di tipo costruttivo (prendono il training set e cercano di costruire i possibili archi). L'approccio più famoso è **MMHC**
+
+Le Reti Bayesiane possono essere estese in molti modi:
+- **dinamico**, ad esempio si hanno più variabili che variano nel tempo
+- **Reti Bayesiane relazionali**
+- **Reti Bayesiane nel continuo** (con variabili gaussiane)
+
+<hr>
+
+# **Logica Fuzzy**
+Si occupa di vaghezza, che è diversa dall'incertezza. <br>
+***Esempio***: "*oggi è bel tempo*". <br>
+Questa informazione è vera o falsa? Potrebbe non essere nè vera nè falsa. <br>
+***Esempio***: "*Una persona di 35 anni è giovane*". <br>
+Questa informazione è vera o falsa? Potrebbe non essere nè vera nè falsa. Non c'è una soglia specifica secondo cui una persona è giovane o vecchia.
+
+La **logica fuzzy da' ad una proposizione un valore di verita intermedio** in [0, 1]. <br>
+Ad esempio:
+- 0 -> Falso
+- 0.5 -> via di mezzo
+- 0.9 -> quasi vero
+- 1 -> Vero
+
+V("lunedì il tempo era bello") = 0.1
+
+La logica Fuzzy è stata inventata da un ingegnere nel 1965 da L. Zadeh.
+
+Un **insieme Fuzzy** è una collezione di elementi con un grado di appartenenza all'insieme.
+
+![model15](./imgs/model15.png) <br>
+
+$\mu_a(x)$ = grado di appartenenza di x ad a
+
+Un insieme normale ha un insieme di appartenenza in {0, 1} a differenza degli insiemi Fuzzy.
+
+È possibile calcolare **l'unione, l'intersezione, il complementare e il prodotto cartesiano** di insiemei Fuzzy.
+
+### **Complementare di un insieme Fuzzy**
+***Esempio***: complementare di un insieme delle persone non giovani. <br>
+![model16](./imgs/model16.png) <br>
+
+**Il complementare si ottiene quindi con il complemento a 1**.
+
+### **Unione e Intersezione**
+- unione -> massimo
+- intersezione e prodotto cartesiano -> minimimo
+
+### **Numeri Fuzzy**
+Servono ad indicare delle frasi che parlano di quantità. <br>
+***Esempio***: "*la temeratura è alta ma non troppo*" <br>
+![model17](./imgs/model17.png) <br>
+
+È possibile definire un insieme di operazioni numeriche tra i numeri Fuzzy (come addizione ecc) con un meccanismo che si chiama **principio di estensione** -> il risultato dell'operazione tra due numeri fuzzy è un numero fuzzy.
+
+### **Regole Fuzzy**
+Utilizzate ad esempio negli elettrodomestici -> "*se la temperatura è **alta** e la pressione è **bassa** allora la velocità della ventola è **intermedia***" <br>
+Ciascun aggettivo corrisponde ad un insieme fuzzy (o ad un numero fuzzy)
+
+Queste regolo permettono di non discretizzare in intervalli i vari valori per cui definire alta, bassa e intermedia.
+
+Immaginare un insieme di regole fuzzy per decidere la velocità del motore. Bisogna calcolare per ogni regola il valore di attivazione della regola (cioè quanto è vero l'antecedente). Il valore finale è un insieme Fuzzy.
