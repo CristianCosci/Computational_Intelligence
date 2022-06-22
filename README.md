@@ -1904,8 +1904,6 @@ Altre situazioni in cui sono utilizzati gli algoritmi evolutivi in problemi di o
 ![es7](./imgs/es7.png) <br>
 <img src="./imgs/es8.png" width="800" />
 
-![es8](./imgs/es8.png)
-
 Tutte le componenti di ε sono indipendenti (le estraggo indipendentemente dalle altre). <br>
 Per estrarre ε si può fare così:
 ```python
@@ -3169,6 +3167,7 @@ Questo significa che:
 - quando **tutte le proposizioni sono indipendenti tra loro**, sono necessarie le sole probabilita $x_i$ -> $O(n)$
 
 ***Esempio*** <br>
+<img src="./imgs/model1.png" width="800" />
 ![model1](./imgs/model1.png) <br>
 *Conoscere solo $E_2$ o conoscere $E_1$ e $E_2$ influisce sulla probabilità di $E_3$ ?* <br>
 **No**, sapere anche $E_1$ è irrilevante. <br>
