@@ -1902,6 +1902,8 @@ Altre situazioni in cui sono utilizzati gli algoritmi evolutivi in problemi di o
 ε può essere generato usando una distribuzione normale di dimensione d. <br>
 ![es6](./imgs/es6.png) <br>
 ![es7](./imgs/es7.png) <br>
+<img src="./imgs/es8.png" width="800" />
+
 ![es8](./imgs/es8.png)
 
 Tutte le componenti di ε sono indipendenti (le estraggo indipendentemente dalle altre). <br>
