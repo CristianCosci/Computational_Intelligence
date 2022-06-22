@@ -3168,12 +3168,14 @@ Questo significa che:
 ![model1](./imgs/model1.png) <br>
 *Conoscere solo $E_2$ o conoscere $E_1$ e $E_2$ influisce sulla probabilità di $E_3$ ?* <br>
 **No**, sapere anche $E_1$ è irrilevante. <br>
-$P(E_3 | E_1, E_2) = P(E_3 | E_2)$ ---> $E_1$ non da nessuna informazione aggiuntiva.
+$P(E_3 | E_1, E_2) = P(E_3 | E_2)$ ---> $E_1$ non da nessuna informazione aggiuntiva -> la conoscenza di $E_2$ è sufficiente per dire cosa accade a $E_3$.
 
 Questo concetto è chiamato:
 ### **Conditional Indipendence**
 P(x) = P(x | y) ----> **indipendence** <br>
-P(x|y) = P(x| y, z) ----> **conditional indipendence**
+P(x|y) = P(x| y, z) ----> **conditional indipendence** <br>
+x ⫫ z | y ----> **x è indipendente da z dato y**
+
 
 Nell'esempio della staffetta:
 - $E_1$
@@ -3206,3 +3208,124 @@ n proposizioni elementari <br>
 $P(E_j | E_1, ..., E_{j-1})$ = $P(E_i | E_{i-1})$ per ogni i = 1, ..., n ---> 1+2*(n-1) valori di probabilità necessari.
 
 È veramente importante trovare il maggior numero di relazioni di indipendenza condizionta. È necessario individuare per ogni variabile, quali sono le variabili a cui essa è strettamente collegata.
+
+<hr>
+
+## **Bayesian Networks**
+Sono un modello probabilistico definito tramite un grafo. <br>
+È usato per rappresentare in modo compatto un modello probabilistico. 
+
+### **Modelli probabilistici discreti**
+Invece di avere semplici proposizioni, le quali possono essere vere o false, possiamo parlare di variabili discrete. Ogni variabile può avere un dominio finito (un numero di valori possibili per tale variabile). <br>
+n variabili $x_1, ..., x_n$ <br>
+$D_i$ = insieme di valori di $x_i$ <br>
+$n_i$ = |$D_i$| numero di valori
+
+Le proposizioni possono essere viste come variabili binarie (con $D_i$ = {0, 1} o $D_i$ = {true, false}).
+
+***Esempio*** <br>
+$x_1$ è l'uscita di un dado <br>
+$D_1$ = {1, 2, 3, 4, 5, 6} <br>
+$P_i^{(1)} = P (x_1 = i)$ per i = 1, ..., 6 <br>
+Nel caso di un dado perfettamente bilanciato $P_1 = P_2 = ... = P_6$ = 1/6 <br>
+Un'altra situazione che potrebbe verificarsi è $P_1 = \dfrac{1}{8}; P_2 = \dfrac{1}{8}; P_3 = \dfrac{1}{8}; P_4 = \dfrac{1}{8}; P_5 = \dfrac{1}{8}; P_6 = \dfrac{3}{8}$
+
+$P(x_1 = a_1, x_2 = a_2, ..., x_n = a_n)$ = ? ---> è una possibile interrogazione <br>
+lo è anche $P(x_1 = a_1 AND x_2 = a_2 AND ... AND x_n = a_n)$ = ?
+
+In generale, è possibile calcolare la probabilità che **alcune** variabili abbiano determinati valori.
+
+È possibile estendere il concetto di **indipendenza** e **indipendenza condizionata** al caso di variabili discrete. <br>
+$x_i$ ⫫ $x_j$ ----> **indipendenza** <br>
+$x_i$ ⫫ $x_j$ | $x_k$ ----> **indipendenza condizionata**
+
+Una **Rete Bayesiana** è composta da
+- un insieme di n variabili **discrete** (casuali) $x_1, ..., x_n$ con il dominio finito $D_1, ..., D_N$
+- un **grafo aciclico diretto** i cui nodi sono le variabili e gli archi rappresentano una diretta influnza di una variabile rispetto ad un'altra
+- per ciascuna variabile $x_i si ha una tabella che specifica $Pa(x_i = a | Pa(x_i)=b) per ogni a appartente a $D_i$ a per tutte e combinazioni b di valori dei genitori di $x_i$
+
+![model2](./imgs/model2.png) <br>
+![model3](./imgs/model3.png) <br>
+![model4](./imgs/model4.png)
+
+Gli altri valori possono essere calcolati come segue: <br>
+$P(x_4 = f | x_3 = f)$ = $1 - P(x_4 = t | x_3 = f)$
+
+Questo modello ha 8 parametri (in realtà ne avrebbe 16, ma gli altri possono essere ricavati a partire da questi 8) (Vedi dopo come calcolare il numero di parametri).
+
+***Esempio***
+- $x_1$ : piove
+- $x_2$ : impianto irrigazione acceso
+- $x_3$ : terreno fangoso
+- $x_4$ : scarpe sporche
+- $x_4$ ⫫ $x_1$ | $x_3$
+
+Il fatto che ha piovuto non mi interessa, il terreno è fangoso e questo spiega le scarpe sporche.
+
+È l'assenza di archi che ci dice che c'è indipendenza in modo condizionato, non la presenza di archi.
+
+È importante che il grafo sia diretto e aciclico perchè:
+- **diretto** -> gli archi hanno una direzione, dalla casua all'effetto
+- **aciclico** -> non ci sono loop (altrimenti significa che una variabile causa se stessa)
+- **Selezionare un ordine nelle variabili rispetto agli archi** -> $Se x_i -->> x_j$ allora $x_i$ precede $x_j$ (ordine topologico)
+
+Per ogni variabile $x_i$, l'insieme di genitori Pa($x_i$) è composto da tutti i suoi predecessori $x_j$ (con j < i) tale che $x_j$ --> $x_i$ ($x_j$ ha un arco verso $x_i$)
+
+$x_i$ è indipendente da $x_k$ dato Pa($x_i$) <br>
+per ogni variabile $x_k$ che non appartiene a Pa($x_i$)
+
+Nell'esempio in figura Pa($x_4$) = {$x_3$} e di conseguenza:
+- $x_4$ è indipendente da $x_1$ | $x_3$
+- $x_4$ è indipendente da $x_2$ | $x_3$
+
+### ***Come calcolare il numero di parametri del modello in generale**
+In generale il modello ha $\sum_{i=1}{n}(n_j -1)c_j$ dove $n_i = |D_i|$ e $c_i$ è il numero di combinazioni dei valori di Pa($x_i$).
+
+Nel caso in cui tutte le variabili sono binarie $c_i = 2^{|Pa(x_i)|}$ dove $|Pa(x_i)|$ <= k --> $c_i$ <=$2^k$. <br>
+In pratica Pa($x_i$) è sempre limitato a valori piccoli.
+
+### **Task che si possono fare con le reti Bayesiane**
+- **inferenza** -> calcolare il valore di una variabile, conoscendo il valore di altre variabili ---> $P(x_A = a | x_B = b)$ = ? con A, B indici (insiemi disgiunti) e a e combinazioni di valori.
+- **learning (apprendimento)** -> possono apprendere la parte numerica o l'intera rete dai dati.
+
+Le Reti Bayesiane sono uno strumento importante per ragionare sotto l'incertezza utilizzando la probabilità. Quest'ultime rappresentano modelli in un modo compatto (numero ridotto di parametri) e quindi riducono il costo computazionale.
+
+***Esempio di inferenza*** (sulla tabella precente) <br>
+$P(x_4 = t | x_1 = t)$ = ? (il secondo termine si chiama evidenza) ---> quale è la probabilità di avere le scarpe sporche sapendo che ha piovuto? <br>
+$P(x_4 = t | x_1 = t)$ = $\dfrac{P(x_4 = t AND x_1 = t)}{P(x_1 = t)}$ <br>
+$P(x_4 = t AND x_1 = t)$ = $P(x_4 = t AND x_3 = t AND  x_1 = t)$ + $P(x_4 = t AND x_3 = f AND  x_1 = t)$ =  $P(x_4 = t | x_3 = t AND  x_1 = t)$ *  $P(x_3 = t AND  x_1 = t)$ +  $P(x_4 = t | x_3 = f AND  x_1 = t)$ * $P(x_3 = f AND  x_1 = t)$ ---> di cui il primo e il terzo termine sono presenti nelle tabelle delle probabilità<br>
+$P(x_3 = t AND x_1 = t)$ = $P(x_3 = t AND x_2 = f AND  x_1 = t)$ + $P(x_3 = t AND x_2 = t AND  x_1 = t)$ =  $P(x_3 = t | x_2 = f AND  x_1 = t)$ *  $P(x_2 = f AND  x_1 = t)$ +  $P(x_3 = t | x_3 = t AND  x_1 = t)$ * $P(x_2 = t AND  x_1 = t)$ ---> di cui il primo e il terzo termine sono presenti nelle tabelle delle probabilità<br>
+Per trovare gli altri termini si procede come di seguito (per convenienza se ne calcola solo una ma il procedimento è lo stesso per tutte): <br>
+$P(x_2 = f AND  x_1 = t)$ = $P(x_2 = f)$ * $P(x_1 = t)$ ---> in cui entrambi i termini sono presenti nelle tabelle delle probabilità
+
+Da queste formule è possibile calcolare il risultato.
+
+Ci sono degli algoritmi per calcolare $P(x_A = a | x_B = b)$ e $P(x_C = c)$ dove C è un insieme di indici e c è una combinazione di valori. Qui di seguito sono presentati alcuni approcci.
+
+1. **Variable Elimination (chiamato anche Metodo Esatto)** ---> è una tecnica che consente di calcolare la probabilità di un determinato insieme di variabili <br>
+    $P(x_C = c)$ per tutti gli c. <br>
+    Esempio: $P(X_1 = x_1 AND X_4 = x_4)$ <br>
+            $P(X_1, X_4) = \sum_{X_2 X_3} P(X_1, X_2, X_3, X_4)$ = $\sum_{X_2 X_3} P(X_1) P(X_2) P(X_3 | X_1, X_2) P(X_3 | X_4)$ = <br>
+            = $P(X_1) \sum_{X_2} P(X_2) \sum_{X_3} P(X_4 | X_3) P(X_3 | X_1, X_2)$
+
+2. **Sampling** <br>
+    $P(x_C = c)$ --> estrai N campioni da $X_C$ e conta quanti valori hanno il valore c. Questa è una **stima** di P (non è un valore esatto).
+
+**Svantaggi del Metodo Esatto (Variable Elimination)**:
+- Costi computazionali elevati
+
+**Svantaggi del Sampling**:
+- N deve essere grande abbastanza da permettere una buona precisione.
+- In caso di eventi rari, la stima potrebbe essere 0 (non è un valore corretto, la probabilità è bassa ma non 0)
+
+<hr>
+
+### **Altri modelli Probabilistici Grafici**
+- **Markov Networks** -> non usano DAG ma utilizzando dei **Grafi non Orientati**. <br>
+    Venivano utilizzati per rappresentare e ricostruire le immagini (image processing).
+- **Hidden Markov Models** -> ci sono delle variabili nascoste e delle variabili visibili. <br>
+    ![model5](./imgs/model5.png) <br> <br>
+    Le variabili nascoste sono influenzate tra di loro. <br>
+    Utilizzato nel riconoscimento del parlato (speech recognition).
+- **Naive Bayes** ---> utilizzato ad esempio per la classificazione <br>
+    ![model6](./imgs/model6.png) <br>
