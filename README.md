@@ -66,6 +66,17 @@
         - [Pseudocodice](#pseudocodice-dellalgoritmo-aco)
         - [I Parametri di ACO](#i-parametri-di-aco)
         - [Altre applicazioni di ACO](#applicazioni-di-aco)
+- [Probelmi di Ottimizzazione Multi-Obiettivo](#problemi-di-ottimizzazione-multi-obiettivo)
+    - [Dominanza di Pareto](#dominanza-di-pareto)
+    - [NSGA-II](#nsga-ii)
+        - [Non-Dominated Sort](#non-dominated-sort)
+        - [Crowding Distance](#crowding-distance---calcolo-del-fattore-distanza)
+    - [Decomposizione](#decomposizione)
+        - [MOEA/D](#moead-algorithm-multi-objective-evolutionary-algorithm-decomposition-based)
+- [Modelli Probabilistici](#modelli-probabilistici)
+    - [Recap sul calcolo probabilistico](#piccolo-recap-sul-calcolo-probabilistico)
+    - [Conditional Indipendence](#conditional-indipendence)
+
 
 ### Informazioni sul corso
 - **Esame** (2 parti):
@@ -2784,3 +2795,537 @@ ACO può essere utilizzato anche per risolvere problemi di scheduling e per prob
 
 **Problemi di Scheduling**: <br>
 Si hanno n operazioni e si deve assegnare uno start_time a ciascuna operazione (possono anche essereci dei vincoli. Ad esempio: vincoli di precedenza tra le varie operazioni. Possono anche esserci dei vincoli di compatibilità: non possono esserci operazioni eseguite contemporaneamente tra loro.). La funzione obiettivo di un problema del genere è ad esempio quella di far terminare l'insieme di n operazioni nel minor tempo possibile.
+
+<hr>
+
+## **Implementazione codice ecc**
+
+<hr>
+
+Lo Swarm Intelligence è una tecnica ispirata al comportamente di gruppi di animali. Precedentemete abbiamo visto le seguenti tipologie (sono i più famosi):
+- **Particle Swarm Optimization** -> pensato principalmente per problemi continui (non deve essere utilizzato necessariamente per problemi continui, può essere utilizzato anche per problemi discreti adattandolo)
+- **Ant Colony Optimization** -> pensato principalmente per problemi discreti (allo stesso modo del PSO può comunque essere utilizzato per problemi continui ma è meno performante)
+
+Ci sono altri algoritmi degni di essere citati. Qui di seguito verranno trattati.
+- ### **Artificial Bee Colony (ABC)**
+    È ispirato al comportamento delle api. <br>
+    Divide gli individui del gruppo in due:
+    - **Explorer** -> cercano in uno spazio più ampio
+    - **Worker** -> cercano in uno spazio minore <br>
+    ![swarm22](./imgs/swarm22.png) <br>
+- ### **Cuckoo Search**
+    È ispirato al comportamento di un particolare tipo di uccelli. La metafora a cui si ispira è di un particolare tipo di uccelli che fa covare le sue uova in nidi di altri uccelli. Quello che succede è che i pulcini di questo uccelli prendono il sopravvento sull'altro nido.
+- ### **Firefly Optimization**
+    Ispirato al comportamento delle lucciole. 
+
+Esistono molti altri algoritmi di Swarm Intelligence. Sono più o meno tutti ispirati al comportamento animale ma non sono necessariamente tutti innovativi e/o performanti.
+
+<hr>
+
+### **No Freee Lunch Theorem**
+Qualsiasi algoritmo di ottimizzazione si scriva, esisterà comunque un problema per cui tale algoritmo funzionerà male. <br>
+*Definizione Formale*: **Per qualsiasi algoritmo è sempre possibile trovare un problema in cui tale algoritmo produce risultati peggiori rispetto ad un altro algoritmo.** <br>
+Non c'è quindi un modo semplice per affrontare i problemi di ottimizzazione. <br>
+
+Solitamente, gli algoritmi vengono confrontati tra loro. <br>
+Ad esempio per confrontare 2 algoritmi, l'idea è di utilizzare un benchmark con molte istanze di uno o più problemi e si fa successivamente girare ogni algoritmo su ogni singola istanza (questo passaggio viene ripetuto per più volte).\\
+Successivamente si utilizzano dei test statistici sui risultati sperimentali, per determinare in modo scientifico quali sono i migliori algoritmi sui problemi di benchmark. <br>
+Il risultato di un test statistico è ad esempio: *"L'algoritmo A1 è significativamente (al 95%) migliore di A2"* 
+
+Ci sono inoltre delle competizioni internazionali in cui si devono implementare degli algoritmi per ottenere il miglior risultato su delle istanze di problemi dati.
+
+<hr>
+
+# **Problemi di Ottimizzazione Multi-Obiettivo**
+Multi-Obiettivo significa che devo massimizzare (o minimizzare) più funzioni obiettivo e non solo una.
+
+Ad esempio ho due funzioni obiettivo $f_1(x)$ e $f_2(x)$, ed il nostro obiettivo è quello di trovare un valore $x^*$ tale che: <br>
+$f_1(x^*) <= f_1(x)$ e $f_2(x^*) <= f_2(x)$ ∀ x ∈ D.
+
+Formulato in questo modo, il problema non sembra così difficile ma non è sempre risolvibile. <br>
+Io voglio trovare un punto che minimizza contemporanemanete due funzione. Allora provo a trovare un valore che minimizza $f_1(x)$ e di conseguenza tale valore minimizza anche l'altra. Tuttavia in molte situazioni questo valore $x^*$ non c'è, questo perchè potrebbe ad esempio esserci una situaizione in cui una funzione cresce e l'altra decresce. <br>
+Un esempio è il TSP in cui le funzioni obiettivo sono il **tempo** e il **consumo**. In questo modo io non riesco a minimizzare le due funzioni, in quanto queste due sono in conflitto tra di loro, questo perchè ad esempio, minimizzare il tempo potrebbe equivalere ad aumentare il consumo.
+
+### **Dominanza di Pareto**
+Date due soluzioni $x_1$ e $x_2$, $x_1$ domina secondo pareto $x_2$ se <br> 
+$f_1(x_1) <= f_1(x_2)$ <br>
+$f_2(x_1) <= f_2(x_2)$ <br>
+. <br>
+. <br>
+. <br>
+$f_k(x_1) <= f_k(x_2)$ con k = numero di funzioni obiettivo <br>
+e per almeno una o più j=1,...,k $f_j(x_1) < f_j(x_2)$
+
+![swarm23](./imgs/swarm23.png)
+
+S1 non domina S2 e S2 non domina S1.
+
+![swarm24](./imgs/swarm24.png)
+
+In questo caso S1 e S2 non sono confrontabili.
+
+Quando si opera con una sola funzione obiettivo, ci sono 3 possibilità:
+- le due soluzioni sono uguali
+- S1 è migliore di S2
+- S2 è migliore di S1 
+
+Per quanto riguarda i problemi multi-obiettivo abbiamo una possibilità aggiuntiva alle 3 precedenti:
+- le due soluzioni sono uguali
+- S1 è migliore di S2
+- S2 è migliore di S1 
+- **S1 e S2 non sono confrontabili**
+
+I problemi multi-obiettivo richiedono di trovare un insieme di **buone** soluzioni che non sono comparabili tra loro.
+
+![swarm25](./imgs/swarm25.png)
+
+Dall'insieme di soluzioni poi posso scegliere in maniere autonoma la soluzione che preferisco secondo criteri personali.
+
+**Un insieme di soluzioni non comparabili è chiamato Pareto Front**.
+
+Nei problemi di ottimizzazione multi-obiettivo, il ruolo degli algoritmi evolutivi è molto importanti, soprattutto gli algoritmi evolutivi basati sulle popolazioni, questo perchè io faccio evolvere una Pareto Front.
+
+Uno degli algoritmi più famosi è il seguente:
+
+## **NSGA-II**
+È un algoritmo genetico basato su una tecnica che permette di velocizzare i calcoli della Pareto Front -> **Non Dominated Sorting**. <br>
+L'idea è di utilizzare un algoritmo genetico standard aggiungendo altre operazioni. In particolare questo algoritmo seleziona gli individui utilizzando due fattori:
+- **rank**: indica quanto l'individuo è meglio rispetto agli altri
+- **distanza** -> meccanismo che preserva la diversità: indica quanto l'individuo è distante rispetto agli altri
+
+### **Non-Dominated Sort**
+**input**: una popolazione di individui <br>
+**output**: ogni individuo p viene etichettato con un rank -> p.rank
+```pseudocode
+    for each p in P
+        Sp <-- []
+        np <-- 0
+        for each q in P
+            if p domina q then
+                Sp.append(q)
+            else if q domina p then
+                np <-- np+1
+        end for
+        if np == 0 then
+            p_rank <-- 1
+            F[1].append(p)
+    end for             # finito questo for ho trovato tutti gli individui di rank = 1, 
+    i <-- 1             # ora devo trovare gli altri
+    while F[i] != []
+        Q <-- []
+        for each p in F[i]
+            for each q in Sp
+                nq <-- nq - 1
+                if nq == 0 then
+                    q_rank <-- i + 1
+                    Q.append(q)
+                i <-- i + 1
+                F[i] <-- Q
+            end for
+        end for
+    end while
+```
+![swarm26](./imgs/swarm26.png)
+
+Questo viene utilizzato per aggiornare i valori dei rank, per quanto riguarda la distanza vedere qui di seguito.
+
+### **Crowding Distance - Calcolo del fattore distanza**
+
+![swarm27](./imgs/swarm27.png)
+
+Ordinando le soluzioni in ciascun $F_i$ rispetto a una funzione obiettivo $f_j$. <br>
+Il fattore **distanza** per $S_i$ è calcolato tramine le soluzioni $S_{i-1}$ e $S_{i+1}$.
+```pseudocode
+    l = #p          # numero di p
+    for each p in P
+        p.distance  <-- 0
+    for j <-- 1 to k        # k è il numero delle funzioni obiettivo
+        sort p rispetto a fj
+        p[0].distance <-- infinito
+        p[-1].distance <-- infinito
+        for i <--1 to l-2
+            p[i].distance <-- p[i].distance + ( p[i+1].fj - p[i-1].fj )/ (fj_max - fj_min)    
+```
+Una volta che ho applicato il **Non-Dominated sorting** e la **Crowding Distance**, p è **migliore** di q se <br>
+***p.rank < q.rank o (p.rank = q.rank AND p.distance > q.distance)***
+
+![swarm28](./imgs/swarm28.png)
+
+Seleziono tutti gli individui con rank più basso e poi mano a mano che mi servono più individui seleziono tutti i migliori individui con rank maggiore ma rispetto alla distanza. <br>
+In questo modo ho una popolazione ben diversificata (rispetto alla semplice Pareto Front in cui avrei solo quelli di rank 1 e poitrei non poter migliorare più la mia popolazione).
+
+Esistono in letteratura molte proposte di miglioramento per NSGA-II. <br>
+Queste proposte consistono nell'utilizzare il DE, il PSO e altre metaeuristiche e altri criteri per selezionare la popolazione.
+
+<hr>
+
+## **Decomposizione**
+Uno dei metodi alternativi per risolvere i problemi multi-obiettivo è quello di utilizzare la **decomposizione**. Quest'ultima è una tecnica che non usa la dominanza di Pareto. <br>
+L'idea è quella di avere una linearizzazione della funzione obiettivo: anzichè ragionare sulle singole funzioni obiettivo e cercare una soluzione che le minimizza tutte, la **decomposizione crea una singola funzione obiettivo**. <br>
+Sono possibili vari approcci:
+- **Somma pesata (weighted sum)** <br>
+    m funzioni obiettivo *$f_1, ..., f_n$* <br>
+    m pesi *$ \lambda_1, ..., \lambda_n$* tali che $x_i$ >= 0 ∀i = 1, ..., m e $\sum_{i=1}^{n}\lambda_i = 1$ <br>
+    I pesi devono essere maggiori uguali di 0 perchè ogni obiettivo deve contribuire in modo positivo (Altrimenti il contributo sarebbe l'opposto).<br>
+    L'idea è di avere una funzione $g^{ws}(x|\lambda) = \sum_{i=1}^{n}\lambda_i f_i(x)  $ con x che rappresenta la soluzione e $\lambda$ i pesi. <br>
+    Un modo per risolvere il problema è quello di minimizzare $g^{gs}$ rispetto a x. <br>
+    I $\lambda_i$ indicano il contributo relativo di $f_i$. <br>
+    A priori non esiste un vettore $\lambda$ che lavora meglio degli altri. <br>
+    Gli algoritmi basati sulla decomposizione utilizzano una popolazione di "***minimizzatori***", ciascuno dei quali minimizza $g^{gs}(x | \lambda)$, utilizzando il proprio vettore $\lambda$. Ogni ***minimizzatore*** produce una soluzione $x^{(i)}$.
+- Un modo differente per aggregare le funzioni obiettivo $f_i$ è il **Tchebycheff's approaches**. <br>
+    Si valuta $z^{**} = (min f_1, min f_2, ..., min f_m)$ che in realtà non è un punto raggiungibile ma ci si può chiedere quanto è lontano. <br>
+    $z = z(x) = (f_1(x), f_2(x), ..., f_m(x))$ ci chiediamo quanto è buono x a seconda di quanto è la distanza tra questo vettore e quello ideale. <br>
+    La funzione di aggregazione sarà fatta in questo modo: <br>
+    $g^{tc}(x | \lambda, z^*) = max_{i =1, ..., m} {\lambda_i | f_i(x) - z^*_i|}$ con $z^*$ come punto di riferimento. <br>
+    $z^* = (\mu_1, ..., \mu_m)$ dove $\mu_i$ è il valore minimo per $f_i$ fino all'iterazione corrente. Probabilmente anche questo punto non è raggiungibile. <br>
+    Il termine a destra della formula per $g^{ts}$ è una specie di distanza tra il vettore $z(x)$ e il vettore di riferimento $z^*$. <br>
+    Anche qui si ha una popolazione di ***minimizzatori***, ciscuno dei quali utilizza dei valori diversi per $\lambda^{(i)}$.
+
+Entrambe le funzioni di aggregazione hanno la seguente proprietà: <br>
+utilizzando $\lambda^{(i)} != \lambda^{(j)}$, i punti $x^{(i)}$ e $x^{(j)}$, i quali minimizzano $g^{ws}$ (o $g^{tc}$ non sono comparabili. 
+
+
+
+### **MOEA/D Algorithm (multi-objective evolutionary algorithm decomposition based)**
+- Si ha una popolazione di n individui
+- ogni individuo ha:
+    - un vettore $\lambda^{(i)}$
+    - una soluzione iniziale $x^{(i)}$
+    - un vettore $F^{(i)} = (f_1(x^{(i)}), ..., f_n(x^{(i)})$
+
+Per 2 funzioni obiettivo, la scelta dei $\lambda^{(i)}$ è facile <br>
+![swarm29](./imgs/swarm29.png)
+
+```pseudocode
+    for each individual
+        let B(i) be the of T "neighbors" of i, that is the seto of T individuals whose lambda is closer to lambda(i)
+```
+Ad esempio per T = 2 <br>
+$\lambda^{(i)} = (0.7, 0.3)$ <br>
+B(i) = {i-1, i+1} <br>
+$\lambda^{(i+1)} = (0.8, 0.2)$ <br>
+$\lambda^{(i-1)} = (0.6, 0.4)$ <br>
+$d(\lambda^{(i)}, \lambda^{(i+1)}) = \sqrt{0.1^2 + 0.1^2} = \sqrt{0.02} $ <br>
+Tutte la altre $\lambda^{(i)}$ hanno una distanza maggiore da $\lambda^{(i)}$ <br>
+
+```pseudocode
+    ep <- []    #(external population. Questa variabile servirà per conservare gli individui migliori che sono stati creati durante l'esecuzione dell'algoritmo. Vorremmo mantenere in ep le soluzioni che non sono dominate da altre.)
+    generate the initial values for x^(i), lambda^(i), F^(i)
+    initialize z^*
+    for g <- 1 to num_gen
+        for i <- 1 to N
+            select k,l in B(i) (k != l)
+            generate y^(i) from x^(k) and x^(l) #utilizzando ad esempio qualche forma di crossover o altri operatori binari
+            update x^* by considering f_j(y^(i))
+            for each h appartente a B(i)
+                if g(y^(i) | lambda^(h), z^*) < g(x^(h) | lambda^(h), z^*)
+                    x^(h) <- y^(i)
+                    F^(h) <- (f_1(y^i), ..., f_m(y^(i)))
+                end if
+            end for
+            remove all the elements of EP which dominated by y^(i)
+            add y^(i) if it is not dominal
+        end for
+    end for
+    return ep
+```
+![swarm30](./imgs/swarm30.png)
+
+Ci sono molti modi per generare $y^{(i)}$, l'approccio più semplice è ad esempio mediante il crossover.
+
+<hr>
+
+Un problema facile da rendere multi-obiettivo è il knapsack:
+#### **Multi-objective Knapsack**
+Trovare un vettore binario x tale che $\sum_{i=1}^{n} w_{ij}x_i <= c_j$ con j = 1, ..., k che minimizza o massimizza m funzioni obiettivo. <br>
+Ad esempio:
+- $f_1(x)$ = valore in euro
+- $f_2(x)$ = utilità
+
+Con
+- $w_{i1}$ = peso dell'oggetto i
+- $w_{i2}$ = volume dell'oggetto i
+
+$f_i(x) = \sum_{i=1}^{n} p_{ij}x_i$ con $p_{ij}$ valore dell'oggetto i rispetto all'obiettivo j.
+
+<hr>
+
+#### **Scheduling -> Flow-Shop**
+Un altro problema multi-obiettivo interessante è quello dello scheduling.
+- n jobs $j_1, ..., j_n$
+- m macchine $M_1, ..., M_m$
+
+Ogni job $j_i$ è composto da m operazioni $o_{i1}, ..., o_{im}$:
+- $o_{i1}$ deve essere eseguito da $M_1$
+- $o_{im}$ deve essere eseguito da $M_m$
+
+Ogni operazione $o_{ij}$ ha un tempo di processamento $p_{ij}$. <br>
+Inoltre le operazioni di ogni job devono essere eseguite in questo ordine: $o_{i1} -> o_{i2} -> o_{i3} -> ... -> o_{i, m-1} -> o_{i,m}$ <br>
+Ciascuna macchina ad ogni momento può eseguire al più un'operazione $o_{jk}$ ed una volta che l'operazione è iniziata non può essere interrotta.
+
+Il problema del **Flow-Shop** è quello di trovare una schedulazione per tutte le operazioni. <br>
+Ad esempio: <br>
+trovare tutti i $s_{ij}$ = start time tale che sono denotati da $c_1, ... c_n$, ovvero il tempo di completamento di ogni job (istante in cui il job finisce). <br>
+$c_i = s_{i,m} + p_{i,m}$ -> tempo finale dell'ultima operazione <br>
+dove s è lo start time e p il tempo di processamento. <br>
+L'obiettivo è quindi minimizzare $max{c_1, ..., c_n}$ detto **makespan**.
+
+![swarm31](./imgs/swarm31.png)
+
+Possibili funzioni obiettivo:
+- **Total flow-time** = $\sum_{i=1}^{n} c_j$
+- **Tardiness** =$\sum_{i=1}^{n} max(c_i - d_i, 0)$ con $d_i$ = istante in cui il job dovrebbe completarsi.
+
+Lo scheduling multi-obiettivo consiste nel trovare uno schedule che minimizza alcune funzioni obiettivo.
+
+I problemi di scheduling hanno molte applicazioni industriali. <br>
+Inoltre anche il TSP può avere formulazioni multi-obiettivo considerando **tempo** e **consumo**.
+
+Il decision maker può scegliere una qualsiasi soluzione tra quelle prodotte dal nostro ottimizzatore multi-obiettivo (perchè non essendoci tra queste relazioni di dominanza, possono essere viste come equivalenti) utilizzando un altro criterio.
+
+<hr>
+<hr>
+
+# **Modelli Probabilistici**
+**Ragionamento in termini di incertezza** -> l'*incertezza* può essere introdotta in termini:
+- **qualitativi** ("*È **probabile** che domani ci sia brutto tempo*", "*È **improbabile** che Napoleone sia stato avvelenato*")
+- **quantitativi** ("*La probabilità che domani piova è 0.6*" -> P(R) = 0.6)
+
+Esistono altre forme per rappresentare l'incertezza:
+- **belief functions**
+- **possibility**
+- **qualitative probability**
+- ma la più utilizzata è la **probabilità**
+
+Il problema delle probabilità è il **costo computazionale** (lavorare con le probabilità porta spesso a dover risolvere problemi computazionalmente difficili) ma ci sono molte tecniche per ridurre tale costo.
+
+## **Piccolo recap sul calcolo probabilistico**
+P(x) = probabilità che la proposizione x è vera 
+
+**Leggi del calcolo delle probabilità**:
+- 0 <= P(x) <= 1 per tutte le proposizioni
+- P(not x) = 1 - P(x)
+- P(x OR y) = P(x) + P(y) se x AND y è impossibile (se è una contraddizione)
+
+***Esempio 1***<br>
+Lancio di due dadi:
+- $E_1$: il risultato del primo dado è > 4 ---> ($\dfrac{2}{6}$)
+- $E_2$: il risultato del secondo dado è > 4 ---> ($\dfrac{2}{6}$)
+- P($E_1$ AND $E_2$) = ?
+
+Se x è **indipendente** da y allora P($E_1$ AND $E_2$) = $\dfrac{2}{6} * \dfrac{2}{6}$ <br>
+
+### **Probabilità condizionale**
+- P(x|y) con x e y proposizioni ---> è la probabilità che x sia vero sapendo che y è vero (considerando le sole situazioni in cui y è vero)
+
+***Esempio 2***<br>
+Lancio di un dado:
+- P(il risultato è >= 3 | il risultato è dispari)
+
+P(x | y) = $\dfrac{P(x AND y)}{P(y)}$ se P(y) > 0 <br>
+Notare che P(y) può essere 0 ma questo non significa che y sia impossibile (ad esempio una contraddizione.)
+
+x **è indipendente** da y se P(x | y) = P(X), ovvero conoscere che y è vero non influisce sulla probabilità di y.
+
+In generale: P(x AND y) = P(x | y) * P(y) <br>
+se x è indipendente da y (ovvero P(x AND y) = P(x) * P(y))
+
+<hr>
+
+Supponiamo di avere n proposizioni elementari $x_1, ..., x_n$ <br>
+Con una proposozione posso creare $2^n$ proposizioni composte. <br>
+Per ragionare su $x_1, ..., x_n$ è necessario avere $P(y_0), P(y_1), ..., P(y_{2^{n-1}})$ dato che l'ultima è ricavabile conoscendo le altre. <br>
+Dato che $y_{2^n-1}$ = NOT $(y_0 OR ... y_{2^n-2}) = \sum_{i=0}^{2^n-1}P(y_i) = 1$ <br>
+Da $P(y_i) per i=0, ..., 2^n-1$ è possibile calcolare P(z) dove z è qualsiasi espressione booleana di $x_1, ..., x_n$.
+
+$P(z) = \sum{P(y_j) dove z è vero se y_j è vero}$
+
+È importante sapere che senza la relazione di indipendenza, $P(y_k)$ è completamente scollegata rispetto alle probabilita $P(x_1), ..., P(x_n)$. 
+
+***Esempio*** <br>
+$x_1$ <br>
+$x_2$ <br>
+$x_3$ <br>
+$y_0$ <br>
+$y_1$ <br>
+$y_2$ <br>
+$y_3$ <br>
+$y_4$ <br>
+$y_5$ <br>
+$y_6 = x_1 AND x_2 AND NOT x_3$ <br>
+$y_7 = x_1 AND x_2 AND x_3$
+
+$P(x_1 AND x_2) = P(y_6) + P(y_7)$
+
+Nel caso in cui ogni proposizione è indipendente da tutte le altre <br>
+$P(y_0) = P(NOT x_1 AND NOT x_2 AND NOT x_3) = P(NOT x_1) * P(NOT x_2) * P(NOT x_3) = (1-P(x_1)) * (1-P(x_2)) * (1-P(x_3))$ e in modo simile per tutti gli altri $P(y_j)$.
+
+Questo significa che:
+- **se non c'è indipendenza** tra le n proposizioni elementari, sono necessari $2^n$ valori di probabilità per calcolare P(z) -> $O(2^n)$
+- quando **tutte le proposizioni sono indipendenti tra loro**, sono necessarie le sole probabilita $x_i$ -> $O(n)$
+
+***Esempio*** <br>
+![model1](./imgs/model1.png) <br>
+*Conoscere solo $E_2$ o conoscere $E_1$ e $E_2$ influisce sulla probabilità di $E_3$ ?* <br>
+**No**, sapere anche $E_1$ è irrilevante. <br>
+$P(E_3 | E_1, E_2) = P(E_3 | E_2)$ ---> $E_1$ non da nessuna informazione aggiuntiva -> la conoscenza di $E_2$ è sufficiente per dire cosa accade a $E_3$.
+
+Questo concetto è chiamato:
+### **Conditional Indipendence**
+P(x) = P(x | y) ----> **indipendence** <br>
+P(x|y) = P(x| y, z) ----> **conditional indipendence** <br>
+x ⫫ z | y ----> **x è indipendente da z dato y**
+
+
+Nell'esempio della staffetta:
+- $E_1$
+- $E_2$
+- $E_3$
+- $P(E_3 | E_1, E_2) = P(E_3 | E_2)$
+
+$P(E_1 AND E_2 AND E_3) = P(E_1) * P(E_2 | E_1) * P(E_3 |  E_2, E_1)$ -> **è sempre vera**, ma in questo caso può essere così semplificata <br>
+= $P(E_1) * P(E_2 | E_1) * P(E_3 | E_2)$
+
+1.  **Situazione di NO conditional indipendence**:
+    - $P(E_1)$
+    - $P(E_2 | E_1)$
+    - $P(E_2 | NOT E_1)$
+    - $P(E_3 | E_1, E_2)$
+    - $P(E_3 | NOT E_1, E_2)$
+    - $P(E_3 | E_1, NOT E_2)$
+    - $P(E_3 | NOT E_1, NOT E_2)$ <br>
+    Servono quindi 7 valori in totale.
+2.  **Situazione di conditional indipendence**:
+    - $P(E_1)$
+    - $P(E_2 | E_1)$
+    - $P(E_2 | NOT E_1)$
+    - $P(E_3 | E_2)$
+    - $P(E_3 | NOT E_2)$ <br>
+    Servono quindi 5 valori in totale.
+
+In generale: <br>
+n proposizioni elementari <br>
+$P(E_j | E_1, ..., E_{j-1})$ = $P(E_i | E_{i-1})$ per ogni i = 1, ..., n ---> 1+2*(n-1) valori di probabilità necessari.
+
+È veramente importante trovare il maggior numero di relazioni di indipendenza condizionta. È necessario individuare per ogni variabile, quali sono le variabili a cui essa è strettamente collegata.
+
+<hr>
+
+## **Bayesian Networks**
+Sono un modello probabilistico definito tramite un grafo. <br>
+È usato per rappresentare in modo compatto un modello probabilistico. 
+
+### **Modelli probabilistici discreti**
+Invece di avere semplici proposizioni, le quali possono essere vere o false, possiamo parlare di variabili discrete. Ogni variabile può avere un dominio finito (un numero di valori possibili per tale variabile). <br>
+n variabili $x_1, ..., x_n$ <br>
+$D_i$ = insieme di valori di $x_i$ <br>
+$n_i$ = |$D_i$| numero di valori
+
+Le proposizioni possono essere viste come variabili binarie (con $D_i$ = {0, 1} o $D_i$ = {true, false}).
+
+***Esempio*** <br>
+$x_1$ è l'uscita di un dado <br>
+$D_1$ = {1, 2, 3, 4, 5, 6} <br>
+$P_i^{(1)} = P (x_1 = i)$ per i = 1, ..., 6 <br>
+Nel caso di un dado perfettamente bilanciato $P_1 = P_2 = ... = P_6$ = 1/6 <br>
+Un'altra situazione che potrebbe verificarsi è $P_1 = \dfrac{1}{8}; P_2 = \dfrac{1}{8}; P_3 = \dfrac{1}{8}; P_4 = \dfrac{1}{8}; P_5 = \dfrac{1}{8}; P_6 = \dfrac{3}{8}$
+
+$P(x_1 = a_1, x_2 = a_2, ..., x_n = a_n)$ = ? ---> è una possibile interrogazione <br>
+lo è anche $P(x_1 = a_1 AND x_2 = a_2 AND ... AND x_n = a_n)$ = ?
+
+In generale, è possibile calcolare la probabilità che **alcune** variabili abbiano determinati valori.
+
+È possibile estendere il concetto di **indipendenza** e **indipendenza condizionata** al caso di variabili discrete. <br>
+$x_i$ ⫫ $x_j$ ----> **indipendenza** <br>
+$x_i$ ⫫ $x_j$ | $x_k$ ----> **indipendenza condizionata**
+
+Una **Rete Bayesiana** è composta da
+- un insieme di n variabili **discrete** (casuali) $x_1, ..., x_n$ con il dominio finito $D_1, ..., D_N$
+- un **grafo aciclico diretto** i cui nodi sono le variabili e gli archi rappresentano una diretta influnza di una variabile rispetto ad un'altra
+- per ciascuna variabile $x_i si ha una tabella che specifica $Pa(x_i = a | Pa(x_i)=b) per ogni a appartente a $D_i$ a per tutte e combinazioni b di valori dei genitori di $x_i$
+
+![model2](./imgs/model2.png) <br>
+![model3](./imgs/model3.png) <br>
+![model4](./imgs/model4.png)
+
+Gli altri valori possono essere calcolati come segue: <br>
+$P(x_4 = f | x_3 = f)$ = $1 - P(x_4 = t | x_3 = f)$
+
+Questo modello ha 8 parametri (in realtà ne avrebbe 16, ma gli altri possono essere ricavati a partire da questi 8) (Vedi dopo come calcolare il numero di parametri).
+
+***Esempio***
+- $x_1$ : piove
+- $x_2$ : impianto irrigazione acceso
+- $x_3$ : terreno fangoso
+- $x_4$ : scarpe sporche
+- $x_4$ ⫫ $x_1$ | $x_3$
+
+Il fatto che ha piovuto non mi interessa, il terreno è fangoso e questo spiega le scarpe sporche.
+
+È l'assenza di archi che ci dice che c'è indipendenza in modo condizionato, non la presenza di archi.
+
+È importante che il grafo sia diretto e aciclico perchè:
+- **diretto** -> gli archi hanno una direzione, dalla casua all'effetto
+- **aciclico** -> non ci sono loop (altrimenti significa che una variabile causa se stessa)
+- **Selezionare un ordine nelle variabili rispetto agli archi** -> $Se x_i -->> x_j$ allora $x_i$ precede $x_j$ (ordine topologico)
+
+Per ogni variabile $x_i$, l'insieme di genitori Pa($x_i$) è composto da tutti i suoi predecessori $x_j$ (con j < i) tale che $x_j$ --> $x_i$ ($x_j$ ha un arco verso $x_i$)
+
+$x_i$ è indipendente da $x_k$ dato Pa($x_i$) <br>
+per ogni variabile $x_k$ che non appartiene a Pa($x_i$)
+
+Nell'esempio in figura Pa($x_4$) = {$x_3$} e di conseguenza:
+- $x_4$ è indipendente da $x_1$ | $x_3$
+- $x_4$ è indipendente da $x_2$ | $x_3$
+
+### ***Come calcolare il numero di parametri del modello in generale**
+In generale il modello ha $\sum_{i=1}{n}(n_j -1)c_j$ dove $n_i = |D_i|$ e $c_i$ è il numero di combinazioni dei valori di Pa($x_i$).
+
+Nel caso in cui tutte le variabili sono binarie $c_i = 2^{|Pa(x_i)|}$ dove $|Pa(x_i)|$ <= k --> $c_i$ <=$2^k$. <br>
+In pratica Pa($x_i$) è sempre limitato a valori piccoli.
+
+### **Task che si possono fare con le reti Bayesiane**
+- **inferenza** -> calcolare il valore di una variabile, conoscendo il valore di altre variabili ---> $P(x_A = a | x_B = b)$ = ? con A, B indici (insiemi disgiunti) e a e combinazioni di valori.
+- **learning (apprendimento)** -> possono apprendere la parte numerica o l'intera rete dai dati.
+
+Le Reti Bayesiane sono uno strumento importante per ragionare sotto l'incertezza utilizzando la probabilità. Quest'ultime rappresentano modelli in un modo compatto (numero ridotto di parametri) e quindi riducono il costo computazionale.
+
+***Esempio di inferenza*** (sulla tabella precente) <br>
+$P(x_4 = t | x_1 = t)$ = ? (il secondo termine si chiama evidenza) ---> quale è la probabilità di avere le scarpe sporche sapendo che ha piovuto? <br>
+$P(x_4 = t | x_1 = t)$ = $\dfrac{P(x_4 = t AND x_1 = t)}{P(x_1 = t)}$ <br>
+$P(x_4 = t AND x_1 = t)$ = $P(x_4 = t AND x_3 = t AND  x_1 = t)$ + $P(x_4 = t AND x_3 = f AND  x_1 = t)$ =  $P(x_4 = t | x_3 = t AND  x_1 = t)$ *  $P(x_3 = t AND  x_1 = t)$ +  $P(x_4 = t | x_3 = f AND  x_1 = t)$ * $P(x_3 = f AND  x_1 = t)$ ---> di cui il primo e il terzo termine sono presenti nelle tabelle delle probabilità<br>
+$P(x_3 = t AND x_1 = t)$ = $P(x_3 = t AND x_2 = f AND  x_1 = t)$ + $P(x_3 = t AND x_2 = t AND  x_1 = t)$ =  $P(x_3 = t | x_2 = f AND  x_1 = t)$ *  $P(x_2 = f AND  x_1 = t)$ +  $P(x_3 = t | x_3 = t AND  x_1 = t)$ * $P(x_2 = t AND  x_1 = t)$ ---> di cui il primo e il terzo termine sono presenti nelle tabelle delle probabilità<br>
+Per trovare gli altri termini si procede come di seguito (per convenienza se ne calcola solo una ma il procedimento è lo stesso per tutte): <br>
+$P(x_2 = f AND  x_1 = t)$ = $P(x_2 = f)$ * $P(x_1 = t)$ ---> in cui entrambi i termini sono presenti nelle tabelle delle probabilità
+
+Da queste formule è possibile calcolare il risultato.
+
+Ci sono degli algoritmi per calcolare $P(x_A = a | x_B = b)$ e $P(x_C = c)$ dove C è un insieme di indici e c è una combinazione di valori. Qui di seguito sono presentati alcuni approcci.
+
+1. **Variable Elimination (chiamato anche Metodo Esatto)** ---> è una tecnica che consente di calcolare la probabilità di un determinato insieme di variabili <br>
+    $P(x_C = c)$ per tutti gli c. <br>
+    Esempio: $P(X_1 = x_1 AND X_4 = x_4)$ <br>
+            $P(X_1, X_4) = \sum_{X_2 X_3} P(X_1, X_2, X_3, X_4)$ = $\sum_{X_2 X_3} P(X_1) P(X_2) P(X_3 | X_1, X_2) P(X_3 | X_4)$ = <br>
+            = $P(X_1) \sum_{X_2} P(X_2) \sum_{X_3} P(X_4 | X_3) P(X_3 | X_1, X_2)$
+
+2. **Sampling** <br>
+    $P(x_C = c)$ --> estrai N campioni da $X_C$ e conta quanti valori hanno il valore c. Questa è una **stima** di P (non è un valore esatto).
+
+**Svantaggi del Metodo Esatto (Variable Elimination)**:
+- Costi computazionali elevati
+
+**Svantaggi del Sampling**:
+- N deve essere grande abbastanza da permettere una buona precisione.
+- In caso di eventi rari, la stima potrebbe essere 0 (non è un valore corretto, la probabilità è bassa ma non 0)
+
+<hr>
+
+### **Altri modelli Probabilistici Grafici**
+- **Markov Networks** -> non usano DAG ma utilizzando dei **Grafi non Orientati**. <br>
+    Venivano utilizzati per rappresentare e ricostruire le immagini (image processing).
+- **Hidden Markov Models** -> ci sono delle variabili nascoste e delle variabili visibili. <br>
+    ![model5](./imgs/model5.png) <br> <br>
+    Le variabili nascoste sono influenzate tra di loro. <br>
+    Utilizzato nel riconoscimento del parlato (speech recognition).
+- **Naive Bayes** ---> utilizzato ad esempio per la classificazione <br>
+    ![model6](./imgs/model6.png) <br>
