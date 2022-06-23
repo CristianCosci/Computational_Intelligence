@@ -137,7 +137,7 @@ Molti problemi di ottimizzazione sono computazionalmente difficili (Es: np-hard 
 
 ### **Problema del commesso viaggiatore *TSP***
 - *n* città <br>
-<img src="./imgs/tsp1.png" width="30%" />
+<img src="./imgs/tsp1.png" width="50%" />
 
 - Il grafo è solitamente completo (da ogni città posso andare ad ogni altra città) e può essere sia orientato che non orientato.
 - Ho una matrice che rappresenta le distanze/costi:
@@ -152,14 +152,15 @@ Il problema TSP può essere:
 
 #### Il TSP è *NP*-hard se visto come problema di ottimizzazione, oppure è *NP*-completo come problema decisionale.
 
-***Definizione***. Un problema di ottimizzazione è definito da:
+***Definizione***. <br>
+Un problema di ottimizzazione è definito da:
 - uno spazio di ricerca X
 - una funzione obiettivo f: X -> R (non necessariamente sarà sempre R)
 
 Lo scopo è trovare il valore x* appartenente a X tale che f(x*) sia minimo (o massimo)
 
 Nel problema del commesso viaggiatore:
-- X è l'insieme di tutti i cicli Hamiltoniani del grafo
+- X è l'insieme di tutti i **cicli Hamiltoniani** del grafo
     - un ciclo Hamiltoniano è una sequenza di città che inizia da una città prestabilita *c0*, passa per tutte le città una sola volta e termina in *c0*. <br>
     Es: 1->3->4->2->6->5->1 (nel grafo di prima)
 - La funzione obiettivo f è la distanza totale (o il costo) del ciclo Hamiltoniano. <br>
@@ -168,7 +169,7 @@ Nel problema del commesso viaggiatore:
     - x* è il ciclo Hamiltoniano con la minima distanza totale. <br>
     Ciò lo rende un problema *NP*-hard.
 
-*Note*:
+***Note***:
 - Trovare un ciclo Hamiltoniano è semplice se il grafo è completo.
 - Computare f è facile (Calcolare f).
 - La difficoltà sta nel trovare x*
@@ -177,9 +178,11 @@ X è l'insieme di tutte le permutazioni delle città (dei nodi del grafo) (con l
 
 In alcuni problemi anche generare un elemento di X può essere difficile (elemento di X = soluzione ammissibile).
 
+<hr>
+
 ## **Categorie dei problemi di ottimizzazione**:
 - **Discreti** (Es: TSP)
-    - Un problema di ottimizzazione è discreto quando X è un insieme finito.
+    - Un problema di ottimizzazione è discreto quando X (spazio di ricerca) è un insieme finito.
     - In un problema discreto ogni X(*i*) ha un dominio finito.
         - *Es:* Se il grafo ha n città, ci sono (n-1)! cicli hamiltoniani.
 - **Continui**
@@ -191,10 +194,10 @@ In alcuni problemi anche generare un elemento di X può essere difficile (elemen
 
 Si distingue anche tra problemi di ottimizzazione con:
 - **funzioni obiettivo lineari**
-    - f(x*i*, ... , x*n*) = w*1*x*1*+....+w*n*x*n*
+    - f(x*i*, ... , x*n*) = $w_1$ $x_1$+....+ $w_n$ $x_n$
     - *Es*: funzione problema dello zaino.
 - **funzioni obiettivo non lineari**
-    - f non è una combinazione lineare x*1*, ... , x*n*
+    - f non è una combinazione lineare $x_1$, ... , $x_n$
 
 Si hanno inoltre:
 - **problemi vincolati**:
