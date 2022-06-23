@@ -1,11 +1,11 @@
 # **Computational Intelligence**
 
 ## **Indice**
-- [Informazioni sul corso](#informazioni-sul-corso)
-- [Introduzione](#introduzione)
-- [Problemi di ottimizzazione](#problemi-di-ottimizzazione)
-    - [Categorie dei problemi di ottimizzazione](#categorie-dei-problemi-di-ottimizzazione)
-- [Local search](#local-search)
+0. [Informazioni sul corso](#informazioni-sul-corso)
+1. [Introduzione](#introduzione)
+    - [Problemi di ottimizzazione](#problemi-di-ottimizzazione)
+        - [Categorie dei problemi di ottimizzazione](#categorie-dei-problemi-di-ottimizzazione)
+2. [Local search](#local-search)
     - [Number Partitioning Problem NPP](#number-partitioning-problem-npp)
         - [Fenotipo e Genotipo](#fenotipo-e-genotipo)
     - [Minimo Ottimo Locale](#minimo-ottimo-locale)
@@ -137,7 +137,7 @@ Molti problemi di ottimizzazione sono computazionalmente difficili (Es: np-hard 
 
 ### **Problema del commesso viaggiatore *TSP***
 - *n* città <br>
-![grafo](./imgs/tsp1.png)
+<img src="./imgs/tsp1.png" width="30%" />
 
 - Il grafo è solitamente completo (da ogni città posso andare ad ogni altra città) e può essere sia orientato che non orientato.
 - Ho una matrice che rappresenta le distanze/costi:
