@@ -1832,8 +1832,7 @@ Definire un operatore di riparazione è molto più difficile dello scrivere una 
 - La penalizzazione porta il GA a cercare soluzioni ammissibili (che possono, soprattutto inizialemente, non esserlo). Le generazioni sono più veloci.
 - La riparazione porta il GA a lavorare sempre con soluzioni ammissibili (minor spreco di calcolo per effettuare generazioni, in quanto ne vengono effettuate di meno. Tuttavia può essere più pesante dal punto di vista computazionale l'effettuare le riparazioni)
 
-<img src="./imgs/01zaino9.png" width="50%" /><br>
-<img src="./imgs/01zaino10.png" width="50%" /><br>
+<img src="./imgs/01zaino9.png" width="48%" /> <img src="./imgs/01zaino10.png" width="48%" /><br>
 
 Ci sono anche altre alternative alla riparazione e alla penalizzazione: <br>
 **Scartare le soluzioni non ammissibili**: nell'inizializzazione, ogni volta che genero una soluzione non ammissibile, la rigenero. Quando crossover e mutazione producono una soluzione non ammissibile, non la metto nella lista dei children.
