@@ -24,6 +24,7 @@
 
 <hr>
 
+### **Algoritmi Genetici, Problemi Vincolati**
 4. [Algoritmi Genetici](#algoritmi-genetici)
     - [Introduzione e Caratteristiche](#caratteristiche)
     - [Pseudocodice di GA](#pseudocodice-di-ga)
@@ -38,11 +39,11 @@
     - [Implementazione GA per il problema MAX-CUT](#implementazione-di-un-algoritmo-genetico-per-il-problema-max-cut)
     - [Implementazione GA per il problema TSP](#implementazione-di-un-algoritmo-genetico-per-il-problema-tsp)
     - [Influenza dei parametri negli algoritmi](#parametri-su-cui-si-può-agire-in-un-ga-e-la-loro-influenza)
-- [Problemi Vincolati](#problemi-vincolati)
+5. [Problemi Vincolati](#problemi-vincolati)
     - [Algoritmi genetici per problemi vincolati](#algoritmi-genetici-per-problemi-vincolati)
-    - [Penalizzazione e Riparazione](#riparazione-e-penalizzazione)
+    - [Penalizzazione e Riparazione](#penalizzazione-e-riparazione)
         - [Confronto](#confronto-tra-i-due-metodi-penalizzazione-e-riparazione)
-- [Algoritmi evolutivi per l'ottimizzazione continua](#algoritmi-evolutivi-per-lottimizzazione-continua)
+6. [Algoritmi evolutivi per l'ottimizzazione continua](#algoritmi-evolutivi-per-lottimizzazione-continua)
     - [Strategie evolutive](#strategie-evolutive)
         - [(1+1)-ES](#11-es)
         - [(λ, μ)-ES](#λ-μ-es)
@@ -56,7 +57,7 @@
             - [Altre varianti per il DE](#altre-varianti-del-differential-evolution)
             - [Ottimizzazione dei parametri](#ottimizzazione-dei-parametri)
             - [DE per problemi di ottimizzazione discreti](#de-per-problemi-di-ottimizzazione-discreti)
-- [Programmazione Genetica](#programmazione-genetica)
+7. [Programmazione Genetica](#programmazione-genetica)
     - [Caratteristiche principali](#caratteristiche-principali)
     - [Vanataggi e Svantaggi della Programmazione Genetica](#vantaggi-e-svanataggi-della-programmazione-genetica)
     - [Altre forme di programmazione genetica](#altre-forme-della-programmazione-genetica)
@@ -141,7 +142,7 @@ Molti problemi di ottimizzazione sono computazionalmente difficili (Es: np-hard 
 
 ### **Problema del commesso viaggiatore *TSP***
 - *n* città <br>
-<img src="./imgs/tsp1.png" width="40%" />
+<img src="./imgs/tsp1.png" width="50%" />
 
 - Il grafo è solitamente completo (da ogni città posso andare ad ogni altra città) e può essere sia orientato che non orientato.
 - Ho una matrice che rappresenta le distanze/costi:
@@ -245,7 +246,7 @@ I problemi di ottimizzazione possono anche avere:
 - Si utilizza in problemi di ottimizzazione discreta.
 
 Le soluzioni nello spazio di ricerca sono connesse e formano un grafo orientato. <br>
-<img src="./imgs/ls0.png" width="40%" /> <br>
+<img src="./imgs/ls0.png" width="50%" /> <br>
 - *S* e *S'* sono soluzioni
 - Si dice che *S'* è un vicino di *S*
 - *S''* è un vicino di *S'*
@@ -323,7 +324,7 @@ Questo spazio di ricerca si chiama **ipercubo**:
 $f(b)$ = |$\sum_{b_i = 0}x_i \sum_{b_j = 0}x_j$| = |$\sum_{i = 1}^{n}(1-b_i)x_i - \sum_{j = 1}^{n}b_j x_j$| = |$\sum_{i = 1}^{n}(1-2b_i)x_i$|
 
 Partendo da una soluzione **b**, alcuni vicini (*b*') potrebbero essere migliori e altri (*b*'') potrebbero essere peggiori. Altri vicini possono essere buoni quanto b. Il paragone dei vicini si fa con le funzioni obiettivo. <br>
-<img src="./imgs/fb1.png" width="40%" />
+<img src="./imgs/fb1.png" width="50%" />
 
 <hr>
  
@@ -378,7 +379,7 @@ return y
 
 ### **Attrazione del bacino su un minimo locale**
 L'attrazione del bacino su un minimo local x* è l'insieme delle soluzioni x tali che se LS parte da x produce x*. <br>
-<img src="./imgs/bacino.png" width="40%" />
+<img src="./imgs/bacino.png" width="50%" />
 
 - L'algoritmo di ricerca locale appena visto è chiamato **best improvement local search**.
 
@@ -402,7 +403,7 @@ return x
 <hr>
 
 ## **Iterated local search (ILS)**
-<img src="./imgs/ils1.png" width="40%" />
+<img src="./imgs/ils1.png" width="50%" />
 
 *Elementi dell'algoritmo*:
 - LS con scelta iniziale della soluzione
@@ -435,7 +436,7 @@ return x
 `I concetti di local minimum e global minimum e gli algoritmi LS e ILS funzionano per ogni problema di ottimizzazione discreta data la struttura di vicinato.`
 
 *Per esempio nel TSP i vicinati* <br>
-<img src="./imgs/ils2.png" width="40%" /> <br>
+<img src="./imgs/ils2.png" width="50%" /> <br>
 in rosso gli archi che non c'erano.
 
 <hr>
@@ -918,7 +919,7 @@ Altrimenti *f* deve essere riscritta (ridefinita) in modo da poter essere applic
 Sono possibili molte rappresentazioni dello spazio di ricerca X:
 1. Un cromosoma è la lista dei vertici visitati <br>
     `[0, 2, 3, 1, 5, 4, 0]`
-2. Un cromosoma è la lista degli archi visitatu <br>
+2. Un cromosoma è la lista degli archi visitati <br>
    `[(0,2), (2,3), (3,1), (1,5), (5,4), (4,0)]`
 3. Un cromosoma è una matrice binaria di dimensione ***n x m*** tale che l'elemento M[i,j] = 1 se e solo se l'arco (i-->j) è visitato. <br>
 *Questa rappresentazione funziona correttamente solo se il TSP è simmetrico.*
@@ -974,6 +975,8 @@ La popolazione può essere inizializzata in 3 modi principali:
 - euristica è dipendente dal problema
 - la metaeuristica no
 
+<hr>
+
 ## **Mating Pool**
 Tornando alla spiegazione dello pseudocodice dell'algoritmo: <br>
 ***Primo passaggio:***
@@ -989,8 +992,7 @@ Il mating pool M è un insieme di N/2 coppie di individui presi dalla popolazion
 - **Tornei**
 
 ### **Roulette wheel (ruota della fortuna)**
-
-![rw](./imgs/rw.png)
+<img src="./imgs/rw.png" width="50%" />
 
 - Selezionare un individuo in modo casuale secondo la probabilità (in modo proporzionale) alla **fitness F** per ogni individuo.
     - *Un GA ha l'obiettivo implicito di massimizzare il valore di fitness degli elementi della popolazione degli individui.*
@@ -1000,7 +1002,7 @@ Il mating pool M è un insieme di N/2 coppie di individui presi dalla popolazion
 - Se il problema è di ottimizzazione è un problema di **massimizzazione**:
     - F può coincidere con la funzione obiettivo f.
     - Oppure **F è una trasformazione crescente di f**.
-        - Es. F(x) = f(x)^2 <br>
+        - Es. F(x) = $f(x)^2$ <br>
 - Se il problema di ottimizzazione è un problema di **minimizzazione**: 
     - **F deve essere una trasformazione decrescente**.
         - Es. F(x) = 1/f(x) <br>
@@ -1040,7 +1042,7 @@ In questo modo genero ogni numero x[i] con una **probabilità proporzionale** a 
 ### **Selezione baata su tornei**
 - **scelgo k individui a caso e scelgo il migliore tra di loro** (a mo' di sfida)
 - **è più veloce rispetto a fare la roulette wheel**
-    - il costo di selezionare N/2 coppio è **O(kN)**, invece di **O(N^2)** per la roulette wheel
+    - il costo di selezionare N/2 coppio è **O(kN)**, invece di **$O(N^2)$** per la roulette wheel
 
 In questo modo il peggior individuo non verrà mai selezionato (non ha chance di essere selezionato perchè prendendo anche solo due individui. Il peggiore non sarà mai scelto a meno che tra le selezione degli individui io posso pescare più volte lo stesso individuo. In questo modo potrei prendere due peggiori e quindi viene selezionato). <br>
 Questi metodi di selezione possono produrre un mating pool con individui identici
@@ -1079,18 +1081,18 @@ Crea 2 figli (qualche volta un solo figlio ma deve essere applicato 2 volte, alt
     s1 = [0,1,0,1,0,0,1,1] <br>
     s2 = [1,1,0,1,0,1,0,0] <br>
     Si prende un **punto di taglio** e si crea un figlio con gli elementi a sinistra del taglio di uno e a destra del taglio dell'altro, e viceversa per l'altro figlio. <br>
-    ![crossover](./imgs/crossover.png) <br>
+    <img src="./imgs/crossover.png" width="35%" /> <br>
     In questo modo si può vedere che ***ciascun figlio eredita parte del patrimonio genetico dal primo genitore e parte dal secondo***. <br>
     `Si può dire che il crossover mescola i patrimoni genetici di due elementi di una popolazione, creando due elementi che sono nuovi.`
 - È semplice gneralizzare il **one-point crossover al multi-point crossover**
     - ***2-point crossover***
         - **selezione 2 punti di taglio k e h** in modo casuale tale che k<h
         - *Per esempio:* <br>
-        ![crossover2](./imgs/crossover2.png)
+        <img src="./imgs/crossover2.png" width="35%" />
 - ***Crossover uniforme:***
     - i figli ereditano da un genitore o dall'altro in modo casuale
     - *Per esempio:* <br>
-    ![crossover3](./imgs/crossover3.png)
+    <img src="./imgs/crossover3.png" width="35%" />
 - *Ci sono anche molti altri tipi di crossover per altri tipi di cromosomi*
     - *Per esempio*: <br>
     **In TSP il one-point crossover non funziona bene**
@@ -1098,7 +1100,7 @@ Crea 2 figli (qualche volta un solo figlio ma deve essere applicato 2 volte, alt
             - `p1 = 0 1 3 4 5 2 0`
             - `p2 = 0 2 1 5 3 4 0`
             - Se faccio il crossover ad un punto: <br>
-            ![crossover4](./imgs/crossover4.png) <br>
+            <img src="./imgs/crossover4.png" width="35%" /> <br>
             c1 visita 3 due volte, ma non visita 2. <br>
             c2 fa il contrario. <br>
             Il problema sta in questo punto. Questo perchè in una soluzione del TSP ogni figlio deve visitare ogni nodo esattamente una volta.
@@ -1134,6 +1136,8 @@ pMut = 0.1
 
 **NOTA**: ****pMut*** in generale si tiene bassa*
 
+<hr>
+
 ### **Selezionare la nuova popolazione**
 Si hanno questi elementi tra cui scegliere:
 - **N genitori**      (elementi della popolazione corrente) <br>
@@ -1152,7 +1156,9 @@ Si hanno questi elementi tra cui scegliere:
     Ovvero K = N. <br>
     La nuova popolazione è composta dai N migliori individui tra i genitori e i figli. <br>
     Non importa quindi l'età. È possibile che il miglior individuo rimanga sempre nella popolazione (immortale). Ciò è possibile anche nell'elitismo.
-    
+
+<hr>
+
 ### **Breve recap sugli algoritmi genetici**: <br>
 L'implementazione di un algoritmo genetico richiede molte scelte:
 - **I parametri dell'algoritmo**:
@@ -1201,7 +1207,7 @@ L'implementazione di un algoritmo genetico richiede molte scelte:
     5. (Eventualmente) Altri passaggi (non solo in GA ma anche in altre metaeuristiche):
         - Metodi di ricerca locale per migliorare le soluzioni (*combinare la forza di un GA con un algoritmo di ricerca locale*: **Algoritmo Memetico**)
         - Un possibile modo per applicare la ricerca locale è quello di cercare di migliorare la miglior soluzione trovata dal GA. <br>
-        ![gals](./imgs/gals.png) <br>
+        <img src="./imgs/gals.png" width="35%" /> <br>
         - Un altro possibile modo si applica nella situazione in cui talvolta la popolazione perde diversità (gli individui iniziano ad assomigliarsi molto l'un l'altro). La peggior situazione è che diventino tutti uguali. <br>
         Molti operatori di Crossover hanno la seguente proprietà: <br>
         *Se p1 = p2 allora il Crossover(p1, p2) produce figli uguali ai genitori*. <br>
@@ -1232,19 +1238,19 @@ K deve essere compatibile con pMut. <br>
 <hr>
 
 ## **Implementazione di un algoritmo genetico per il problema MAX-CUT**
-Dato un grafo non orientato G=(V,E) trovare un sottoinsieme U1 ⊂ in V tale che il numero di tagli indotto da U1, U2 = V \ U1 è massimo. <br>
+Dato un grafo non orientato G=(V,E) trovare un sottoinsieme $U_1$ ⊂ in V tale che il numero di tagli indotto da $U_1$, $U_2$ = V \ $U_1$ è massimo. <br>
 **Un **taglio** è un arco (x,y) ∈ E tale che x ∈ U1, y ∈ U2 o x ∈ U2, y ∈ U1.**
 
-![tagliga](./imgs/tagliGA.png) <br>
+<img src="./imgs/tagliGA.png" width="50%" /> <br>
 I tagli sono in verde. Un taglio è quindi un arco da un vertice di un insieme verso uno di un altro.
 
 **MAX-CUT è un problema NP-hard**.
 
-**Lo scopo è quello di trovare U1 in modo tale che f sia massima.** <br>
+**Lo scopo è quello di trovare $U_1$ in modo tale che f sia massima.** <br>
 Una soluzione può essere descritta come una stringa di n-bit dove n è il numero dei vertici n=|V| (si presta bene agli algoritmi genetici). <br>
-x = (1,0,0,1,1,0,1) <br>
-xi = 1 se i ∈ U1 <br>
-xi = 0 se i ∈ U2 <br>
+$x$ = (1,0,0,1,1,0,1) <br>
+$x_i$ = 1 se i ∈ $U_1$ <br>
+$x_i$ = 0 se i ∈ $U_2$ <br>
 
 ```python
 # Un'istanza è data dal numero dei nodi numerati da 0 al numero di nodi -1 (0, . . ., num_nodes-1) -> se ho 6 nodi sono numerati da 0 a 5
@@ -1611,7 +1617,7 @@ Si possono anche osservare le curve di convergenza, plottandole. Per vedere dell
 - ***pCross*** -> *probabilità di Crossover*
 - ***pMut*** -> *probabilità di Mutazione*
 
-#### **N dimensione della popolazione**
+**N dimensione della popolazione**<br>
 *Che effetto ha aumentare la dimensione della popolazione?* <br>
 È chiaro intiutivamente che più la popolazione è piccola e minore è la ricchezza del patrimonio genetico (una popolazione piccola è più soggetta alla perdita di diversità in modo molto veloce). Allo stesso modo è chiaro che N influenza il tempo di esecuzione dell'algoritmo.
 - Quando **N è piccolo**, il rischio di perdere diversità è molto alto -> **non c'è più evoluzione**
@@ -1619,18 +1625,18 @@ Si possono anche osservare le curve di convergenza, plottandole. Per vedere dell
 - I GA non sono così sensibili ai valori di N, tranne quando N è troppo piccolo
 - In genere si sceglie N in modo da essere proporzionale alla dimensione del problema
 
-#### **maxgen Numero di generazioni**
+**maxgen Numero di generazioni**<br>
 *Influenza direttamente la terminazione*. <br>
 Se lo faccio terminare troppo presto, è probabile che le soluzioni trovate non siano buone. Anche questo parametro dipende dalla dimensione del problema. <br>
 Solitamente un buon valore per max-gen può essere calcolato dalla dimensione del problema
 - **Idea generale**: più è grande la dimensione del problema, più è grande lo spazio di ricerca e quindi servono più generazioni.
 - Quindi: ***problem size -> search space size -> number of generation needed***
 
-#### **pCross probabilità di Crossover**
+**pCross probabilità di Crossover** <br>
 È la probabilità di utilizzare l'operazione di Crossover su una coppia del mating pool. <br>
 ***Normalmente pCross è alta -> tra 0.8 e 1***
 
-#### **pMut probabilità di Mutazione**
+**pMut probabilità di Mutazione** <br>
 Nelle stringhe di bit è la probabilità di mutare il singolo gene (se muto ogni singolo gene in maniera indipendente, allora possiamo fare una singola mutazione per genere che deve essere mutato). <br>
 Nel TSP invece non c'è il discorso dei geni (perchè si ha a che fare con permutazioni), ma il discorso dei cromosomi (io quindi devo specificare quanto mutare il cromosoma. Quanto lo muto? Nella nostra implementazione si considerava il numero degli scambi).
 
@@ -1727,8 +1733,8 @@ Y spazio di ricerca più grande.
 Esempio: <br>
 ***0-1 Knapsack***
 - n **oggetti** 1, 2, . . ., n
-- ogni oggetto ha un **peso** w1, w2, ..., wn
-- ogni oggetto ha un **valore** v1, v2, ..., vn
+- ogni oggetto ha un **peso** $w_1, w_2, ..., w_n$
+- ogni oggetto ha un **valore** $v_1, v_2, ..., v_n$
 - **Zaino** con **capacità** C in kg
 
 L'obiettivo è trovare la composizione ottimale: <br>
@@ -1737,16 +1743,16 @@ L'obiettivo è trovare la composizione ottimale: <br>
 È possibile ricondurre questo problema ad un problema binario. <br>
 Rappresentazione come un vettore binario x1, x2, ... , xn
 
-![01zaino](./imgs/01zaino.png) <br>
+<img src="./imgs/01zaino.png" width="35%" /> <br>
 (st = such that)
 
-Tutte le stringhe di n-bit possono essere **ammissibili** <br>
-![01zaino1](./imgs/01zaino1.png)
+Tutte le stringhe di n-bit possono essere **ammissibili**: $\sum w_i x_i \leq C $
 
-o **non ammissibili**: <br>
-![01zaino2](./imgs/01zaino2.png)
+o **non ammissibili**: $\sum w_i x_i > C $
 
 In generale una soluzione per un problema vincolato **è ammissibile se rispetta i vincoli**.
+
+<hr>
 
 ## **Penalizzazione e Riparazione**
 Negli algoritmi genetici si hanno due possibilità per quanto riguarda le soluzioni da considerare nella popolazione:
@@ -1765,11 +1771,11 @@ Negli algoritmi genetici si hanno due possibilità per quanto riguarda le soluzi
     dove p rappresenta la penalità. <br> <br>
     p(x) = 0 se x è ammissibile <br>
     altrimenti p(x) quantifica "*quanto x è distante dall'essere ammissibile*". <br>
-    ![01zaino3](./imgs/01zaino3.png)
+    <img src="./imgs/01zaino3.png" width="50%" />
 
     Nel problema dello zaino: <br>
-    ![01zaino4](./imgs/01zaino4.png)
-
+    <img src="./imgs/01zaino4.png" width="50%" />
+    
     La valutazione della funzione obiettivo è quella considerando la penalità.
 
 Per implementare il secondo approccio, è necessario utilizzare:
@@ -1777,7 +1783,7 @@ Per implementare il secondo approccio, è necessario utilizzare:
     per valutare gli individui della popolazione.
 
 k = penality_coefficient, deve essere grande abbastanza per far si che la penalità sia minore del minimo valore di f(x), quando x è ammissibile. <br>
-![01zaino5](./imgs/01zaino5.png) <br>
+<img src="./imgs/01zaino5.png" width="50%" /> <br>
 In altre parole x è sempre meglio di y (una soluzione ammissibile è sempre meglio di una soluzione non ammissibile).
 
 Ricordare che la **fitness function** utilizzata ad esempio nella roulette wheel deve essere positiva (aggiungere una costante a f(x) segnato).
@@ -1788,14 +1794,14 @@ Questo metodo si può sempre utilizzare per risolvere problemi di ottimizzazione
 2. Trovare il valore per **k**
 
 Tuttavia, è necessario calcolare **f anche se x non è ammissibile**. Quando questo non è possibile, si può definire così:<br>
-![01zaino6](./imgs/01zaino6.png) <br>
+<img src="./imgs/01zaino6.png" width="50%" /> <br>
 Non è possibile calcolarlo quando ad esempio f non è definito. <br>
-***Es.*** <br>
+***Esempio*** <br>
 x deve essere diverso da 0. Che succede se x è 0 ? È un vincolo e in questo caso f non è calcolabile.
 
 Questo non è l'unico modo, c'è un altro approccio: **riparare le solzuzioni non ammissibili**. <br>
 **Riparare** = utilizzare un metodo che parte da una soluzione non ammissibile y e produce una soluzione ammissibile x, effettuando il minor numero possibile di modifiche su y. <br>
-![01zaino7](./imgs/01zaino7.png)
+<img src="./imgs/01zaino7.png" width="50%" />
 
 Nell'inizializzazione:
 ```pseudocode
@@ -1815,7 +1821,7 @@ Nel ciclo principale si ha uno step in più (riparazione):
 ### ***Come si fa a riparare una soluzione nel problema dello zaino?***
 Per il problema dello zaino, un meccanismo di riparazione ragionevole (basso costo computazionale) per le soluzioni non ammissibili x:
 1. Rimuovi alcuni oggetti da x, finchè x non diventa ammissibile <br>
-    ![01zaino8](./imgs/01zaino8.png) <br>
+    $\sum w_i x_i \leq C$ <br>
     Posso scegliere gli oggetti da rimuovere secondo diversi criteri (randomico, secondo un ordine, rapporto peso/valore ecc...)
 2. Aggiungi alcuni oggetti a x, fintanto che x rimane ammissibile.
 
@@ -1823,11 +1829,11 @@ Per il problema dello zaino, un meccanismo di riparazione ragionevole (basso cos
 Definire un operatore di riparazione è molto più difficile dello scrivere una funzione di penalizzazione.
 
 #### **Confronto tra i due metodi (penalizzazione e riparazione):**
-- La penalizzazione porta il GA a cercare soluzioni ammissibili (che possono, soprattutto inizialemnte, non esserlo). Le generazioni sono più veloci.
+- La penalizzazione porta il GA a cercare soluzioni ammissibili (che possono, soprattutto inizialemente, non esserlo). Le generazioni sono più veloci.
 - La riparazione porta il GA a lavorare sempre con soluzioni ammissibili (minor spreco di calcolo per effettuare generazioni, in quanto ne vengono effettuate di meno. Tuttavia può essere più pesante dal punto di vista computazionale l'effettuare le riparazioni)
 
-![01zaino9](./imgs/01zaino9.png) <br>
-![01zaino10](./imgs/01zaino10.png) <br>
+<img src="./imgs/01zaino9.png" width="50%" /><br>
+<img src="./imgs/01zaino10.png" width="50%" /><br>
 
 Ci sono anche altre alternative alla riparazione e alla penalizzazione: <br>
 **Scartare le soluzioni non ammissibili**: nell'inizializzazione, ogni volta che genero una soluzione non ammissibile, la rigenero. Quando crossover e mutazione producono una soluzione non ammissibile, non la metto nella lista dei children.
@@ -1837,6 +1843,7 @@ Nel main loop non vengono memorizzate soluzioni non ammissibili nella lista dei 
 
 La penalizzazione ritiene che tutti gli individui siano utili nell'evoluzione, anche quelli non ammissibili. In quanto è possibile trovare soluzioni ammissibili partendo da soluzioni non ammissibili.
 
+<hr>
 <hr>
 
 ## **Algoritmi evolutivi per l'ottimizzazione continua**
