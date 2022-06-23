@@ -2,6 +2,7 @@
 
 ## **Indice**
 0. [Informazioni sul corso](#informazioni-sul-corso)
+### **Introduzione, Local Search e Simulated Annealing**
 1. [Introduzione](#introduzione)
     - [Problemi di ottimizzazione](#problemi-di-ottimizzazione)
         - [Categorie dei problemi di ottimizzazione](#categorie-dei-problemi-di-ottimizzazione)
@@ -16,11 +17,14 @@
         - [Best improvement Local Search](#best-improvement-local-search)
         - [First improvement Local Search](#first-improvement-local-search)
         - [Iterated Local Search](#iterated-local-search)
-- [Simulated annealing](#simulated-annealing)
+3. [Simulated annealing](#simulated-annealing)
     - [Principali caratteristiche](#principali-caratteristiche-di-sa)
     - [Implementazione algoritmo Simulated Annealing](#implementazione-algoritmo-simulated-annealing)
-- [Applicazioni di algoritmi al problema del commesso viaggiatore (TSP)](#applicazioni-di-algoritmi-al-problema-del-commesso-viaggiatore-tsp)
-- [Algoritmi Genetici](#algoritmi-genetici)
+- [Applicazione degli algoritmi al problema del commesso viaggiatore (TSP)](#applicazioni-di-algoritmi-al-problema-del-commesso-viaggiatore-tsp)
+
+<hr>
+
+4. [Algoritmi Genetici](#algoritmi-genetici)
     - [Introduzione e Caratteristiche](#caratteristiche)
     - [Pseudocodice di GA](#pseudocodice-di-ga)
     - [Mating Pool](#mating-pool)
