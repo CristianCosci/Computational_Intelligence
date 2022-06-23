@@ -247,9 +247,9 @@ I problemi di ottimizzazione possono anche avere:
 
 Le soluzioni nello spazio di ricerca sono connesse e formano un grafo orientato. <br>
 <img src="./imgs/ls0.png" width="50%" /> <br>
-- *S* e *S'* sono soluzioni
+- *S*, *S'* e *S''* sono soluzioni
 - Si dice che *S'* è un vicino di *S*
-- *S''* è un vicino di *S'*
+- *S''* è un vicino di *S*
 - *S'''* non è vicino di *S*
 
 *S'* è un **vicino** di *S* se:
@@ -285,8 +285,8 @@ $b_i$ = 0 -> x1 ∈  $S_1$ <br>
 $b_i$ = 1 -> xi ∈  $S_2$
 
 ### **Fenotipo e Genotipo**
-- La rappresentazione binaria è chiamata **genotipo** ed è una rappresentazione interna (può essere ad esempio utilizzata da un algoritmo in modo efficace)
-- La rappresentazione sui sottoinsieme è chiamata **fenotipo** ed è una rappresentazione esterna.
+- La rappresentazione binaria è chiamata **genotipo** ed è una rappresentazione **interna** (può essere ad esempio utilizzata da un algoritmo in modo efficace)
+- La rappresentazione sui sottoinsieme è chiamata **fenotipo** ed è una rappresentazione **esterna**.
 
 La differenza sta che l'utente è interessato al fenotipo e invece l'algoritmo può utilizzare il genotipo perchè potrebbe funzionare meglio.
 
@@ -312,7 +312,7 @@ b -> [0010**0**100] <br>
 3. [00001100]
 
 I possibili vicini di questa soluzione sono 8 e ognuno si ottiene facendo il flip di un bit. <br>
-Lo spazio di ricerca del NPP con la rappresentazione binaria è composto da $2^n$ vettori di n-bit , ciascuno dei quali è collegato a n vicini ottenuti tramite un bit-flip.
+**Lo spazio di ricerca del NPP con la rappresentazione binaria è composto da $2^n$ vettori di n-bit , ciascuno dei quali è collegato a n vicini ottenuti tramite un bit-flip**.
 
 Questo spazio di ricerca si chiama **ipercubo**:
 - per n=2 è un quadrato
@@ -321,7 +321,7 @@ Questo spazio di ricerca si chiama **ipercubo**:
 - ecc...
 
 **La funzione obiettivo  $f(S_1, S_2)$ può essere riscritta come f(b)** <br>
-$f(b)$ = |$\sum_{b_i = 0}x_i \sum_{b_j = 0}x_j$| = |$\sum_{i = 1}^{n}(1-b_i)x_i - \sum_{j = 1}^{n}b_j x_j$| = |$\sum_{i = 1}^{n}(1-2b_i)x_i$|
+$f(b)$ = |$\sum_{b_i = 0}x_i \sum_{b_j = 0}x_j$ | = | $\sum_{i = 1}^{n}(1-b_i)x_i - \sum_{j = 1}^{n}b_j x_j $ | = | $\sum_{i = 1}^{n}(1-2b_i)x_i$|
 
 Partendo da una soluzione **b**, alcuni vicini (*b*') potrebbero essere migliori e altri (*b*'') potrebbero essere peggiori. Altri vicini possono essere buoni quanto b. Il paragone dei vicini si fa con le funzioni obiettivo. <br>
 <img src="./imgs/fb1.png" width="50%" />
