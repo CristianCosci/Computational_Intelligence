@@ -137,7 +137,7 @@ Molti problemi di ottimizzazione sono computazionalmente difficili (Es: np-hard 
 
 ### **Problema del commesso viaggiatore *TSP***
 - *n* città <br>
-<img src="./imgs/tsp1.png" width="50%" />
+<img src="./imgs/tsp1.png" width="40%" />
 
 - Il grafo è solitamente completo (da ogni città posso andare ad ogni altra città) e può essere sia orientato che non orientato.
 - Ho una matrice che rappresenta le distanze/costi:
@@ -237,11 +237,11 @@ I problemi di ottimizzazione possono anche avere:
 
 <hr>
 
-## **Local search**
+# **Local search**
 - Si utilizza in problemi di ottimizzazione discreta.
 
 Le soluzioni nello spazio di ricerca sono connesse e formano un grafo orientato. <br>
-![ls0](./imgs/ls0.png) <br>
+<img src="./imgs/ls0.png" width="40%" /> <br>
 - *S* e *S'* sono soluzioni
 - Si dice che *S'* è un vicino di *S*
 - *S''* è un vicino di *S'*
@@ -249,36 +249,35 @@ Le soluzioni nello spazio di ricerca sono connesse e formano un grafo orientato.
 
 *S'* è un **vicino** di *S* se:
 1. C'è un arco che va da *S* a *S'*
-2. *S'* può essere ottenuto da *S* usando una **trasformazione elementare**
+2. *S'* può essere ottenuto da *S* usando una **trasformazione elementare**.
 
 *Primo esempio*:
-### **Number partitioning problem (NPP)**:
-#### *Rappresentazione con sottoinsiemi*
-- dati *n* numeri interi x*1*, ... , x*n* <br>
-Dividere i numeri in due sottoinsiemi disgiunti S*1* e S*2* <br>
+## **Number partitioning problem (NPP)**:
+### **Rappresentazione con sottoinsiemi**
+- dati *n* numeri interi $x_1$, ... , $x_n$ <br>
+Dividere i numeri in due sottoinsiemi disgiunti $S_1$ e $S_2$ <br>
 
-S1 e S2 devono soddisfare la seguente condizione: <br>
-![sum](./imgs/sum1.png) <br>
-è **minima**.
+$S_1$ e $S_2$ devono soddisfare la seguente condizione: <br>
+$f(S_1, S_2) = |\sum_{x_i \in S_1}x_i - \sum_{x_j \in S_2}x_j |$ è **minima**.
 
 *Per esempio*: <br>
-x*i* = {14, 20, 13, 8, 21, 10, 9, 4} <br>
-S*1* = {14, 20, 8 , 10} -> somma = 52 <br>
-S*2* = {21, 13, 9, 4} -> somma = 47 <br>
-F(s1, S2) = |52-47| = 5 <br>
+$x_i$ = {14, 20, 13, 8, 21, 10, 9, 4} <br>
+$S_1$ = {14, 20, 8 , 10} -> somma = 52 <br>
+$S_2$ = {21, 13, 9, 4} -> somma = 47 <br>
+$f(S_1, S_2)$ = |52-47| = 5 <br>
 
-S*1* = {14, 20, 4 , 10} -> somma = 48 <br>
-S*2* = {21, 13, 9, 8} -> somma = 51 <br>
-F(s1, S2) = |48-51| = 3 *questa soluzione è migliore di quella precedente* <br>
+$S_1$ = {14, 20, 4 , 10} -> somma = 48 <br>
+$S_2$ = {21, 13, 9, 8} -> somma = 51 <br>
+$f(S_1, S_2)$ = |48-51| = 3 *questa soluzione è migliore di quella precedente* <br>
 
 **Una soluzione di NPP è una coppia di sottoinsiemi S1 e S2.**
 
-#### *Rappresentazione con vettore di n-bit*
+### **Rappresentazione con vettore di n-bit**
 Ma una differente rappresentazione può essere basata su un **vettore di n-bit b**.
 
 {14, 20, 8, 10} {13, 21, 9, 4} -> [00101011] <br>
-b*i* = 0 -> x1 ∈  S*1* <br>
-b*i* = 1 -> xi ∈  S*2*
+$b_i$ = 0 -> x1 ∈  $S_1$ <br>
+$b_i$ = 1 -> xi ∈  $S_2$
 
 ### **Fenotipo e Genotipo**
 - La rappresentazione binaria è chiamata **genotipo** ed è una rappresentazione interna (può essere ad esempio utilizzata da un algoritmo in modo efficace)
@@ -291,12 +290,12 @@ Il passaggio(mapping) da genotipo a fenotipo e viceversa deve essere computazion
 Un algoritmo può decidere di usare una rappresentazione ridondante dove differenti genotipi corrispondono allo stesso fenotipo.
 
 *Ritornando all'esempio di prima*: <br>
-Fenotipo S1, S2 <br>
+Fenotipo $S_1$, $S_2$ <br>
 Genotipo b
 
 Tra i vettori di n-bit c'è l'operazione elementare chiamata **bit-flip**.
 
-Dato un vettore n-bit e un indici i<= k <= n, negare il k-esimo bit <br>
+Dato un vettore n-bit e un indice i<= k <= n, negare il k-esimo bit <br>
 b = [0010**1**100] <br>
 k = 5 <br>
 b -> [0010**0**100] <br>
@@ -308,7 +307,7 @@ b -> [0010**0**100] <br>
 3. [00001100]
 
 I possibili vicini di questa soluzione sono 8 e ognuno si ottiene facendo il flip di un bit. <br>
-Lo spazio di ricerca del NPP con la rappresentazione binaria è composto da 2^n vettori di n-bit , ciascuno dei quali è collegato a n vicini ottenuti tramite un bit-flip.
+Lo spazio di ricerca del NPP con la rappresentazione binaria è composto da $2^n$ vettori di n-bit , ciascuno dei quali è collegato a n vicini ottenuti tramite un bit-flip.
 
 Questo spazio di ricerca si chiama **ipercubo**:
 - per n=2 è un quadrato
@@ -316,11 +315,11 @@ Questo spazio di ricerca si chiama **ipercubo**:
 - n = 4 non è facilmente disegnabile
 - ecc...
 
-**La funzione obiettivo  f(S*1*,S*2*) può essere riscritta come f(b)** <br>
-![fb](./imgs/fb.png)
+**La funzione obiettivo  $f(S_1, S_2)$ può essere riscritta come f(b)** <br>
+$f(b)$ = |$\sum_{b_i = 0}x_i \sum_{b_j = 0}x_j$| = |$\sum_{i = 1}^{n}(1-b_i)x_i - \sum_{j = 1}^{n}b_j x_j$| = |$\sum_{i = 1}^{n}(1-2b_i)x_i$|
 
 Partendo da una soluzione **b**, alcuni vicini (*b*') potrebbero essere migliori e altri (*b*'') potrebbero essere peggiori. Altri vicini possono essere buoni quanto b. Il paragone dei vicini si fa con le funzioni obiettivo. <br>
-![fb1](./imgs/fb1.png)
+<img src="./imgs/fb1.png" width="40%" />
 
 <hr>
  
@@ -341,6 +340,8 @@ Minimo:
 `Il problema di ottimizzazione è risolto se trovo il minimo globale. Altrimenti ho trovato una soluzone sub-ottimale.`
 
 Un semplice algoritmo che trova un minimo locale si chiama **Local Search**.
+
+<hr>
 
 ### **Local search algorithm**
 ```pseudocode
@@ -373,7 +374,7 @@ return y
 
 ### **Attrazione del bacino su un minimo locale**
 L'attrazione del bacino su un minimo local x* è l'insieme delle soluzioni x tali che se LS parte da x produce x*. <br>
-![bacino](./imgs/bacino.png) <br>
+<img src="./imgs/bacino.png" width="40%" />
 
 - L'algoritmo di ricerca locale appena visto è chiamato **best improvement local search**.
 
@@ -394,9 +395,10 @@ Function_LS_fi(X,f)
     while not found
 return x
 ```
+<hr>
 
 ## **Iterated local search (ILS)**
-![ils1](./imgs/ils1.png)
+<img src="./imgs/ils1.png" width="40%" />
 
 *Elementi dell'algoritmo*:
 - LS con scelta iniziale della soluzione
@@ -429,7 +431,7 @@ return x
 `I concetti di local minimum e global minimum e gli algoritmi LS e ILS funzionano per ogni problema di ottimizzazione discreta data la struttura di vicinato.`
 
 *Per esempio nel TSP i vicinati* <br>
-![ils2](./imgs/ils2.png) <br>
+<img src="./imgs/ils2.png" width="40%" /> <br>
 in rosso gli archi che non c'erano.
 
 <hr>
