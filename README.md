@@ -43,24 +43,31 @@
     - [Algoritmi genetici per problemi vincolati](#algoritmi-genetici-per-problemi-vincolati)
     - [Penalizzazione e Riparazione](#penalizzazione-e-riparazione)
         - [Confronto](#confronto-tra-i-due-metodi-penalizzazione-e-riparazione)
+
+<hr>
+
+### **Algoritmi evolutivi per l'ottimizzazione continua, Differential Evolution, Programmazione Genetica**
 6. [Algoritmi evolutivi per l'ottimizzazione continua](#algoritmi-evolutivi-per-lottimizzazione-continua)
     - [Strategie evolutive](#strategie-evolutive)
         - [(1+1)-ES](#11-es)
         - [(λ, μ)-ES](#λ-μ-es)
         - [(λ + μ)-ES](#λ--μ-es)
         - [CMA-ES](#cma-es)
-        - [Differential Evolution (DE)](#differential-evolution-de)
-            - [Mutazione Differenziale](#mutazuione-differenziale-rand1)
-            - [Crossover Binomiale](#crosover-binomiale-bin)
-            - [Aggiornamento della popolazione](#aggiornamento-della-popolazione)
-            - [Implementazione dell'algoritmo di Differential Evolution](#implementazione-dellalgoritmo-di-differential-evolution)
-            - [Altre varianti per il DE](#altre-varianti-del-differential-evolution)
-            - [Ottimizzazione dei parametri](#ottimizzazione-dei-parametri)
-            - [DE per problemi di ottimizzazione discreti](#de-per-problemi-di-ottimizzazione-discreti)
-7. [Programmazione Genetica](#programmazione-genetica)
+7. [Differential Evolution (DE)](#differential-evolution-de)
+    - [Mutazione Differenziale](#mutazuione-differenziale-rand1)
+    - [Crossover Binomiale](#crosover-binomiale-bin)
+    - [Aggiornamento della popolazione](#aggiornamento-della-popolazione)
+    - [Implementazione dell'algoritmo di Differential Evolution](#implementazione-dellalgoritmo-di-differential-evolution)
+    - [Altre varianti per il DE](#altre-varianti-del-differential-evolution)
+    - [Ottimizzazione dei parametri](#ottimizzazione-dei-parametri)
+    - [DE per problemi di ottimizzazione discreti](#de-per-problemi-di-ottimizzazione-discreti)
+8. [Programmazione Genetica](#programmazione-genetica)
     - [Caratteristiche principali](#caratteristiche-principali)
     - [Vanataggi e Svantaggi della Programmazione Genetica](#vantaggi-e-svanataggi-della-programmazione-genetica)
     - [Altre forme di programmazione genetica](#altre-forme-della-programmazione-genetica)
+
+<hr>
+
 - [Swarm Intelligence](#swarm-intelligence)
     - [Particle Swarm Optimization (PSO)](#particle-swarm-optimization-pso)
         - [Descrizione](#descrizione-pso)
@@ -323,7 +330,7 @@ Questo spazio di ricerca si chiama **ipercubo**:
 **La funzione obiettivo  $f(S_1, S_2)$ può essere riscritta come f(b)** <br>
 $f(b)$ = |$\sum_{b_i = 0}x_i \sum_{b_j = 0}x_j$ | = | $\sum_{i = 1}^{n}(1-b_i)x_i - \sum_{j = 1}^{n}b_j x_j $ | = | $\sum_{i = 1}^{n}(1-2b_i)x_i$|
 
-Partendo da una soluzione **b**, alcuni vicini (*b*') potrebbero essere migliori e altri (*b*'') potrebbero essere peggiori. Altri vicini possono essere buoni quanto b. Il paragone dei vicini si fa con le funzioni obiettivo. <br>
+Partendo da una soluzione **b**, alcuni vicini (*b*') potrebbero essere migliori e altri (*b*'') potrebbero essere peggiori. Altri vicini possono essere buoni quanto b. Il paragone dei vicini si fa considerando le funzioni obiettivo. <br>
 <img src="./imgs/fb1.png" width="50%" />
 
 <hr>
@@ -512,7 +519,7 @@ def local_search(prob, init_sol=None):
     return x, fx 
 ```
 - Il **bit-flip** può essere chiamato Δf(x, i) = f(x con i-esimo bit complementare) - f(x) <br>
-Nel problema NPP è anche semplice trovare il miglior vicino di x, in O(n) anzichè O(n^2). <br>
+Nel problema NPP è anche semplice trovare il miglior vicino di x, in O(n) anzichè $O(n^2)$. <br>
 A sua volta se riduco il tempo di ricerca della Local Search lo riduco anche delle versione iterata in quanto usa essa stessa.
 
 
@@ -744,14 +751,14 @@ In questo problema, una soluzione è una lista di vertici tale che:
 2. non ha vertici duplicati (tranne il primo e l'ultimo)
 3. ha lunghezza **n+1**
 
-Nel TSP ci sono vari concetti si vicini (possibili implementazioni):
+Nel TSP ci sono vari concetti di vicini (possibili implementazioni):
 - **SWAPE/EXCHANGE** <br>
 *x* = `[0 2 3 5 4 1 0]` ---> *x'* (**vicino**) = `[0 2 1 5 4 3 0]` <br> 
 Ci sono **O(n^2)** vicini.
 - **2-OPT** <br>
 **Tecnica 2-OPT** : prendo due archi che non devono essere vicini e li inverto. <br>
 *x* = `[0 2 3 5 4 1 0]` ---> *x'* (**vicino**) = `[0 2 4 5 3 1 0]` <br>
-Ci sono sempre O(n^2) vicini <br>
+Ci sono sempre $O(n^2)$ vicini <br>
 **2-OPT ha un'interessante proprietà:**
     - ***f(x'') = f(x) - d(2,3) - d(4,1) + d(2,4) + d(3,1)***
     - ![2opt](./imgs/2opt.png) <br>
@@ -868,6 +875,7 @@ Per quanto riguarda le istanze del TSP, è possibile:
         - http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/
 
 <hr>
+<hr>
 
 # **Algoritmi genetici**
 ### **Caratteristiche**
@@ -915,7 +923,7 @@ Se il cromosoma *c* è direttamente la soluzione, f può essere applicata al cro
 Altrimenti *f* deve essere riscritta (ridefinita) in modo da poter essere applicata a *c*, oppure *c* deve essere decodificato in modo da ottenere la soluzione corrispondente.
 
 ***Esempio***:
-### **Applicazione degli algoritmi genetici al TSP***
+### **Applicazione degli algoritmi genetici al TSP**
 Sono possibili molte rappresentazioni dello spazio di ricerca X:
 1. Un cromosoma è la lista dei vertici visitati <br>
     `[0, 2, 3, 1, 5, 4, 0]`
@@ -951,7 +959,7 @@ function GA(X, f,                       //parametri del problemma
     return il miglior individuo trovato x* e il corrispondente f value f(x*)
 ```
 *Cosa significa il miglior individuo trovato?*
-- Molte metauristiche basati su metauristiche possono produrre, in qualsiasi passaggio, individui che sono peggiori o migliori di quelli prodotti nei passaggi precedenti.
+- Molte metauristiche possono produrre, in qualsiasi passaggio, individui che sono peggiori o migliori di quelli prodotti nei passaggi precedenti.
     - Quindi ha senso memorizzare il miglior individuo trovato fino a quel punto (stato corrente).
     - C'è quindi una variabile nell'algoritmo che mi permette di controllare se il nuovo individuo è migliore di quello momentaneamente memorizzato.
         - Li confronto e in caso positivo salvo quello nuovo.
@@ -1039,12 +1047,12 @@ In questo modo genero ogni numero x[i] con una **probabilità proporzionale** a 
     - F = 1 per il *peggior individuo*
 
 
-### **Selezione baata su tornei**
+### **Selezione basata su tornei**
 - **scelgo k individui a caso e scelgo il migliore tra di loro** (a mo' di sfida)
 - **è più veloce rispetto a fare la roulette wheel**
     - il costo di selezionare N/2 coppio è **O(kN)**, invece di **$O(N^2)$** per la roulette wheel
 
-In questo modo il peggior individuo non verrà mai selezionato (non ha chance di essere selezionato perchè prendendo anche solo due individui. Il peggiore non sarà mai scelto a meno che tra le selezione degli individui io posso pescare più volte lo stesso individuo. In questo modo potrei prendere due peggiori e quindi viene selezionato). <br>
+In questo modo il peggior individuo non verrà mai selezionato (non ha chance di essere selezionato perchè prendendo anche solo due individui. Il peggiore non sarà mai scelto a meno che tra le selezioni degli individui io posso pescare più volte lo stesso individuo. In questo modo potrei prendere due peggiori e quindi viene selezionato). <br>
 Questi metodi di selezione possono produrre un mating pool con individui identici
 
 - I migliori individui possono essere rappresentati più volte.
@@ -1138,7 +1146,7 @@ pMut = 0.1
 
 <hr>
 
-### **Selezionare la nuova popolazione**
+## 3. **Selezionare la nuova popolazione** (rimpiazzamento)
 Si hanno questi elementi tra cui scegliere:
 - **N genitori**      (elementi della popolazione corrente) <br>
 - **N figli**         (prodotti da crossover+mutazione)
@@ -1602,7 +1610,7 @@ class Permutation_genetic_algorithm:
 			self.population=children
 			self.f_obj=f_child
 ```
-È comunque possibile ottimizzare i vari paranetri come pCross e pMut per avere i migliori risultati. <br>
+È comunque possibile ottimizzare i vari parametri come pCross e pMut per avere i migliori risultati. <br>
 È inoltre consigliato fissare un seed per rendere i risultati riproducibili.
 
 Non sempre la migliore soluzione è generare istanze di cui la soluzione non è nota, un'opzione migliore potrebbe essere quella di utilizzare istanze preparate appositamente per vedere se si raggiunge la soluzione ottima o quanto ci si avvicina ad essa. Per questo è disponibile una libreria apposita, come già detto, contente istanze per il problema del TSP.
@@ -1656,7 +1664,7 @@ Nonostante deve essere bassa, la Mutazione deve comunque essere presente.
 
 ### **Metodi di Rimpiazzamento/Replacement (selezione della nuova popolazione)**
 1. **Generazionale**
-    - I figli vanno al posto dei geniori
+    - I figli vanno al posto dei genitori
     - Non importa quanto sono peggio o meglio dei genitori
 2. **Elitismo**
     - Conserva il migliore individuo della popolazione, o i migliori individui
@@ -1667,7 +1675,7 @@ In generale l'elitismo funziona abbastanza bene. Favorisce uno svecchiamento del
 
 - L'elitismo può rinnovare la popolazione senza perdere i migliori individui. Qui vince l'*età*.
 - Selezionare i migliori ***n*** individui tra i genitori e i figli solitamente funziona meglio. Qui ha la meglio la *fitness* (più gli individui sono buoni più sopravvivono).
-    - Questo meccanismo ha però più proabilità di bloccarsi perchè possono rimanere sempre gli stessi individui
+    - Questo meccanismo ha più proabilità di bloccarsi perchè possono rimanere sempre gli stessi individui
 
 Si può vedere la differenza tra l'elitismo e la scelta dei migliori n individui nel problema del TSP in cui sono state implementate entrambe le versioni per la scelta della nuova popolazione. Per maggiori informazioni vedere il codice di `permutation_genetic_algorithm.py`.
 
@@ -1738,7 +1746,7 @@ Esempio: <br>
 - **Zaino** con **capacità** C in kg
 
 L'obiettivo è trovare la composizione ottimale: <br>
-**Seleziona qualche oggetto tale che la somma dei pesi(sommatoria pesi) è <= C e la somma dei valori (sommatoria valori) è massima.**
+**Seleziona qualche oggetto tale che la somma dei pesi (sommatoria pesi) è <= C e la somma dei valori (sommatoria valori) è massima.**
 
 È possibile ricondurre questo problema ad un problema binario. <br>
 Rappresentazione come un vettore binario x1, x2, ... , xn
@@ -1779,7 +1787,7 @@ Negli algoritmi genetici si hanno due possibilità per quanto riguarda le soluzi
     La valutazione della funzione obiettivo è quella considerando la penalità.
 
 Per implementare il secondo approccio, è necessario utilizzare:
-- problem.objective_function(x) - penality_coefficient * problem.penalization(x) <br>
+- ***problem.objective_function(x) - penality_coefficient * problem.penalization(x)*** <br>
     per valutare gli individui della popolazione.
 
 k = penality_coefficient, deve essere grande abbastanza per far si che la penalità sia minore del minimo valore di f(x), quando x è ammissibile. <br>
@@ -1788,7 +1796,7 @@ In altre parole x è sempre meglio di y (una soluzione ammissibile è sempre meg
 
 Ricordare che la **fitness function** utilizzata ad esempio nella roulette wheel deve essere positiva (aggiungere una costante a f(x) segnato).
 
-Il principio dietro la penalizzazione è che all'inizio le soluzioni potrebbero essere tutte non ammissibili, ma pian piano emergono soluzioni ammissibili. Le soluzioni ammissibili diventano sempre più presenti nella popolazione, perchè l'algoritmo genetico privilegia le soluzioni ammissibili nella popolazione e prova a ridurre il "gap di non aamissibilità" (penalità). <br>
+Il principio dietro la penalizzazione è che all'inizio le soluzioni potrebbero essere tutte non ammissibili, ma pian piano emergono soluzioni ammissibili. Le soluzioni ammissibili diventano sempre più presenti nella popolazione, perchè l'algoritmo genetico privilegia le soluzioni ammissibili nella popolazione e prova a ridurre il "gap di non ammissibilità" (penalità). <br>
 Questo metodo si può sempre utilizzare per risolvere problemi di ottimizzazione vincolati. I due criteri generali sono:
 1. Definisci una funzione di penalizzazione per quantificare la non ammissibilità (ovvero per valutare soluzioni ammissibili)
 2. Trovare il valore per **k**
@@ -1799,7 +1807,7 @@ Non è possibile calcolarlo quando ad esempio f non è definito. <br>
 ***Esempio*** <br>
 x deve essere diverso da 0. Che succede se x è 0 ? È un vincolo e in questo caso f non è calcolabile.
 
-Questo non è l'unico modo, c'è un altro approccio: **riparare le solzuzioni non ammissibili**. <br>
+Questo non è l'unico modo, c'è un altro approccio: **riparare le soluzioni non ammissibili**. <br>
 **Riparare** = utilizzare un metodo che parte da una soluzione non ammissibile y e produce una soluzione ammissibile x, effettuando il minor numero possibile di modifiche su y. <br>
 <img src="./imgs/01zaino7.png" width="50%" />
 
@@ -1845,11 +1853,11 @@ La penalizzazione ritiene che tutti gli individui siano utili nell'evoluzione, a
 <hr>
 <hr>
 
-## **Algoritmi evolutivi per l'ottimizzazione continua**
+# **Algoritmi evolutivi per l'ottimizzazione continua**
 **continua** = opposto di discreta
 
 Objective function <br>
-![es1](./imgs/es1.png)
+<img src="./imgs/es1.png" width="60%" />
 
 L'obiettivo è (come per l'ottimizzazione discreta) trovare **x*** **∈ D tale che f(x*** **) è massimo (o minimo)**.
 
@@ -1872,7 +1880,8 @@ La differenza |f(x+ Δx) - f(x)| può essere **piccola**
     Calcolare il gradiente aiuta gli algoritmi, in quanto quest'ultimi sono guidati dal gradiente. <br>
     L'algoritmo più famoso basato sul gradiente è: "**L'algoritmo di discesa del gradiente**" (per la minimizzazione -> è utilizzato per allenare le reti neurali). <br>
     Esistono anche molti altri algoritmi basati sulle derivate. Tuttavia questi algoritmi trovano sempre un **minimo locale**, perchè questi algoritmi nel minimo locale hanno gradiente = 0. <br>
-    ![es2](./imgs/es2.png) <br>
+    <img src="./imgs/es2.png" width="50%" /><br>
+    
 - **Seconda motivazione**: <br>
     Ci sono degli algoritmi di ottimizzazione chiamati "***derivative-free***", i quali possono trovare il minimo o massimo globale di f in modo efficiente. Esempi (già implementati nella libreria **scipy** di python):
     - Nelder-mead;
@@ -1881,7 +1890,7 @@ La differenza |f(x+ Δx) - f(x)| può essere **piccola**
     - ecc...
 
 #### **Differenza tra spazio discreto e spazio continuo**
-![es3](./imgs/es3.png)
+<img src="./imgs/es3.png" width="50%" />
 
 ### **Risultati di Complessità** per cui l'ottimizzazione discreta è più difficile di quella continua
 Se f è lineare e D è definito in termini di vincoli lineari, il problema di ottimizzare f si chiama problema di programmazione lineare. <br>
@@ -1892,9 +1901,9 @@ L'utilizzo di algoritmi genetici e altri algoritmi evolutivi per l'ottimizzazion
 1. Ci sono dei problemi dove gli algoritmi evolutivi trovano soluzioni migliori rispetto agli algoritmi classici. Questo per esempio per problemi in cui la funzione obiettivo f ha molti minimi (o massimi) locali. Oppure quando l'obiettivo non è trovare più minimi (o massimi).
 2. Quando f non è esattamente una funzione continua. Ci sono due possibilità:
     - La funzione ha dei punti di discontinuità -> **Discontinuità**. <br>
-    ![es4](./imgs/es4.png) <br>
+    <img src="./imgs/es4.png" width="50%" /> <br>
     - f può essere scritta in termini di variabili continue e variabili discrete -> **Ibrido: variabili continue e discrete**<br>
-    ![es5](./imgs/es5.png)
+    <img src="./imgs/es5.png" width="30%" /><br>
 
 Altre situazioni in cui sono utilizzati gli algoritmi evolutivi in problemi di ottimizzazione continua:
 1. f è dinamica -> f cambia nel tempo -> **Dinamicità**
@@ -1915,9 +1924,9 @@ Altre situazioni in cui sono utilizzati gli algoritmi evolutivi in problemi di o
 ```
 ***Come viene generato il vettore ε ?*** <br>
 ε può essere generato usando una distribuzione normale di dimensione d. <br>
-![es6](./imgs/es6.png) <br>
-![es7](./imgs/es7.png) <br>
-<img src="./imgs/es8.png" width="800" />
+<img src="./imgs/es6.png" width="50%" /><br>
+<img src="./imgs/es7.png" width="48%" />
+<img src="./imgs/es8.png" width="48%" />
 
 Tutte le componenti di ε sono indipendenti (le estraggo indipendentemente dalle altre). <br>
 Per estrarre ε si può fare così:
@@ -1954,13 +1963,13 @@ criterio come tornei o roulette wheel. <br>
 Parametri di una ES (evolutionary strategies):
 - λ
 - μ
-- σ^2 (o in generale Σ)
+- $\sigma^2$ (o in generale Σ)
 
-Le strategie evolutive possono usare anche meccanismi per adattare σ^2 o farlo evolvere:
+Le strategie evolutive possono usare anche meccanismi per adattare $\sigma^2$ o farlo evolvere:
 - **rule 1/5** : adatta σ in modo da mantenere la percentuale di **mutazione con successo** intorno a 1/5 <br>
     Mutazione con successo = genero un individuo che è migliore. La mutazione se io genero un x' la cui f è migliore di x.
 - Un'altra tecnica è assegnare ad ogni individuo un valore per σ <br>
-    ![es9](./imgs/es9.png)
+    <img src="./imgs/es9.png" width="50%" />
 
 ### **CMA-ES**
 È una delle strategie evolutive più performanti. <br>
@@ -1984,7 +1993,7 @@ Aggiornare i parametri di M dovrebbe produrre individui sempre migliori (non è 
 
 <hr>
 
-## **Differential Evolution (DE)**
+# **Differential Evolution (DE)**
 È uno dei metodi più utilizzati in assoluto per fare l'ottimizzazione di funzioni continue. <br>
 È uno dei **migliori** e **più semplici** algoritmi per l'ottimizzazione continua (caratteristiche difficili da trovare combinate insieme). Soprattutto nella sua versione base è sia efficiente che semplice da implementare.
 
@@ -2008,16 +2017,16 @@ for gen <-- 1 to max_gen
 end for
 return il migliore elemento ever found
 ```
-(da notare che l'ordine in cui vengono eseguiti crossover e mutazione è invertito). <br>
+(`da notare che l'ordine in cui vengono eseguiti crossover e mutazione è invertito`). <br>
 Un'altra cosa importante è che gli operatori di crossover e mutazione operano su vettori.
 
 ### **Mutazuione differenziale (RAND/1)**
-Io devo trovare yi.
+Io devo trovare **$y_i$**.
 ```pseudocode
 for i <-- 1 to N
     seleziona tre vettori differenti tra loro r1, r2, r3 e diversi da i
     y1 <-- xr1 + F * (xr2 - xr3)
-                parametro (scalare)        differenza tra vettori
+                #parametro (scalare)        differenza tra vettori
             somma tra vettori
     questa operazione per calcolare y1 corrisponde a:
     for j <-- 1 to d
@@ -2026,10 +2035,10 @@ for i <-- 1 to N
 ```
 
 ### **Crosover binomiale (BIN)**
-Noi abbiamo xi e yi e li vogliamo fondere insieme per dare luogo a zi. <br>
-Quindi il crossover prende alcune componenti di xi e alcune componenti di yi. 
+Noi abbiamo $x_i$ e $y_i$ e li vogliamo fondere insieme per dare luogo a $z_i$. <br>
+Quindi il crossover prende alcune componenti di xi e alcune componenti di $y_i$. 
 
-![de1](./imgs/de1.png)
+<img src="./imgs/de1.png" width="50%" />
 
 ### **Aggiornamento della popolazione**
 La popolazione è così aggiornata:
@@ -2066,23 +2075,23 @@ Il DE lavora sia a **livello vettoriale (mutazione) che al livello d stringhe (c
 Altre differenze:
 - **Mutazione**: normalmente dovrebbe essere un operatore unario (*prendo un individuo e lo muto*). In questo caso invece, **crea un nuovo vettore** combinando in modo lineare i tre vettori della popolazione (questo per ogni elemento della popolazione). <br>
     ***Come mai questa cosa?*** <br>
-    ![de2](./imgs/de2.png) <br>
+    <img src="./imgs/de2.png" width="50%" /> <br>
     Con 0 < F <= 2 <br>
-    ![de3](./imgs/de3.png) <br>
+    <img src="./imgs/de3.png" width="50%" /> <br>
     Ora qui di seguito ci sono 2 scenari per capire cosa fa la mutazione:
     1. Soprattutto all'inizio gli elementi (vettori) della popolazione sono molto diversi tra di loro. <br>
-    ![de4](./imgs/de4.png) <br>
+    <img src="./imgs/de4.png" width="35%" /> <br>
     Quindi yi è probabilmente molto diverso dagli altri elementi (dagli altri vettori). 
     2. ***Cosa succede se gli elementi della popolazione sono simili tra di loro?*** (tutti i vettori sono simili tra di loro) <br>
     In questo caso succede l'esatto contrario <br>
-    ![de6](./imgs/de6.png) <br>
+    <img src="./imgs/de6.png" width="35%" /> <br>
     Quindi yi è vicino a qualche vettore della popolazione. <br> <br>
     In conclusione possiamo dire che se la popolazione è molto diversificata, anche i mutanti restano diversi. Al contrario se la popolazione è poco diversificata, allora anche i mutanti sono simili agli elementi della popolazione. <br>
-    In pratica il DE si autoregola, perchè all'inizio è più probabile che ci si trovi nel primo scenario (quindi la mutazione fa dei salti importanti -> prendo degli individui e li muto molto). Se l'algoritmo invece sta convergendo (gli individui diventano sempre più simili) ci troviamo nel secondo scenario e la mutazione fa piccoli salti (picccole variazioni). <br>
+    In pratica il **DE si autoregola**, perchè all'inizio è più probabile che ci si trovi nel primo scenario (quindi la mutazione fa dei salti importanti -> prendo degli individui e li muto molto). Se l'algoritmo invece sta convergendo (gli individui diventano sempre più simili) ci troviamo nel secondo scenario e la mutazione fa piccoli salti (picccole variazioni). <br>
     Il DE usa una forma di **auto-adattamento** nella forza della **Mutazione**. <br>
     La popolazione del DE tende a convergere perchè è **automaticamente elitista** (il miglior individuo della popolazione rimane sempre). <br>
     Tuttavia non c'è un meccanismo in cui sopravvivono tutti i migliori individui, ma ogni individuo è confrontato con un altro, quindi alcuni elementi buoni potrebbero essere scartati (c'è una competizione uno a uno). <br>
-    ![de5](./imgs/de5.png) 
+    <img src="./imgs/de5.png" width="40%" />
 
 <hr>
 
@@ -2180,26 +2189,26 @@ class Differential_Evolution:
 ```
 Per quanto riguarda il codice completo e i comandi per testare l'algoritmo vedere nell'apposita directory in cui è riportata l'implementazione dell'algoritmo DE. <br>
 Successivamente ai test con questo primo esempio: <br>
-![de7](./imgs/de7.png) <br>
+<img src="./imgs/de7.png" width="50%" /> <br>
 , è possibile effettuare dei test cambiando il tipo di funzione con cui si ha a che fare. Un esempio è la funzione **RASRIGIN** (la quale è difficilmente ottimizzabile utilizzando la tecnica di discesa del gradiente, a differenza del DE con la quale si riesce ad ottimizzare abbastanza bene). <br>
-![de8](./imgs/de8.png) <br>
+<img src="./imgs/de8.png" width="20%" /> <br>
 
 <hr>
 
 ### **Altre varianti del Differential Evolution**
 Fino ad ora abbiamo visto che:
 - (**RAND/1**) <br>
-![de9](./imgs/de9.png) <br>
+<img src="./imgs/de9.png" width="30%" /> <br>
 - (**BEST/1**) <br>
-![de10](./imgs/de10.png) <br>
+<img src="./imgs/de10.png" width="30%" /> <br>
 In pratica anzichè scegliere come base della mutazione un elemento a caso, sceglie l'elemento migliore della popolazione. Questa variante converge più velocemente. Vi è tuttavia un rischio che quest'ultima si stabilizza prima (potrebbe essere una scelta non molto sensata).
 - (**RAND/2**) <br>
-![de12](./imgs/de12.png) <br>
+<img src="./imgs/de12.png" width="35%" /> <br>
 Significa che ho due differenze, anzichè una sola (si è meno legati al caso).
 
 Ci sono tante altre varianti:
 - **Current-to-Best** <br> 
-![de11](./imgs/de11.png) <br>
+<img src="./imgs/de11.png" width="50%" /><br>
 Questa si usa senza crossover, perchè xi è già dentro la formula -> yi dipende anche da xi.
 
 <hr>
@@ -2238,7 +2247,7 @@ In questo schema, ogni elemento della popolazione comprende:
 3. un valore cr_i
 
 **Funzionamento**: <br>
-Con una certa probabilità t1 = 0.1 il trial z1 è creato utilizzando nuovi valori *f_i'* e *cr_i'*, altrimenti il trial zi è creato con f_i e cr_i. In pratica ogni individuo ha un proprio f e un proprio cr, ad ogni iterazione dell'algoritmo (per creare il trial) scelgo un numero a caso, se viene più piccolo di 0.1 uso dei nuovi valori per f e cr (*f_i'* e *cr_i'*) generati a caso, altrimenti uso i vecchi valori *f_i'* = f_i e *cr_i'* = cr_i. <br>
+Con una certa probabilità $t_1$ = 0.1 il trial $z_1$ è creato utilizzando nuovi valori $f_i'$ e $cr_i'$, altrimenti il trial $z_i$ è creato con $f_i$ e $cr_i$. In pratica ogni individuo ha un proprio f e un proprio cr, ad ogni iterazione dell'algoritmo (per creare il trial) scelgo un numero a caso, se viene più piccolo di 0.1 uso dei nuovi valori per f e cr ($f_i'$ e $cr_i'$) generati a caso, altrimenti uso i vecchi valori $f_i'$ = $f_i$ e $cr_i'$ = $cr_i$. <br>
 Al passaggio di selezione,
 ```pseudocode
 if f(zi) < f(xi) then
@@ -2271,12 +2280,11 @@ Le implementazioni che si trovano nelle principali librerie (nevergrad, scipy.op
 <hr>
 
 ## **DE per Problemi di Ottimizzazione Discreti**
-Utilizzare una funzione di decodifica: trasforma un vettore di numeri reali in una soluzione per il prblema di ottimizzazione. <br>
+Utilizzare una funzione di decodifica: trasforma un vettore di numeri reali in una soluzione per il problema di ottimizzazione. <br>
 ***Esempio***: Risolvere il probelema del Number Partitioning utilizzando il DE <br>
 Implementare il DE con degli accorgimenti per fare in modo che ogni vettore è composto da numeri reali in [0, 1]. <br>
-Nello step di selezione si calcola f(zi') al posto di f(zi) con questa conversione (utilizzando la funzione di decodifica). <br>
-![dedisc](./imgs/dedisc.png) <br>
-![dedisc2](./imgs/dedisc2.png) <br>
+Nello step di selezione si calcola $f(z_i')$ al posto di $f(z_i)$ con questa conversione (utilizzando la funzione di decodifica). <br>
+<img src="./imgs/dedisc.png" width="53%" /> <img src="./imgs/dedisc2.png" width="45%" />  <br>
 Questo però causa il fatto che infiniti vettori di numeri reali corrispondono alla stessa soluzione per il problema originale. <br>
 Questo approccio è sempre applicabile (è sufficiente trovare una funzione di decoding) ma l'intero processo di ricerca è distorto in quanto: <br>
 *Vettori simili possono corrispondere a soluzioni differenti e vettori molto diversi possono corrispondere alla stessa soluzione*. <br>
@@ -2286,8 +2294,8 @@ In generale per risolvere un problema di otttimizzazione discreta è possibile u
 
 Ad esempio, per risolvere il TSP utilizzando il DE. <br>
 Utilizzare la **Random Key** decoding function (trasformare un vettore in una permutazione). <br>
-zi = (0.5, 07, 0.8, 0.9, 0.3, 0.2) <br>
-zi' = (3, 4, 5, 6, 2, 1)
+$z_i$ = (0.5, 07, 0.8, 0.9, 0.3, 0.2) <br>
+$z_i'$ = (3, 4, 5, 6, 2, 1)
 
 Un secondo approccio per usare il DE, o altri algoritmi per l'ottimizzazione continua, è di definire operazioni "*numeriche*" per la soluzione:
 1. soluzione + soluzione
@@ -2296,12 +2304,12 @@ Un secondo approccio per usare il DE, o altri algoritmi per l'ottimizzazione con
 
 La mutazione RAND/1 è interpretata come segue:
 ```pseudocode
-yi <- xr1 + F * (xr2 * xr3)
+yi <- $x_{r1}$ + F * ($x_{r2}$ * $x_{r3}$)
 ```
-Nel NPP yi, xr1, xr2, xr3 sono vettori di bit. Nel TSP sono permutazioni.
+Nel NPP $y_i$, $x_{r1}$, $x_{r2}$, $x_{r3}$ sono vettori di bit. Nel TSP sono permutazioni.
 
 I due approcci sono molto diversi:
-- Nel primo approccio si fanno evolvere i vettori ma poi i vettori hanno un significato diverso.  Il vettore rappresenta l'evoluzione la soluzione la valutazione (il vettore è una codifica/decodifica della soluzione)
+- Nel primo approccio si fanno evolvere i vettori ma poi i vettori hanno un significato diverso.  Il vettore rappresenta l'evoluzione, la soluzione, la valutazione (il vettore è una codifica/decodifica della soluzione)
 - Nel secondo approccio si fanno evolvere direttamente le soluzioni, che sono contemporaneamente sia la valutazione che l'evoluzione.
 
 ***Perchè utilizzare un algoritmo per l'ottimizzazione continua su un problema di ottimizzazione discreta?*** <br>
@@ -2316,22 +2324,24 @@ L'inventore della programmazione genetica è John Koza (anni 80).
 - **È un algoritmo che fa evolvere una popolazione di programmi.**
 - ***g(p)*** = indica quanto è buono ***p*** per il problema che voglio risolvere
 
-Ad esempio, ho una funzione g(x1, ..., xn) e conoscono per alcuni esempi i valori di x e g (valori delle variabili e quanto vale la funzione in quel punto). <br>
-![pg1](./imgs/pg1.png) <br>
+Ad esempio, ho una funzione $g(x_1, ..., x_n)$ e conoscono per alcuni esempi i valori di x e g (valori delle variabili e quanto vale la funzione in quel punto). <br>
+<img src="./imgs/pg1.png" width="50%" />
 
-N esempi di g e per ogni esempi di g. Per ogni esempio:
-![pg2](./imgs/pgerrore.png) <br>
+N esempi di g e per ogni esempio di g: <br> 
+$x^{(i)} = (x^{(i)}_1, ..., x^{(i)}_n)$ <br>
+$y^{(i)} = g(x^{(i)}_1, ..., x^{(i)}_n)$ <br>
 **L'obiettivo è trovare g** <br>
 Questo problema è legato alla **regressione lineare** (la regressione lineare ne è un caso particolare) <br>
-![pg3](./imgs/pg3.png) <br>
+$g(x_1, ..., x_n) = a + b_1 x_1 + b_2 x_2 + ... + b_n x_n$ <br>
+Trovare $a$ e $b_1, ..., b_n$ tale per cui $\sum_{i = 1}^{N}[y^{(i)} - g(x^{(i)}_1, ..., x^{(i)}_n)]^2 $ **è minima**. <br>
 Ad esempio la regressione lineare utilizza il metodo dei minimi quadrati.
 
 Questo problema è legato ai task supervisionati del Machine Learning. Supponendo di avere una rete neurale e di volerla addestrare.
-![pg4](./imgs/pg4.png) <br>
+<img src="./imgs/pg4.png" width="50%" /><br>
 g ha una forma funzionale fissa e l'***unica cosa che deve essere trovata sono i valori dei pesi e dei bias.***
 
-Ho quindi un training set con N esempi e devo trovare i pesi tali che
-![pg5](./imgs/pg5.png) <br>
+Ho quindi un training set con N esempi e devo trovare i pesi tali per cui <br>
+$\sum_{i = 1}^{N}l(y^{(i)}, g(x^{(i)}_1, ..., x^{(i)}_n))$ **è minima**. <br>
 (somma funzione di perdita)
 
 Nella programmazione genetica g non ha una forma funzionale fissa (io devo imparare la funzione).
@@ -2339,17 +2349,17 @@ Nella programmazione genetica g non ha una forma funzionale fissa (io devo impar
 L'esempio più semplice di **GP (genetic programming)** è la ***regressione simbolica***. <br>
 - g è un'espressione sconosciuta. <br>
     può contenere:
-    - ***x1, ..., xn*** variabili di input
-    - ***k1, ..., kh*** costanti (numeri reali)
+    - ***$x_1, ..., xn$*** variabili di input
+    - ***$k_1, ..., kh$*** costanti (numeri reali)
     - operazioni: **somma, sottrazione, prodotto, elevamento a potenza**
     - **( )** parentesi
 
-![pg6](./imgs/pg6.png) <br>
+<img src="./imgs/pg6.png" width="50%" /> <br>
 
 **GP prova a minimizzare la funzione di loss esattamente come fanno le reti neurali**. <br>
-![pg7](./imgs/pg7.png) <br>
+$\sum_{i = 1}^{N}Loss (y^{(i)}, g(x_1^{(i)}, ..., x_n^{(i)}))$ <br>
 La differenza con le reti neurali è che la g la deve trovare l'algoritmo. <br>
-Non c'è una forma fissa e l'algoritmo deve trovare i pesi. G può essere qualsiasi espressione e l'algoritmo deve trovarla. **Se la funzione di perdita fosse 0 significa che io ho trovato esattamente la funzione (forma funzionale) che genera la yi in funzione di x1, ..., xn** (non è detto che ciò è possibile). <br>
+Non c'è una forma fissa e l'algoritmo deve trovare i pesi. G può essere qualsiasi espressione e l'algoritmo deve trovarla. **Se la funzione di perdita fosse 0 significa che io ho trovato esattamente la funzione (forma funzionale) che genera la $y_i$ in funzione di $x_1, ..., x_n$** (non è detto che ciò è possibile). <br>
 In generale, GP restituisce la migliore g trovata in un dato numero di generazioni (o altri criteri. Ad esempio si potrebbe interrompere l'algoritmo appena trovo una g tale per cui la funzione di perdita sia minore di un certo valore).
 
 **GP è un algoritmo genetico che lavora con espressioni o porzioni di codice.**
@@ -2357,14 +2367,14 @@ In generale, GP restituisce la migliore g trovata in un dato numero di generazio
 Ci concentreremo su algoritmi che lavorano con espressioni.
 1. Come prima regola **non posso trattare un'espressione come stringa**. <br>
     Ad esempio, con il crossover ad un punto (one-point crossover) se tratto le espressioni come stringhe si creano elementi che non hanno senso. Esempio se io taglio dopo i primi 4 caratteri: <br>
-    ![pg8](./imgs/pg8.png) <br> <br>
+    <img src="./imgs/pg8.png" width="50%" /> <br> <br>
     Questo perchè si ottengono figli sintatticamente non corretti. <br>
     **Lo stesso problema si verifica con la mutazione**.
 
 **L'idea è quella di cambiare rappresentazione per le istruzioni e per le espressioni.**
 
 La rappresentazione utilizzata è simile al linguaggio di programmazione Lisp (linguaggio più moderno -> closure). Tuttavia, è possibile anche utilizzare una *rappresentazione diversa*, come quella ***basata su alberi.*** <br>
-![pg9](./imgs/pg9.png)
+<img src="./imgs/pg9.png" width="40%" />
 
 - Le **foglie** rappresentano:
     - ***costanti***
@@ -2372,7 +2382,7 @@ La rappresentazione utilizzata è simile al linguaggio di programmazione Lisp (l
 - I **nodi interni** sono:
     - ***operazioni*** (i figli sono gli argomenti dell'operazione --> *operandi*)
 
-Per valutare un'espressione ***E*** rappresentata come un albero con i valori *(v1, ..., vn)* per le variabili di input si utilizza una strategia di **visita post-order** dell'albero che permettono di calcolare un valore per ciascun nodo dell'albero. <br>
+Per valutare un'espressione ***E*** rappresentata come un albero con i valori $(v_1, ..., v_n)$ per le variabili di input si utilizza una strategia di **visita post-order** dell'albero che permettono di calcolare un valore per ciascun nodo dell'albero. <br>
 
 ### **Descrizione strategia**
 ```pseudocode
@@ -2391,7 +2401,7 @@ Solitamente le operazioni hanno uno o due operandi. Tuttavia ci sono operazioni 
 ### **GP pseudo-code**
 ```pseudocode
 initalize the population
-    create NP elements # devo avere un generatore di espressioni casuali
+    create NP elements      # devo avere un generatore di espressioni casuali
 
 evaluate all the population elements
 for g <-- 1 to max_gen
@@ -2433,10 +2443,10 @@ end for
 Questo processo è molto pesante computazionalmente perchè devo farlo per ciascun individuo. Non è neanche facile parallelizzare il tutto anche perchè il codice di una g può essere molto diverso da quello di un'altra g.
 
 ### **Crossover**
-![pg10](./imgs/pg10.png) <br>
+<img src="./imgs/pg10.png" width="45%" /> <br>
 Per sceglierlo ci sono vari criteri (casualmente o dando più probabilità ai nodi foglia o ai nodi interni, a seconda della situazione in cui mi trovo, come ad esempio in base alla profondità).
 
-![pg11](./imgs/pg11.png)
+<img src="./imgs/pg11.png" width="40%" />
 
 ### Alcune considerazioni
 I figli prodotti in questo modo sono espressioni sintatticamente corrette. Non importa come vengono selezionati i punti di scambio. Questo perchè io mi porto dietro l'intero sottoalbero (che produrrà un numero o un altro elemento, ma è comunque sintatticamente corretto). <br>
@@ -2451,7 +2461,7 @@ Bisogna quindi stare attenti ad alberi troppo alti:
 
 ### **Mutazione**
 Inizialmente non veniva utilizzata nella GP e si utilizzava solo il crossover. Tuttavia, è un'operazione abbastanza semplice. <br>
-![pg12](./imgs/pg12.png) <br>
+<img src="./imgs/pg12.png" width="45%" /> <br>
 Più in alto è il nodo che scelgo e maggiore è l'effetto del cambiamento (perchè sto sostituendo una parte significativa dell'albero). Di conseguenza bisogna tenere in considerazione questo fattore per evitare un cambiamento eccessivo, si necessita quindi una calibratura sul cambiamento.
 
 La selezione del mating pool e l'aggiornamento della popolazione possono essere fatti come negli algoritmi genetici standard.
@@ -2463,7 +2473,7 @@ Le limitazioni sono essenzialmente due:
 - avere a disposizione il training set
 - avere a disposizione delle risorse di calcolo non indifferenti (anche se nello svolgimento di alcuni compiti la programmazione genetica riesce ad essere competitiva rispetto alle reti neurali, ma tendenzialmente non lo è ma anzi richiede molta più computazione)
 
-![pg13](./imgs/pg13.png) <br>
+<img src="./imgs/pg13.png" width="40%" /> <br>
 f viene rappresentata come  un albero:
 - gli operatori di crossover e mutazione sono definiti per gli alberi
 
@@ -2474,8 +2484,8 @@ f viene rappresentata come  un albero:
     - La funzione obiettivo è computazionalmente difficile. <br>
     Questo perchè ogni elemento deve essere valutato per ogni esempio (ad esempio con una visita post-order) e ciò non può essere meccanizzato facilemente (a meno che non vengano utilizzati dei mini-batch come nel Machine Learning).
     - Non è facile migliorare la valutazione. <br>
-    T1, ..., Tn --> alberi <br>
-    E1, ..., En --> esempi <br>
+    $T_1, ..., T_1$ --> alberi <br>
+    $E_1, ..., E_n$ --> esempi <br>
     **La valutazione viene fatta come una interoperazione**. <br>
     Altrimenti l'alternativa sarebbe quella di utilizzare qualche forma di compilazione, ogni volta che viene generato un nuovo albero. Il tempo di compilazione ovviamente va preso in considerazione e quindi dal punto di vista computazionale potrebbe non dare vantaggi (non è quindi sempre conveniente utilizzare questa strategia).
 
@@ -2490,16 +2500,17 @@ Dall'altro lato, la programmazione genetica **è (molto) più pesante del machin
 Ciò pone la GP in svantaggio rispetto al Machine Learning. Ci sono comunque stati dei tentativi per unire la GP al Machine Learning (Neural Network), la difficoltà per ottenere una modello simile è molto alta.
 - Reti Neurali: presuppongono una rappresentazione puramente numerica del programma, è quindi stato necessario un gran lavoro -> **Neural Tuning Machine** (corrisponde ad un approccio ibrido) in cui è possibile utilizzare la Back Propagation.
 
-### **Altre forme della Programmazione Genetica**
-### **Progammazione Genetica Lineare**
+<hr>
+ 
+## **Altre forme della Programmazione Genetica**
+### **Programmazione Genetica Lineare**
 Rappresenta i programmi come una sequenza di codici d'istruzione (istruction codes). <br>
 Ad esempio si possono rappresentare con delle sequenze di **bytecodes**, con il vantaggio di mantere crossover e mutazione come sequenze (più facile mantenerli). Lo svantaggio è che l'interprede deve essere **limitato**, altrimenti potrebbe andare in loop. Si può usare un limite di tempo: se entro un tot tempo l'interprete non ritorna un risultato la sequenza non è considerata valida. Inoltre è molto facile generare dei programmi senza senso.
 
 Un altro svantaggio della gp lineare è che potrebbe produrre dei risultati che sono difficili da interpretare dagli umani (leggere il bytecode è difficile). Sarebbe necessaro avere un decompilatore.
 
 ### **Programmazione genetica Cartesiana**
-![pg14](./imgs/pg14.png) <br>
-![pg15](./imgs/pg15.png)
+<img src="./imgs/pg14.png" width="50%" /> <img src="./imgs/pg15.png" width="40%" />
 
 
 Il vantaggio di questo approccio è che non è necessaria la ricorsione ne per generare ne per creare elementi. È possibile utilizzare solo cicli for per generare e valutare gli individui della popolazione. Inoltre anche la decodifica è totalmente numerica, per ogni individuo devo quindi conservare solo gli indici e l'operazione da fare, è quindi molto veloce rispetto alla classica gp basata sugli alberi.
@@ -2512,7 +2523,7 @@ La programmazione genetica tende a creare elementi con **molte componenti**:
 - Questo causa un incremento notevole dei tempi di computazione.
 - Inoltre gli elementi diventano difficile da capire e interpretare (sia per l'umano che a livello computazionale).
 
-![pg16](./imgs/pg16.png)
+<img src="./imgs/pg16.png" width="50%" />
 
 Per evitare il fenomeno di **Bloat**:
 1. Si **limita la crescita**, ad esempio penalizzando oggetti troppo grandi. <br>
@@ -2520,8 +2531,9 @@ Per evitare il fenomeno di **Bloat**:
     ***f_obj(e) = Loss(e) + k * Size(e)*** --> questo favorisce oggetti piccoli.
 2. Utilizzare degli **operatori che riducono gli oggetti** (**operatori sheink**). Questi operatori prendono un oggetto e lo riducono. <br>
 3. **Semplificare gli oggetti**. La semplificazione potrebbe essere computazionalmente pesante. <br>
-![pg17](./imgs/pg17.png) 
+<img src="./imgs/pg17.png" width="40%" />
 
+<hr>
 <hr>
 
 # **Swarm Intelligence**
