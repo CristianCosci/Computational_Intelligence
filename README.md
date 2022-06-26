@@ -42,6 +42,7 @@
 5. [Problemi Vincolati](#problemi-vincolati)
     - [Algoritmi genetici per problemi vincolati](#algoritmi-genetici-per-problemi-vincolati)
     - [Penalizzazione e Riparazione](#penalizzazione-e-riparazione)
+        - [Riparazione](#riparazione) 
         - [Confronto](#confronto-tra-i-due-metodi-penalizzazione-e-riparazione)
 
 <hr>
@@ -877,6 +878,21 @@ Per quanto riguarda le istanze del TSP, è possibile:
 <hr>
 <hr>
 
+## **Algoritmi Evolutivi**
+Gli Algoritmi evolutivi si dividono in 3 sottoclassi principali:
+- **Algoritmi Genetici (GA)**
+- **Strategie Evolutive (ES)**
+- **Programmazione Evolutiva (EP)**
+
+Tra questi, i GA si sono rivelati i più popolari dei 3. Questi algoritmi sono simili in generale, ma ci sono grandi differenze tra loro. <br>
+**Somiglianze e differenze**:
+- Tutti e 3 operano su stringhe di lunghezza fissa, che contengono valori reali in ES e EP e numeri binari nel GA canonico.
+- Tutti e 3 incorporano un operatore di mutazione: per ES e EP la **mutazione** è la forza trainante. GA e ES utilizzano anche un operatore di ricombinazione, che è l'operatore principale per GA (**crossover**).
+- Tutti e 3 utilizzano un operatore di **selezione** che applica una pressione evolutiva, istintiva (in ES e EP, l'operatore determina quali individui saranno esclusi dalla nuova popolazione) o conservante (in GA l'operatore seleziona gli individui per la riproduzione).
+- In GA e EP la selezione è probabilistica, mentre gli ES utilizzano una selezione deterministica. ES e meta-EP consentono l'autoadattamento, in cui i parametri che controllano la mutazione possono evolversi insieme alle variabili oggetto. Infine, vale la pena notare che l'implementatore è libero di modificare questi algoritmi.
+
+<hr>
+
 # **Algoritmi genetici**
 ### **Caratteristiche**
 È l'algoritmo più famoso in letteratura. <br>
@@ -973,8 +989,8 @@ Ciò è molto utile se:
 La popolazione può essere inizializzata in 3 modi principali:
 1. **Completamente a caso**
     - Se il problema **non ha vincoli**, tutte le soluzioni sono valide.
-    - Se il problema **ha vincoli** (ad esempio il problema dello zaino), significa che non tutti gli individui rappresetano una soluzione valida
 2. **Creare solo cromosomi validi**
+    - Se il problema **ha vincoli** (ad esempio il problema dello zaino), significa che non tutti gli individui rappresetano una soluzione valida
 3. **Creare 'buoni' individui** (non così scarsi). Per esempio utilizzando un'euristica ***h*** che mi permette di farlo.
     - **se h è deterministica**, può produrre un solo individuo. Di conseguenza gli altri N-1 vanno scelti a caso.
     - **in generale**, usare h solo per generare soltanto alcuni individui e gli altri generati in modo casuale.
@@ -1234,7 +1250,7 @@ c1 prende gli elementi mancanti nell'ordine in cui si trovano in p2. <br>
 c1 = 2 4 **3 5 1** 0 6
 c2 = 0 2 **1 4 3** 5 6
 
-Questo si chiama ***ordered crossover**:
+Questo si chiama **ordered crossover**:
 - Significa prendere un segmento di ognuna delle due permutazioni, ricopiarlo nei figli e poi gli elementi che mancano, prenderli dall'altro genitore nell'ordine in cui si trovano (non nelle stesse posizioni).
 
 ### **Mutazione per le permutazioni**
@@ -1749,7 +1765,7 @@ L'obiettivo è trovare la composizione ottimale: <br>
 **Seleziona qualche oggetto tale che la somma dei pesi (sommatoria pesi) è <= C e la somma dei valori (sommatoria valori) è massima.**
 
 È possibile ricondurre questo problema ad un problema binario. <br>
-Rappresentazione come un vettore binario x1, x2, ... , xn
+Rappresentazione come un vettore binario $x_1, x_2, ... , x_n$
 
 <img src="./imgs/01zaino.png" width="35%" /> <br>
 (st = such that)
@@ -1773,8 +1789,10 @@ Negli algoritmi genetici si hanno due possibilità per quanto riguarda le soluzi
     Si consideri che il 1-point crossover non funziona sulle permutazioni.
 
     Vediamo come è possibile invece risolvere il problema del knapsack con un algoritmo genetico.
+
+### **Penalizzazione**
 - **Ammettere soluzioni non ammissibili**. <br>
-    Una soluzione non ammissibile è una soluzione che non risolve il problema, tuttavia potrebbe non essere lontana dall'essere ammissibili. Di conseguenza valuto quanto è lontana dall'essere ammissibile e, valuto anche quello. <br>
+    Una soluzione non ammissibile è una soluzione che non risolve il problema, tuttavia potrebbe non essere lontana dall'essere ammissibile. Di conseguenza valuto quanto è lontana dall'essere ammissibile. <br>
     funzione obiettivo (come **fitness**) -> invece di fare max f(x), faccio max f(x) - k * p(x) <br>
     dove p rappresenta la penalità. <br> <br>
     p(x) = 0 se x è ammissibile <br>
@@ -1807,6 +1825,7 @@ Non è possibile calcolarlo quando ad esempio f non è definito. <br>
 ***Esempio*** <br>
 x deve essere diverso da 0. Che succede se x è 0 ? È un vincolo e in questo caso f non è calcolabile.
 
+### **Riparazione**
 Questo non è l'unico modo, c'è un altro approccio: **riparare le soluzioni non ammissibili**. <br>
 **Riparare** = utilizzare un metodo che parte da una soluzione non ammissibile y e produce una soluzione ammissibile x, effettuando il minor numero possibile di modifiche su y. <br>
 <img src="./imgs/01zaino7.png" width="50%" />
@@ -1907,17 +1926,20 @@ L'utilizzo di algoritmi genetici e altri algoritmi evolutivi per l'ottimizzazion
 
 Altre situazioni in cui sono utilizzati gli algoritmi evolutivi in problemi di ottimizzazione continua:
 1. f è dinamica -> f cambia nel tempo -> **Dinamicità**
-2. f è alterata dal rumore esterno (la f quando viene valutata non è esatta, potrebbe quindi succedere che valutando la f nello stesso punto ritorna valori diversi. Un algoritmo traduzionale non riuscirebbe ad andare avanti o ad esempio calcolarsi il gradiente, a differenza degli algoritmi evolutivi.) -> **Casualità**
+2. f è alterata dal rumore esterno (la f quando viene valutata non è esatta, potrebbe quindi succedere che valutando la f nello stesso punto ritorna valori diversi. Un algoritmo tradizionale non riuscirebbe ad andare avanti o ad esempio calcolarsi il gradiente, a differenza degli algoritmi evolutivi.) -> **Casualità**
 
 ## **Strategie evolutive**
+Le strategie evolutive (ES) sono algoritmi **iterativi** in cui ad ogni generazione viene valutata una popolazione in base alla **fitness**.
+
 ### **(1+1)-ES**
 ```pseudocode
     x <-- random point in D
+    z <-- f(x)
     for g <-- 1 to max_gen
         ε <-- random vector of dimension d
         x' <-- x + ε    # è una sorta di mutazione
         z' <-- f(x')
-        if z' <-- z
+        if z' <= z
             x <-- x'
             z <-- z'
     return x, z
@@ -1938,6 +1960,7 @@ Per estrarre ε si può fare così:
 Lo schema evolutivo precedenete non fa utilizzo di una popolazione. <br>
 La **popolazione** può essere introdotta dal seguente schema di generalizzazione:
 ### **(λ, μ)-ES**
+Crea µ figli da λ genitori. <br>
 **λ = dimensione della popolazione** <br>
 **μ = numero di figli** <br>
 λ > μ
@@ -1950,10 +1973,12 @@ La **popolazione** può essere introdotta dal seguente schema di generalizzazion
         select the best λ individuals among the children as new value x1, ..., xλ for next iteration # Non c'è elitismo
     return the best individuals ever found 
 ```
+**La selezione avviene solo tra i $\mu$ figli, i genitori muoiono.**
 
 Un'altra alternativa è di utilizzare:
+
 ### **(λ + μ)-ES**
-La selezione prende i migliori λ individui tra i genitori e i figli.
+La selezione prende i migliori λ individui tra i genitori e i figli. **I migliori λ individui tra padri e figli sopravvivranno e diventeranno genitori nella generazione successiva.** Quindi anche i genitori possono partecipare alla selezione per la generazione successiva.
 - λ = 1 e μ = 1 --> **(1+1)-ES** <br>
 - λ > 1 e μ = 1 --> **mutare un individuo tra la popolazione** o scelto secondo qualche 
 criterio come tornei o roulette wheel. <br>
@@ -1973,6 +1998,9 @@ Le strategie evolutive possono usare anche meccanismi per adattare $\sigma^2$ o 
 
 ### **CMA-ES**
 È una delle strategie evolutive più performanti. <br>
+E una versione moderna ed estesa delle strategie evolutive. Qui la mutazione è fatta prendendo un vettore casuale *r[i]* secondo la distribuzione normale con medie m e matrice di covarianza C. L’algoritmo aggiorna m e C ad ogni iterazione tramite i risultati finora ottenuti. Le formule per l’aggiornamento
+sfruttano la statistica e algebra lineare.
+
 **Non fa utilizzo della popolazione, al suo posto fa uso di un modello probabilistico**. <br>
 Invece di generare μ figli dalla popolazione (ad esempio tramite mutazione), i figli sono campionati dal modello M.
 
@@ -1997,7 +2025,7 @@ Aggiornare i parametri di M dovrebbe produrre individui sempre migliori (non è 
 È uno dei metodi più utilizzati in assoluto per fare l'ottimizzazione di funzioni continue. <br>
 È uno dei **migliori** e **più semplici** algoritmi per l'ottimizzazione continua (caratteristiche difficili da trovare combinate insieme). Soprattutto nella sua versione base è sia efficiente che semplice da implementare.
 
-**DE** è una specie di algoritmo genetico che lavora su **vettori** (gli algoritmi genetici solitamente lavorano su stringhe. Infatti le operazioni di base come crossover sono operazioni sulle stringe, stessa cosa la mutazione).  
+**DE** è una specie di algoritmo genetico che lavora su **vettori** (gli algoritmi genetici solitamente lavorano su stringhe. Infatti le operazioni di base come crossover sono operazioni sulle stringe, stessa cosa la mutazione) e ottimizza un problema tentando iterativamente di migliorare una soluzione rispetto ad una data misura di qualità (funzione di fitness). Non garantisce che venga trovata una soluzione ottimale ed è espressamente pensato per ottimizzare funzioni di variabili reali con moltissimi minimi locali.
 
 Nella sua forma base, chiamata **DE/RAND/1/BIN**:
 - **RAND** -> perchè la mutazione è fatta casualmente
@@ -2007,6 +2035,12 @@ Abbiamo:
 - **f (objective function)**
 - **d** -> dimensione dello spazio (vettori di dimensioni d)
 - **D** -> dominio della funzione f
+
+Per il funzionamento abbiamo bisogno di:
+1. Una **popolazione** di N individui v[i];
+2. **Mutazione Differenziale**: Per ogni individuo della popolazione v[i] si crea un vettore u[i] mutante.
+3. **Crossover combinatorio**: Per ogni coppia (v[i], u[i]) (popolazione, vettore mutato) si crea un nuovo vettore candidato w[i] che prende un pò di elementi da u e da v in base ad un parametro chiamato *CR*.
+4. **Aggiornamento popolazione**: Ogni vettore candidato w[i] sostituisce il corrispondente v[i] se w[i] ha un valore migliore di f.
 
 ```pseudocode
 Crea N vettori iniziali x1, ..., xn (ad esempio in modo casuale)
@@ -2028,6 +2062,7 @@ for i <-- 1 to N
     y1 <-- xr1 + F * (xr2 - xr3)
                 #parametro (scalare)        differenza tra vettori
             somma tra vettori
+    
     questa operazione per calcolare y1 corrisponde a:
     for j <-- 1 to d
         y1[j] = xr1[j] + F * (xr2[j] - xr2[j])
@@ -2036,7 +2071,7 @@ for i <-- 1 to N
 
 ### **Crosover binomiale (BIN)**
 Noi abbiamo $x_i$ e $y_i$ e li vogliamo fondere insieme per dare luogo a $z_i$. <br>
-Quindi il crossover prende alcune componenti di xi e alcune componenti di $y_i$. 
+Quindi il crossover prende alcune componenti di $x_i$ e alcune componenti di $y_i$. 
 
 <img src="./imgs/de1.png" width="50%" />
 
@@ -2085,9 +2120,10 @@ Altre differenze:
     2. ***Cosa succede se gli elementi della popolazione sono simili tra di loro?*** (tutti i vettori sono simili tra di loro) <br>
     In questo caso succede l'esatto contrario <br>
     <img src="./imgs/de6.png" width="35%" /> <br>
-    Quindi yi è vicino a qualche vettore della popolazione. <br> <br>
-    In conclusione possiamo dire che se la popolazione è molto diversificata, anche i mutanti restano diversi. Al contrario se la popolazione è poco diversificata, allora anche i mutanti sono simili agli elementi della popolazione. <br>
-    In pratica il **DE si autoregola**, perchè all'inizio è più probabile che ci si trovi nel primo scenario (quindi la mutazione fa dei salti importanti -> prendo degli individui e li muto molto). Se l'algoritmo invece sta convergendo (gli individui diventano sempre più simili) ci troviamo nel secondo scenario e la mutazione fa piccoli salti (picccole variazioni). <br>
+    Quindi $y_i$ è vicino a qualche vettore della popolazione. <br> <br>
+    La DE crea un vettore mutante che dipende da quanto i vettori della popolazione sono differenti tra di loro. Se sono molto differenti, il vettore mutante sarà un vettore a caso e molto diverso dagli elementi della popolazione. Se sono poco differenti, il vettore mutante sarà simile a v[1], e quindi simile ad un elemento della popolazione. <br>
+    In pratica il **DE si autoregola**, perchè all'inizio è più probabile che ci si trovi nel primo scenario (quindi la mutazione fa dei salti importanti (**exploration**) -> prendo degli individui e li muto molto. <br>
+    Se l'algoritmo invece sta convergendo (gli individui diventano sempre più simili) ci troviamo nel secondo scenario e la mutazione fa piccoli salti (picccole variazioni) (**exploitation**). <br>
     Il DE usa una forma di **auto-adattamento** nella forza della **Mutazione**. <br>
     La popolazione del DE tende a convergere perchè è **automaticamente elitista** (il miglior individuo della popolazione rimane sempre). <br>
     Tuttavia non c'è un meccanismo in cui sopravvivono tutti i migliori individui, ma ogni individuo è confrontato con un altro, quindi alcuni elementi buoni potrebbero essere scartati (c'è una competizione uno a uno). <br>
@@ -2303,9 +2339,8 @@ Un secondo approccio per usare il DE, o altri algoritmi per l'ottimizzazione con
 3. soluzione * soluzione
 
 La mutazione RAND/1 è interpretata come segue:
-```pseudocode
-yi <- $x_{r1}$ + F * ($x_{r2}$ * $x_{r3}$)
-```
+yi <- $x_{r1} + F * (x_{r2} * x_{r3})$
+
 Nel NPP $y_i$, $x_{r1}$, $x_{r2}$, $x_{r3}$ sono vettori di bit. Nel TSP sono permutazioni.
 
 I due approcci sono molto diversi:
