@@ -24,7 +24,7 @@
 
 <hr>
 
-### **Algoritmi Genetici, Problemi Vincolati**
+### **Algoritmi Genetici e Problemi Vincolati**
 4. [Algoritmi Genetici](#algoritmi-genetici)
     - [Introduzione e Caratteristiche](#caratteristiche)
     - [Pseudocodice di GA](#pseudocodice-di-ga)
@@ -47,7 +47,7 @@
 
 <hr>
 
-### **Algoritmi evolutivi per l'ottimizzazione continua, Differential Evolution, Programmazione Genetica**
+### **Algoritmi evolutivi per l'ottimizzazione continua e Differential Evolution**
 6. [Algoritmi evolutivi per l'ottimizzazione continua](#algoritmi-evolutivi-per-lottimizzazione-continua)
     - [Strategie evolutive](#strategie-evolutive)
         - [(1+1)-ES](#11-es)
@@ -62,8 +62,17 @@
     - [Altre varianti per il DE](#altre-varianti-del-differential-evolution)
     - [Ottimizzazione dei parametri](#ottimizzazione-dei-parametri)
     - [DE per problemi di ottimizzazione discreti](#de-per-problemi-di-ottimizzazione-discreti)
+
+<hr>
+
+### **Programmazione Genetica**
 8. [Programmazione Genetica](#programmazione-genetica)
     - [Caratteristiche principali](#caratteristiche-principali)
+        - [Inizializzazione](#inizializzazione)
+        - [Crossover](#crossover)
+        - [Mutazione](#mutazione)
+        - [Valutazione](#valutazione)
+        - [Selezione e Rimpiazzamento](#selezione-iniziale-e-rimpiazzamento)
     - [Vanataggi e Svantaggi della Programmazione Genetica](#vantaggi-e-svanataggi-della-programmazione-genetica)
     - [Altre forme di programmazione genetica](#altre-forme-della-programmazione-genetica)
 
@@ -1911,13 +1920,13 @@ La differenza |f(x+ Δx) - f(x)| può essere **piccola**
 #### **Differenza tra spazio discreto e spazio continuo**
 <img src="./imgs/es3.png" width="50%" />
 
-### **Risultati di Complessità** per cui l'ottimizzazione discreta è più difficile di quella continua
+#### **Risultati di Complessità** per cui l'ottimizzazione discreta è più difficile di quella continua
 Se f è lineare e D è definito in termini di vincoli lineari, il problema di ottimizzare f si chiama problema di programmazione lineare. <br>
 - Per spazi discreti, è un problema NP-HARD. <br>
 - Per spazi continui, c'è un algoritmo che risolve il problema in tempo polinomiale.
 
 L'utilizzo di algoritmi genetici e altri algoritmi evolutivi per l'ottimizzazione continua è giustificata nelle seguenti situazioni:
-1. Ci sono dei problemi dove gli algoritmi evolutivi trovano soluzioni migliori rispetto agli algoritmi classici. Questo per esempio per problemi in cui la funzione obiettivo f ha molti minimi (o massimi) locali. Oppure quando l'obiettivo non è trovare più minimi (o massimi).
+1. Ci sono dei problemi dove gli algoritmi evolutivi trovano soluzioni migliori rispetto agli algoritmi classici. Questo per esempio per problemi in cui la funzione obiettivo **f ha molti minimi (o massimi) locali**. Oppure quando l'obiettivo non è trovare più minimi (o massimi).
 2. Quando f non è esattamente una funzione continua. Ci sono due possibilità:
     - La funzione ha dei punti di discontinuità -> **Discontinuità**. <br>
     <img src="./imgs/es4.png" width="50%" /> <br>
@@ -2004,7 +2013,7 @@ sfruttano la statistica e algebra lineare.
 **Non fa utilizzo della popolazione, al suo posto fa uso di un modello probabilistico**. <br>
 Invece di generare μ figli dalla popolazione (ad esempio tramite mutazione), i figli sono campionati dal modello M.
 
-Il modello probabilistico utilizzato è un modello Gaussiano (utilizza la distribuzione normamle) con **n** come vettore delle medie.
+Il modello probabilistico utilizzato è un modello Gaussiano (utilizza la distribuzione normale) con **n** come vettore delle medie.
 
 ### **CMA-ES abstract scheme**
 ```pseudocode
@@ -2025,7 +2034,7 @@ Aggiornare i parametri di M dovrebbe produrre individui sempre migliori (non è 
 È uno dei metodi più utilizzati in assoluto per fare l'ottimizzazione di funzioni continue. <br>
 È uno dei **migliori** e **più semplici** algoritmi per l'ottimizzazione continua (caratteristiche difficili da trovare combinate insieme). Soprattutto nella sua versione base è sia efficiente che semplice da implementare.
 
-**DE** è una specie di algoritmo genetico che lavora su **vettori** (gli algoritmi genetici solitamente lavorano su stringhe. Infatti le operazioni di base come crossover sono operazioni sulle stringe, stessa cosa la mutazione) e ottimizza un problema tentando iterativamente di migliorare una soluzione rispetto ad una data misura di qualità (funzione di fitness). Non garantisce che venga trovata una soluzione ottimale ed è espressamente pensato per ottimizzare funzioni di variabili reali con moltissimi minimi locali.
+**DE** è una specie di algoritmo genetico che lavora su **vettori** (gli algoritmi genetici solitamente lavorano su stringhe. Infatti le operazioni di base come crossover sono operazioni sulle stringhe, stessa cosa la mutazione) e ottimizza un problema tentando iterativamente di migliorare una soluzione rispetto ad una data misura di qualità (funzione di fitness). Non garantisce che venga trovata una soluzione ottimale ed è espressamente pensato per ottimizzare funzioni di variabili reali con moltissimi minimi locali.
 
 Nella sua forma base, chiamata **DE/RAND/1/BIN**:
 - **RAND** -> perchè la mutazione è fatta casualmente
@@ -2054,12 +2063,12 @@ return il migliore elemento ever found
 (`da notare che l'ordine in cui vengono eseguiti crossover e mutazione è invertito`). <br>
 Un'altra cosa importante è che gli operatori di crossover e mutazione operano su vettori.
 
-### **Mutazuione differenziale (RAND/1)**
+### **Mutazione differenziale (RAND/1)**
 Io devo trovare **$y_i$**.
 ```pseudocode
 for i <-- 1 to N
     seleziona tre vettori differenti tra loro r1, r2, r3 e diversi da i
-    y1 <-- xr1 + F * (xr2 - xr3)
+    yi <-- xr1 + F * (xr2 - xr3)
                 #parametro (scalare)        differenza tra vettori
             somma tra vettori
     
@@ -2106,7 +2115,7 @@ Il Differential Evolution si può estendere facilmente anche ad altri tipi di pr
 - **ottimizzazione mista (reali/discreta)**
 - **ottimizzazione combinatoria** (DE per le permutazioni)
 
-Il DE lavora sia a **livello vettoriale (mutazione) che al livello d stringhe (crossover)**. Qui si nota già una prima differenza con gli algoritmi genetici, i quali lavorano solo a livello di stringhe. <br>
+Il DE lavora sia a **livello vettoriale (mutazione) che al livello di stringhe (crossover)**. Qui si nota già una prima differenza con gli algoritmi genetici, i quali lavorano solo a livello di stringhe. <br>
 Altre differenze:
 - **Mutazione**: normalmente dovrebbe essere un operatore unario (*prendo un individuo e lo muto*). In questo caso invece, **crea un nuovo vettore** combinando in modo lineare i tre vettori della popolazione (questo per ogni elemento della popolazione). <br>
     ***Come mai questa cosa?*** <br>
@@ -2116,7 +2125,7 @@ Altre differenze:
     Ora qui di seguito ci sono 2 scenari per capire cosa fa la mutazione:
     1. Soprattutto all'inizio gli elementi (vettori) della popolazione sono molto diversi tra di loro. <br>
     <img src="./imgs/de4.png" width="35%" /> <br>
-    Quindi yi è probabilmente molto diverso dagli altri elementi (dagli altri vettori). 
+    Quindi $y_i$ è probabilmente molto diverso dagli altri elementi (dagli altri vettori). 
     2. ***Cosa succede se gli elementi della popolazione sono simili tra di loro?*** (tutti i vettori sono simili tra di loro) <br>
     In questo caso succede l'esatto contrario <br>
     <img src="./imgs/de6.png" width="35%" /> <br>
@@ -2330,7 +2339,7 @@ In generale per risolvere un problema di otttimizzazione discreta è possibile u
 
 Ad esempio, per risolvere il TSP utilizzando il DE. <br>
 Utilizzare la **Random Key** decoding function (trasformare un vettore in una permutazione). <br>
-$z_i$ = (0.5, 07, 0.8, 0.9, 0.3, 0.2) <br>
+$z_i$ = (0.5, 0.7, 0.8, 0.9, 0.3, 0.2) <br>
 $z_i'$ = (3, 4, 5, 6, 2, 1)
 
 Un secondo approccio per usare il DE, o altri algoritmi per l'ottimizzazione continua, è di definire operazioni "*numeriche*" per la soluzione:
@@ -2352,12 +2361,12 @@ Non ci sono così tanti algoritmi per spazi discreti, la maggior parte delle nuo
 
 <hr>
 
-## **Programmazione Genetica**
-
-### **Caratteristiche principali**
-L'inventore della programmazione genetica è John Koza (anni 80).
+# **Programmazione Genetica**
+L'inventore della programmazione genetica è John Koza (anni 80). Rappresenta un’estenzione degli algoritmi genetici dove ogni elemento della popolazione rappresenta un programma anzichè una stringa di bit. La popolazione è un insieme di funzioni ed evolve in base ad una funzione di fitness. Gli operatori di crossover e mutazione sono adattati a una rappresentazione ad albero.
 - **È un algoritmo che fa evolvere una popolazione di programmi.**
 - ***g(p)*** = indica quanto è buono ***p*** per il problema che voglio risolvere
+
+***Differenza tra un algoritmo genetico e la programmazione genetica***: da individui si passa a funzioni
 
 Ad esempio, ho una funzione $g(x_1, ..., x_n)$ e conoscono per alcuni esempi i valori di x e g (valori delle variabili e quanto vale la funzione in quel punto). <br>
 <img src="./imgs/pg1.png" width="50%" />
@@ -2371,7 +2380,7 @@ $g(x_1, ..., x_n) = a + b_1 x_1 + b_2 x_2 + ... + b_n x_n$ <br>
 Trovare $a$ e $b_1, ..., b_n$ tale per cui $\sum_{i = 1}^{N}[y^{(i)} - g(x^{(i)}_1, ..., x^{(i)}_n)]^2 $ **è minima**. <br>
 Ad esempio la regressione lineare utilizza il metodo dei minimi quadrati.
 
-Questo problema è legato ai task supervisionati del Machine Learning. Supponendo di avere una rete neurale e di volerla addestrare.
+Questo problema è legato ai task supervisionati del Machine Learning. Supponendo di avere una rete neurale e di volerla addestrare. <br>
 <img src="./imgs/pg4.png" width="50%" /><br>
 g ha una forma funzionale fissa e l'***unica cosa che deve essere trovata sono i valori dei pesi e dei bias.***
 
@@ -2382,12 +2391,20 @@ $\sum_{i = 1}^{N}l(y^{(i)}, g(x^{(i)}_1, ..., x^{(i)}_n))$ **è minima**. <br>
 Nella programmazione genetica g non ha una forma funzionale fissa (io devo imparare la funzione).
 
 L'esempio più semplice di **GP (genetic programming)** è la ***regressione simbolica***. <br>
-- g è un'espressione sconosciuta. <br>
-    può contenere:
-    - ***$x_1, ..., xn$*** variabili di input
-    - ***$k_1, ..., kh$*** costanti (numeri reali)
-    - operazioni: **somma, sottrazione, prodotto, elevamento a potenza**
-    - **( )** parentesi
+Ho un dataset di esempi formato da: $(x_1, y_2), ..., (x_t, y_t)$ in cui le $x_i$ sono **variabili indipendenti** e le $y_i$ sono i **valori di una variabile** che dipende dalle $x_i$. <br>
+***Esempio numerico***: voglio trovare che relazione c'è tra:
+- y = prezzo di vendita, 
+- $x_1$ = anno di costruzione, 
+- $x_2$ = zona in cui si trova la casa, 
+- $x_3$ = stato di conservazione. 
+
+Voglio costruire un meccanismo che preveda il valore di y in funzione dei valori di $x_1, x_2, x_3$. Ci sono vari approcci:
+- Usare una rete neurale: il difetto di questo approccio è che quello che otteniamo funziona benissimo, ma la rete non dice niente su quale è la relazione dato il funzionamento a Black Box.
+- Usare modelli statistici
+- **Programmazione Genetica**.
+
+La programmazione genetica tenta di trovare una funzione f tale che l’errore che si commette (cioè la differenza tra f(x1, x2, x3) e y) sia il più piccolo possibile. Si usa come nelle reti neurali una funzione di perdita: <br>
+$L(f) = \sum_[i = 1]^{T} [f(x_t) - y_t]^2$ $x_t$ e $y_t$ sono i valori di x e y per il t-esimo esempio. La programmazione genetica deve trovare una funzione f tale che L sia minima.
 
 <img src="./imgs/pg6.png" width="50%" /> <br>
 
@@ -2402,7 +2419,7 @@ In generale, GP restituisce la migliore g trovata in un dato numero di generazio
 Ci concentreremo su algoritmi che lavorano con espressioni.
 1. Come prima regola **non posso trattare un'espressione come stringa**. <br>
     Ad esempio, con il crossover ad un punto (one-point crossover) se tratto le espressioni come stringhe si creano elementi che non hanno senso. Esempio se io taglio dopo i primi 4 caratteri: <br>
-    <img src="./imgs/pg8.png" width="50%" /> <br> <br>
+    <img src="./imgs/pg8.png" width="50%" /> <br>
     Questo perchè si ottengono figli sintatticamente non corretti. <br>
     **Lo stesso problema si verifica con la mutazione**.
 
@@ -2449,7 +2466,10 @@ end for
 
 return the best individuals ever found
 ```
-### **Inizializzazione**
+<hr>
+
+### **Caratteristiche principali**
+## **Inizializzazione**
 ```pseudocode
 create NP tree
 start with the root
@@ -2458,12 +2478,37 @@ start with the root
 ```
 Alcune limitazioni possibili:
 - **massima profondità D**
-    - se un nodo è ad una profondità D, è una foglia (lo si forza ad essere una foglia, altrimenti l'espressione risults troppo complessa da trattare e/o l'albero è troppo complesso)
+    - se un nodo è ad una profondità D, è una foglia (lo si forza ad essere una foglia, altrimenti l'espressione risulta troppo complessa da trattare e/o l'albero è troppo complesso)
 - **esattamente profondità D**
     - se un nodo non è ad una profondità D, è considerato come un nodo interno
 
-### **Valutazione**
-calcolare la funzione di perdita (loss) L per ciascun individuo
+## **Crossover**
+Per fare il crossover tra due alberi si sceglie un nodo del primo genitore $T_1$ e un nodo del secondo genitore $T_2$. Il primo figlio si ottiene copiando il primo genitore e al posto del sottoalbero $S_1$ (che inizia dal nodo scelto in $T_1$) si mette il sottoalbero $S_2$ (che inizia dal nodo scelto $T_2$). E facile capire che i due nuovi alberi rappresentano espressioni sintatticamente corrette (senza errori). Se ad esempio facessi il crossover ad un punto ci sarebbe la possibilità di spezzare l’espressione in maniera sbagliata e magari attaccare due operazioni, cosa non ammessa. <br>
+<img src="./imgs/pg10.png" width="45%" /> <br>
+Per sceglierlo ci sono vari criteri (casualmente o dando più probabilità ai nodi foglia o ai nodi interni, a seconda della situazione in cui mi trovo, come ad esempio in base alla profondità).
+
+<img src="./imgs/pg11.png" width="40%" />
+
+### Alcune considerazioni
+I figli prodotti in questo modo sono espressioni sintatticamente corrette. Non importa come vengono selezionati i punti di scambio. Questo perchè io mi porto dietro l'intero sottoalbero (che produrrà un numero o un altro elemento, ma è comunque sintatticamente corretto). <br>
+Quello che cambia è che i figli possono avere un'altezza diversa rispetto ai genitori. <br>
+In generale, gli alberi possono avere altezze diversi (in un algoritmo genetico standard invece tendo ad avere elementi della stessa dimensione -> altrimenti non riuscirei a fare il crossover). <br>
+Durante l'evoluzione si tende a generare alberi sempre più alti perchè l'evoluzione tende a privilegiare individui sempre più alti. Questo fenomeno si chiama **ploting** e va combattuto perchè aumenta la complessità computazionale e temporale richiesta per valutare alberi troppo alti. <br>
+Bisogna quindi stare attenti ad alberi troppo alti:
+- Si incorre in tempi computazionali maggiori per la **valutazione** e per le altre operazioni
+- Gli alberi troppo grandi possono essere anche difficili da leggere. <br>
+    Nonostante: <br>
+    *È importante notare che uno degli scopi della programmazione genetica è produrre espressioni **leggibili** (o almeno il più possibile leggibili). La programmazione genetica rientra nell'explainable artificial intelligence in quanto vengono prodotti risultati ed espressioni facilmente interpretabili dall'uomo (a differenza ad esempio di una rete neurale).*
+
+## **Mutazione**
+Inizialmente non veniva utilizzata nella GP e si utilizzava solo il crossover. Tuttavia, è un'operazione abbastanza semplice. <br>
+La mutazione di un albero consiste nello scegliere un nodo e sostituirne il sottoalbero che parte da tale nodo con un nuovo sottoalbero generato a caso. Per generare alberi o sottoalberi a caso è importante notare che le costanti numeriche corrispondono alle foglie, le operazioni corrispondono a nodi con due figli (radice quadrata avrà un nodo solo, un operatore generale può avere anche n figli). Concludiamo dicendo che è facile generare alberi a caso tramite una funzione ricorsiva. Si può anche fare in modo che l’altezza dell’albero sia limitata. Questo metodo può essere usato come meccanismo di inizializzazione. <br>
+<img src="./imgs/pg12.png" width="45%" /> <br>
+Più in alto è il nodo che scelgo e maggiore è l'effetto del cambiamento (perchè sto sostituendo una parte significativa dell'albero). Di conseguenza bisogna tenere in considerazione questo fattore per evitare un cambiamento eccessivo, si necessita quindi una calibratura sul cambiamento.
+
+## **Valutazione**
+Calcolare la funzione di perdita (loss) L per ciascun individuo. <br>
+Più precisamente: Il meccanismo di calcolo della funzione di fitness L per un albero si svolge calcolando il valore della funzione per ogni esempio del dataset e poi calcolando la differenza tra il valore del risultato prodotto e il valore effettivo nell’esempio.
 ```pseudocode
 for j <-- 1 to NP
     sum <-- 0
@@ -2477,36 +2522,15 @@ end for
 ```
 Questo processo è molto pesante computazionalmente perchè devo farlo per ciascun individuo. Non è neanche facile parallelizzare il tutto anche perchè il codice di una g può essere molto diverso da quello di un'altra g.
 
-### **Crossover**
-<img src="./imgs/pg10.png" width="45%" /> <br>
-Per sceglierlo ci sono vari criteri (casualmente o dando più probabilità ai nodi foglia o ai nodi interni, a seconda della situazione in cui mi trovo, come ad esempio in base alla profondità).
-
-<img src="./imgs/pg11.png" width="40%" />
-
-### Alcune considerazioni
-I figli prodotti in questo modo sono espressioni sintatticamente corrette. Non importa come vengono selezionati i punti di scambio. Questo perchè io mi porto dietro l'intero sottoalbero (che produrrà un numero o un altro elemento, ma è comunque sintatticamente corretto). <br>
-Quello che cambia è che i figli possono avere un'altezza diversa rispetto ai genitori. <br>
-In generale, gli alberi possono avere altezze diversi (in un algoritmo genetico standard invece tendo ad avere elementi della stessa dimensione -> altrimenti non riuscirei a fare il crossover). <br>
-Durante l'evoluzione si tende a generare alberi sempre più alti perchè l'evoluzione tende a privilegiare individui sempre più alti. Questo fenomeno si chiama **ploting** e va combattuto perche aumenta la complessità computazionale e temporale richiesta per valutare alberi troppo alti. <br>
-Bisogna quindi stare attenti ad alberi troppo alti:
-- Si incorre in tempi computazionali maggiori per la **valutazione** e per le altre operazioni
-- Gli alberi troppo grandi possono essere anche difficili da leggere. <br>
-    Nonostante: <br>
-    *È importante notare che uno degli scopi della programmazione genetica è produrre espressioni **leggibili** (o almeno il più possibile leggibili). La programmazione genetica rientra nell'explainable artificial intelligence in quanto vengono prodotti risultati ed espressioni facilmente interpretabili dall'uomo (a differenza ad esempio di una rete neurale).*
-
-### **Mutazione**
-Inizialmente non veniva utilizzata nella GP e si utilizzava solo il crossover. Tuttavia, è un'operazione abbastanza semplice. <br>
-<img src="./imgs/pg12.png" width="45%" /> <br>
-Più in alto è il nodo che scelgo e maggiore è l'effetto del cambiamento (perchè sto sostituendo una parte significativa dell'albero). Di conseguenza bisogna tenere in considerazione questo fattore per evitare un cambiamento eccessivo, si necessita quindi una calibratura sul cambiamento.
-
+## **Selezione iniziale e Rimpiazzamento**
 La selezione del mating pool e l'aggiornamento della popolazione possono essere fatti come negli algoritmi genetici standard.
 
 ### **Riassumendo**
 Con la programmazione genetica posso fare una forma particolare di Machine Learning, in cui tento di imparare non i pesi di una rete neurale, non i coefficienti di un modello lineare ecc, ma addirittura cerco di ricostruire la forma funzionale che mi permette di ottenere gli output a partire dagli input. <br>
 Con questo posso ad esempio creare circuiti, controllori, costruire policy per il reinforcement learning ecc.. <br>
 Le limitazioni sono essenzialmente due:
-- avere a disposizione il training set
-- avere a disposizione delle risorse di calcolo non indifferenti (anche se nello svolgimento di alcuni compiti la programmazione genetica riesce ad essere competitiva rispetto alle reti neurali, ma tendenzialmente non lo è ma anzi richiede molta più computazione)
+- avere a disposizione il **training set**
+- avere a disposizione delle **risorse di calcolo non indifferenti** (anche se nello svolgimento di alcuni compiti la programmazione genetica riesce ad essere competitiva rispetto alle reti neurali, ma tendenzialmente non lo è ma anzi richiede molta più computazione)
 
 <img src="./imgs/pg13.png" width="40%" /> <br>
 f viene rappresentata come  un albero:
@@ -2529,27 +2553,25 @@ Da un lato lo scopo della programmazione genetica è quello di addestrare, otten
 - **leggibilità**
 
 Dall'altro lato, la programmazione genetica **è (molto) più pesante del machine learning**:
-- **non** c'è la back propagation
+- **non c'è la backpropagation**
 - **non si può parallelizzare** per l'utilizzo su GPU (perchè tutti gli elementi usano codici diversi)
 
 Ciò pone la GP in svantaggio rispetto al Machine Learning. Ci sono comunque stati dei tentativi per unire la GP al Machine Learning (Neural Network), la difficoltà per ottenere una modello simile è molto alta.
-- Reti Neurali: presuppongono una rappresentazione puramente numerica del programma, è quindi stato necessario un gran lavoro -> **Neural Tuning Machine** (corrisponde ad un approccio ibrido) in cui è possibile utilizzare la Back Propagation.
+- Reti Neurali: presuppongono una rappresentazione puramente numerica del programma, è quindi stato necessario un gran lavoro -> **Neural Tuning Machine** (corrisponde ad un approccio ibrido) in cui è possibile utilizzare la BackPropagation.
 
 <hr>
  
 ## **Altre forme della Programmazione Genetica**
 ### **Programmazione Genetica Lineare**
 Rappresenta i programmi come una sequenza di codici d'istruzione (istruction codes). <br>
-Ad esempio si possono rappresentare con delle sequenze di **bytecodes**, con il vantaggio di mantere crossover e mutazione come sequenze (più facile mantenerli). Lo svantaggio è che l'interprede deve essere **limitato**, altrimenti potrebbe andare in loop. Si può usare un limite di tempo: se entro un tot tempo l'interprete non ritorna un risultato la sequenza non è considerata valida. Inoltre è molto facile generare dei programmi senza senso.
+Ad esempio si possono rappresentare con delle sequenze di **bytecodes**, con il vantaggio di mantere crossover e mutazione come sequenze (più facile mantenerli). Lo svantaggio è che l'interprete deve essere **limitato**, altrimenti potrebbe andare in loop. Si può usare un limite di tempo: se entro un tot tempo l'interprete non ritorna un risultato la sequenza non è considerata valida. Inoltre è molto facile generare dei programmi senza senso.
 
 Un altro svantaggio della gp lineare è che potrebbe produrre dei risultati che sono difficili da interpretare dagli umani (leggere il bytecode è difficile). Sarebbe necessaro avere un decompilatore.
 
 ### **Programmazione genetica Cartesiana**
 <img src="./imgs/pg14.png" width="50%" /> <img src="./imgs/pg15.png" width="40%" />
 
-
-Il vantaggio di questo approccio è che non è necessaria la ricorsione ne per generare ne per creare elementi. È possibile utilizzare solo cicli for per generare e valutare gli individui della popolazione. Inoltre anche la decodifica è totalmente numerica, per ogni individuo devo quindi conservare solo gli indici e l'operazione da fare, è quindi molto veloce rispetto alla classica gp basata sugli alberi.
-
+Il vantaggio di questo approccio è che non è necessaria la ricorsione nè per generare nè per creare elementi. È possibile utilizzare solo cicli for per generare e valutare gli individui della popolazione. Inoltre anche la decodifica è totalmente numerica, per ogni individuo devo quindi conservare solo gli indici e l'operazione da fare, è quindi molto veloce rispetto alla classica gp basata sugli alberi.
 
 Alcune forme di programmazione genetica (o altri algoritmi evolutivi) potrebbe essere utilizzate per migliorare (o correggere) dei programmi già esistenti (invece di crearli da zero). Questa forma si chiama **genetic (o software) improvement**.
 
