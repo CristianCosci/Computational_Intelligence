@@ -79,7 +79,7 @@
 <hr>
 
 ### **Swarm Intelligence: PSO e ACO**
-- [Swarm Intelligence](#swarm-intelligence)
+9. [Swarm Intelligence](#swarm-intelligence)
     - [Particle Swarm Optimization (PSO)](#particle-swarm-optimization-pso)
         - [Descrizione](#descrizione-pso)
         - [Principio guida del PSO](#principio-guida-del-pso)
@@ -98,9 +98,15 @@
         - [Altre applicazioni di ACO](#applicazioni-di-aco)
         - [Implementazione ACO](#implementazione-aco)
     - [Altre info sullo Swarm Intelligence](#altre-informazioni-sullo-swarm-intelligence)
+
 <hr>
 
-- [Probelmi di Ottimizzazione Multi-Obiettivo](#problemi-di-ottimizzazione-multi-obiettivo)
+10. [No Free Lunch Theorem](#no-freee-lunch-theorem)
+
+<hr>
+
+### **Problemi di Ottimizzazione Multi-Obiettivo**
+11. [Probelmi di Ottimizzazione Multi-Obiettivo](#problemi-di-ottimizzazione-multi-obiettivo)
     - [Dominanza di Pareto](#dominanza-di-pareto)
     - [NSGA-II](#nsga-ii)
         - [Non-Dominated Sort](#non-dominated-sort)
@@ -110,15 +116,16 @@
 
 <hr>
 
-- [Modelli Probabilistici](#modelli-probabilistici)
+### **Modelli Probabilistici e Logica Fuzzy**
+12. [Modelli Probabilistici](#modelli-probabilistici)
     - [Recap sul calcolo probabilistico](#piccolo-recap-sul-calcolo-probabilistico)
     - [Conditional Indipendence](#conditional-indipendence)
     - [Bayesian Network](#bayesian-networks)
         - [Algortimo di Variable Elimination](#algortimo-di-variable-elimination)
+13. [Logica Fuzzy](#logica-fuzzy)
 
 <hr>
-
-- [Logica Fuzzy](#logica-fuzzy)
+<hr>
 
 ### Informazioni sul corso
 - **Esame** (2 parti):
@@ -3019,31 +3026,35 @@ Esistono molti altri algoritmi di Swarm Intelligence. Sono più o meno tutti isp
 <hr>
 
 ### **No Freee Lunch Theorem**
-Qualsiasi algoritmo di ottimizzazione si scriva, esisterà comunque un problema per cui tale algoritmo funzionerà male. <br>
-*Definizione Formale*: **Per qualsiasi algoritmo è sempre possibile trovare un problema in cui tale algoritmo produce risultati peggiori rispetto ad un altro algoritmo.** <br>
+Qualsiasi algoritmo di ottimizzazione si scriva, esisterà comunque un problema per cui tale algoritmo funzionerà male.
+
+**Definizione Formale** <br>
+Per qualsiasi algoritmo è sempre possibile trovare un problema in cui tale algoritmo produce risultati peggiori rispetto ad un altro algoritmo. <br>
 Non c'è quindi un modo semplice per affrontare i problemi di ottimizzazione. <br>
 
 Solitamente, gli algoritmi vengono confrontati tra loro. <br>
-Ad esempio per confrontare 2 algoritmi, l'idea è di utilizzare un benchmark con molte istanze di uno o più problemi e si fa successivamente girare ogni algoritmo su ogni singola istanza (questo passaggio viene ripetuto per più volte).\\
+Ad esempio per confrontare 2 algoritmi, l'idea è di utilizzare un benchmark con molte istanze di uno o più problemi e si fa successivamente girare ogni algoritmo su ogni singola istanza (questo passaggio viene ripetuto per più volte). <br>
 Successivamente si utilizzano dei test statistici sui risultati sperimentali, per determinare in modo scientifico quali sono i migliori algoritmi sui problemi di benchmark. <br>
 Il risultato di un test statistico è ad esempio: *"L'algoritmo A1 è significativamente (al 95%) migliore di A2"* 
 
 Ci sono inoltre delle competizioni internazionali in cui si devono implementare degli algoritmi per ottenere il miglior risultato su delle istanze di problemi dati.
 
 <hr>
+<hr>
 
 # **Problemi di Ottimizzazione Multi-Obiettivo**
 Multi-Obiettivo significa che devo massimizzare (o minimizzare) più funzioni obiettivo e non solo una.
 
-Ad esempio ho due funzioni obiettivo $f_1(x)$ e $f_2(x)$, ed il nostro obiettivo è quello di trovare un valore $x^*$ tale che: <br>
+Ad esempio ho due funzioni obiettivo $f_1(x)$ e $f_2(x)$, ed il nostro obiettivo è quello di trovare un valore $x^{*}$ tale che: <br>
 $f_1(x^*) <= f_1(x)$ e $f_2(x^*) <= f_2(x)$ ∀ x ∈ D.
 
 Formulato in questo modo, il problema non sembra così difficile ma non è sempre risolvibile. <br>
-Io voglio trovare un punto che minimizza contemporanemanete due funzione. Allora provo a trovare un valore che minimizza $f_1(x)$ e di conseguenza tale valore minimizza anche l'altra. Tuttavia in molte situazioni questo valore $x^*$ non c'è, questo perchè potrebbe ad esempio esserci una situaizione in cui una funzione cresce e l'altra decresce. <br>
-Un esempio è il TSP in cui le funzioni obiettivo sono il **tempo** e il **consumo**. In questo modo io non riesco a minimizzare le due funzioni, in quanto queste due sono in conflitto tra di loro, questo perchè ad esempio, minimizzare il tempo potrebbe equivalere ad aumentare il consumo.
+Io voglio trovare un punto che minimizza contemporanemanete due funzioni. Allora provo a trovare un valore che minimizza $f_1(x)$ e di conseguenza tale valore minimizza anche l'altra. Tuttavia in molte situazioni questo valore $x^*$ non c'è, questo perchè potrebbe ad esempio esserci una situaizione in cui una funzione cresce e l'altra decresce.
+
+Un esempio è il TSP, in cui le funzioni obiettivo sono il **tempo** e il **consumo**. In questa situazione io non riesco a minimizzare le due funzioni, in quanto sono in conflitto tra di loro, perchè ad esempio minimizzare il tempo potrebbe equivalere ad aumentare il consumo.
 
 ### **Dominanza di Pareto**
-Date due soluzioni $x_1$ e $x_2$, $x_1$ domina secondo pareto $x_2$ se <br> 
+Date due soluzioni $x_1$ e $x_2$, $x_1$ **domina secondo pareto** $x_2$ se <br> 
 $f_1(x_1) <= f_1(x_2)$ <br>
 $f_2(x_1) <= f_2(x_2)$ <br>
 . <br>
@@ -3052,11 +3063,11 @@ $f_2(x_1) <= f_2(x_2)$ <br>
 $f_k(x_1) <= f_k(x_2)$ con k = numero di funzioni obiettivo <br>
 e per almeno una o più j=1,...,k $f_j(x_1) < f_j(x_2)$
 
-![swarm23](./imgs/swarm23.png)
+<img src="./imgs/swarm23.png" width="45%"/>
 
 S1 non domina S2 e S2 non domina S1.
 
-![swarm24](./imgs/swarm24.png)
+<img src="./imgs/swarm24.png" width="35%"/>
 
 In questo caso S1 e S2 non sono confrontabili.
 
@@ -3073,9 +3084,9 @@ Per quanto riguarda i problemi multi-obiettivo abbiamo una possibilità aggiunti
 
 I problemi multi-obiettivo richiedono di trovare un insieme di **buone** soluzioni che non sono comparabili tra loro.
 
-![swarm25](./imgs/swarm25.png)
+<img src="./imgs/swarm25.png" width="40%"/>
 
-Dall'insieme di soluzioni poi posso scegliere in maniere autonoma la soluzione che preferisco secondo criteri personali.
+Dall'insieme di soluzioni, posso poi scegliere in maniere autonoma la soluzione che preferisco secondo criteri personali.
 
 **Un insieme di soluzioni non comparabili è chiamato Pareto Front**.
 
@@ -3121,13 +3132,13 @@ L'idea è di utilizzare un algoritmo genetico standard aggiungendo altre operazi
         end for
     end while
 ```
-![swarm26](./imgs/swarm26.png)
+<img src="./imgs/swarm26.png" width="45%"/>
 
 Questo viene utilizzato per aggiornare i valori dei rank, per quanto riguarda la distanza vedere qui di seguito.
 
 ### **Crowding Distance - Calcolo del fattore distanza**
 
-![swarm27](./imgs/swarm27.png)
+<img src="./imgs/swarm27.png" width="35%"/>
 
 Ordinando le soluzioni in ciascun $F_i$ rispetto a una funzione obiettivo $f_j$. <br>
 Il fattore **distanza** per $S_i$ è calcolato tramine le soluzioni $S_{i-1}$ e $S_{i+1}$.
@@ -3145,7 +3156,7 @@ Il fattore **distanza** per $S_i$ è calcolato tramine le soluzioni $S_{i-1}$ e 
 Una volta che ho applicato il **Non-Dominated sorting** e la **Crowding Distance**, p è **migliore** di q se <br>
 ***p.rank < q.rank o (p.rank = q.rank AND p.distance > q.distance)***
 
-![swarm28](./imgs/swarm28.png)
+<img src="./imgs/swarm28.png" width="40%"/>
 
 Seleziono tutti gli individui con rank più basso e poi mano a mano che mi servono più individui seleziono tutti i migliori individui con rank maggiore ma rispetto alla distanza. <br>
 In questo modo ho una popolazione ben diversificata (rispetto alla semplice Pareto Front in cui avrei solo quelli di rank 1 e poitrei non poter migliorare più la mia popolazione).
@@ -3160,8 +3171,9 @@ Uno dei metodi alternativi per risolvere i problemi multi-obiettivo è quello di
 L'idea è quella di avere una linearizzazione della funzione obiettivo: anzichè ragionare sulle singole funzioni obiettivo e cercare una soluzione che le minimizza tutte, la **decomposizione crea una singola funzione obiettivo**. <br>
 Sono possibili vari approcci:
 - **Somma pesata (weighted sum)** <br>
-    m funzioni obiettivo *$f_1, ..., f_n$* <br>
-    m pesi *$ \lambda_1, ..., \lambda_n$* tali che $x_i$ >= 0 ∀i = 1, ..., m e $\sum_{i=1}^{n}\lambda_i = 1$ <br>
+    - m funzioni obiettivo *$f_1, ..., f_n$*
+    - m pesi *$ \lambda_1, ..., \lambda_n$* tali che $x_i$ >= 0 ∀i = 1, ..., m e $\sum_{i=1}^{n}\lambda_i = 1$
+
     I pesi devono essere maggiori uguali di 0 perchè ogni obiettivo deve contribuire in modo positivo (Altrimenti il contributo sarebbe l'opposto).<br>
     L'idea è di avere una funzione $g^{ws}(x|\lambda) = \sum_{i=1}^{n}\lambda_i f_i(x)  $ con x che rappresenta la soluzione e $\lambda$ i pesi. <br>
     Un modo per risolvere il problema è quello di minimizzare $g^{gs}$ rispetto a x. <br>
@@ -3178,9 +3190,7 @@ Sono possibili vari approcci:
     Anche qui si ha una popolazione di ***minimizzatori***, ciscuno dei quali utilizza dei valori diversi per $\lambda^{(i)}$.
 
 Entrambe le funzioni di aggregazione hanno la seguente proprietà: <br>
-utilizzando $\lambda^{(i)} != \lambda^{(j)}$, i punti $x^{(i)}$ e $x^{(j)}$, i quali minimizzano $g^{ws}$ (o $g^{tc}$ non sono comparabili. 
-
-
+utilizzando $\lambda^{(i)} != \lambda^{(j)}$, i punti $x^{(i)}$ e $x^{(j)}$, i quali minimizzano $g^{ws}$ (o $g^{tc}$) non sono comparabili. 
 
 ### **MOEA/D Algorithm (multi-objective evolutionary algorithm decomposition based)**
 - Si ha una popolazione di n individui
@@ -3190,11 +3200,11 @@ utilizzando $\lambda^{(i)} != \lambda^{(j)}$, i punti $x^{(i)}$ e $x^{(j)}$, i q
     - un vettore $F^{(i)} = (f_1(x^{(i)}), ..., f_n(x^{(i)})$
 
 Per 2 funzioni obiettivo, la scelta dei $\lambda^{(i)}$ è facile <br>
-![swarm29](./imgs/swarm29.png)
+<img src="./imgs/swarm29.png" width="45%"/>
 
 ```pseudocode
     for each individual
-        let B(i) be the of T "neighbors" of i, that is the seto of T individuals whose lambda is closer to lambda(i)
+        let B(i) be the of T "neighbors" of i, that is the set of T individuals whose lambda is closer to lambda(i)
 ```
 Ad esempio per T = 2 <br>
 $\lambda^{(i)} = (0.7, 0.3)$ <br>
@@ -3225,15 +3235,15 @@ Tutte la altre $\lambda^{(i)}$ hanno una distanza maggiore da $\lambda^{(i)}$ <b
     end for
     return ep
 ```
-![swarm30](./imgs/swarm30.png)
+<img src="./imgs/swarm30.png" width="40%"/>
 
 Ci sono molti modi per generare $y^{(i)}$, l'approccio più semplice è ad esempio mediante il crossover.
 
 <hr>
 
 Un problema facile da rendere multi-obiettivo è il knapsack:
-#### **Multi-objective Knapsack**
-Trovare un vettore binario x tale che $\sum_{i=1}^{n} w_{ij}x_i <= c_j$ con j = 1, ..., k che minimizza o massimizza m funzioni obiettivo. <br>
+### **Multi-objective Knapsack**
+Trovare un vettore binario x tale che $\sum_{i=1}^{n} w_{ij}x_i \leq c_j$ con j = 1, ..., k che minimizza o massimizza m funzioni obiettivo. <br>
 Ad esempio:
 - $f_1(x)$ = valore in euro
 - $f_2(x)$ = utilità
@@ -3246,7 +3256,7 @@ $f_i(x) = \sum_{i=1}^{n} p_{ij}x_i$ con $p_{ij}$ valore dell'oggetto i rispetto 
 
 <hr>
 
-#### **Scheduling -> Flow-Shop**
+### **Scheduling -> Flow-Shop**
 Un altro problema multi-obiettivo interessante è quello dello scheduling.
 - n jobs $j_1, ..., j_n$
 - m macchine $M_1, ..., M_m$
@@ -3266,7 +3276,7 @@ $c_i = s_{i,m} + p_{i,m}$ -> tempo finale dell'ultima operazione <br>
 dove s è lo start time e p il tempo di processamento. <br>
 L'obiettivo è quindi minimizzare $max{c_1, ..., c_n}$ detto **makespan**.
 
-![swarm31](./imgs/swarm31.png)
+<img src="./imgs/swarm31.png" width="45%"/>
 
 Possibili funzioni obiettivo:
 - **Total flow-time** = $\sum_{i=1}^{n} c_j$
