@@ -78,16 +78,28 @@
 
 <hr>
 
+### **Swarm Intelligence: PSO e ACO**
 - [Swarm Intelligence](#swarm-intelligence)
     - [Particle Swarm Optimization (PSO)](#particle-swarm-optimization-pso)
         - [Descrizione](#descrizione-pso)
+        - [Principio guida del PSO](#principio-guida-del-pso)
         - [Altri aspetti interessanti](#altri-aspetti-interessanti)
         - [Pseudocodice e Spiegazione](#pseudocodice-algoritmo)
+        - [Dettagli Aggiuntivi](#dettagli-aggiuntivi)
     - [Ant Colony Optimization (ACO)](#ant-colony-optimization)
         - [Problema del TSP utilizzando ACO](#tsp-utilizzando-aco)
         - [Pseudocodice](#pseudocodice-dellalgoritmo-aco)
+        - [Descrizione delle varie fasi](#descrizione-delle-varie-fasi)
+            - [Inizializzazione](#inizializzazione-1)
+            - [Create Solution](#create-solution)
+            - [Evaporazione](#evaporazione)
+            - [Aggiornamento](#aggiornamento)
         - [I Parametri di ACO](#i-parametri-di-aco)
         - [Altre applicazioni di ACO](#applicazioni-di-aco)
+        - [Implementazione ACO](#implementazione-aco)
+    - [Altre info sullo Swarm Intelligence](#altre-informazioni-sullo-swarm-intelligence)
+<hr>
+
 - [Probelmi di Ottimizzazione Multi-Obiettivo](#problemi-di-ottimizzazione-multi-obiettivo)
     - [Dominanza di Pareto](#dominanza-di-pareto)
     - [NSGA-II](#nsga-ii)
@@ -95,11 +107,17 @@
         - [Crowding Distance](#crowding-distance---calcolo-del-fattore-distanza)
     - [Decomposizione](#decomposizione)
         - [MOEA/D](#moead-algorithm-multi-objective-evolutionary-algorithm-decomposition-based)
+
+<hr>
+
 - [Modelli Probabilistici](#modelli-probabilistici)
     - [Recap sul calcolo probabilistico](#piccolo-recap-sul-calcolo-probabilistico)
     - [Conditional Indipendence](#conditional-indipendence)
     - [Bayesian Network](#bayesian-networks)
         - [Algortimo di Variable Elimination](#algortimo-di-variable-elimination)
+
+<hr>
+
 - [Logica Fuzzy](#logica-fuzzy)
 
 ### Informazioni sul corso
@@ -1972,7 +1990,7 @@ La **popolazione** può essere introdotta dal seguente schema di generalizzazion
 Crea µ figli da λ genitori. <br>
 **λ = dimensione della popolazione** <br>
 **μ = numero di figli** <br>
-λ > μ
+λ < μ
 ```pseudocode
     for i <-- 1 to λ
         generate xi
@@ -2104,18 +2122,17 @@ Complessivamente **il costo del DE è polinomiale** rispetto a G, N, d, f_
 
 Il Differential Evolution può essere usato per l'ottimizzazione numerica ma anche per altri tipi di ottimizzazione.
 
-L'idea del DE è quella di utilizzare due tipologie diverse di operatori genetici:
-- **mutazione** del DE è di tipo **vettoriale** (sono operazioni vettoriale)
-- **crossover** è di tipo combinatorio (vede i vettori come stringhe). 
-
-È come se il DE lavorasse a due livelli, un livello numerico per la mutazione e livello crossover nella ricombinazione.
-
 Il Differential Evolution si può estendere facilmente anche ad altri tipi di problemi:
 - **ottimizzazione vincolata**
 - **ottimizzazione mista (reali/discreta)**
 - **ottimizzazione combinatoria** (DE per le permutazioni)
 
+L'idea del DE è quella di utilizzare due tipologie diverse di operatori genetici:
+- **mutazione** del DE è di tipo **vettoriale** (sono operazioni **vettoriale**)
+- **crossover** è di tipo **combinatorio** (vede i vettori come **stringhe**). 
+
 Il DE lavora sia a **livello vettoriale (mutazione) che al livello di stringhe (crossover)**. Qui si nota già una prima differenza con gli algoritmi genetici, i quali lavorano solo a livello di stringhe. <br>
+
 Altre differenze:
 - **Mutazione**: normalmente dovrebbe essere un operatore unario (*prendo un individuo e lo muto*). In questo caso invece, **crea un nuovo vettore** combinando in modo lineare i tre vettori della popolazione (questo per ogni elemento della popolazione). <br>
     ***Come mai questa cosa?*** <br>
@@ -2132,7 +2149,7 @@ Altre differenze:
     Quindi $y_i$ è vicino a qualche vettore della popolazione. <br> <br>
     La DE crea un vettore mutante che dipende da quanto i vettori della popolazione sono differenti tra di loro. Se sono molto differenti, il vettore mutante sarà un vettore a caso e molto diverso dagli elementi della popolazione. Se sono poco differenti, il vettore mutante sarà simile a v[1], e quindi simile ad un elemento della popolazione. <br>
     In pratica il **DE si autoregola**, perchè all'inizio è più probabile che ci si trovi nel primo scenario (quindi la mutazione fa dei salti importanti (**exploration**) -> prendo degli individui e li muto molto. <br>
-    Se l'algoritmo invece sta convergendo (gli individui diventano sempre più simili) ci troviamo nel secondo scenario e la mutazione fa piccoli salti (picccole variazioni) (**exploitation**). <br>
+    Se l'algoritmo invece sta convergendo (gli individui diventano sempre più simili) ci troviamo nel secondo scenario e la mutazione fa piccoli salti (piccole variazioni) (**exploitation**). <br>
     Il DE usa una forma di **auto-adattamento** nella forza della **Mutazione**. <br>
     La popolazione del DE tende a convergere perchè è **automaticamente elitista** (il miglior individuo della popolazione rimane sempre). <br>
     Tuttavia non c'è un meccanismo in cui sopravvivono tutti i migliori individui, ma ogni individuo è confrontato con un altro, quindi alcuni elementi buoni potrebbero essere scartati (c'è una competizione uno a uno). <br>
@@ -2595,9 +2612,9 @@ Per evitare il fenomeno di **Bloat**:
 
 # **Swarm Intelligence**
 È un'area di ricerca che crea algoritmi di ottimizzazione prendendo ispirazione dalla natura (in particolare da grandi gruppi di animali). <br>
-Questo branca è particolarmente interessante perchè questi gruppi sono formati da **individui** con basse capacità di comunicazione e calcolo. Tuttavia **l'intero gruppo è in grato di risolvere task molto più complessi** rispetto al singolo individuo.
+Questo branca è particolarmente interessante perchè questi gruppi sono formati da **individui** con basse capacità di comunicazione e calcolo. Tuttavia **l'intero gruppo è in grado di risolvere task molto più complessi** rispetto al singolo individuo.
 
-Ogni singolo individuo comporta poco sforzo nel lato di programmazione, tuttativa quando si combinano questi individui si riesce a risolvere problemi molto complicati.
+Ogni singolo individuo comporta poco sforzo nel lato di programmazione, tuttavia quando si combinano questi individui si riesce a risolvere problemi molto complicati.
 
 **Applicazioni dello Swarm Intelligence**:
 - **Ottimizzazione**
@@ -2606,7 +2623,7 @@ Ogni singolo individuo comporta poco sforzo nel lato di programmazione, tuttativ
 
 In generale, nello Swarm Intelligence si ha una **popolazione di individui** (chiamati in realtà **particelle** o **particles**). Ogni individuo si muove nello spazio di ricerca e la **funzione obiettivo** è ottimizzata dall'intera popolazione (non dal singolo individuo in modo diretto).
 
-I compiti che possono essere svolti dalla popolazione non sono seomplicemente la somma dei comportamenti dei singoli individui, ma sono qualcosa di più complesso --> **Emergenza**
+I compiti che possono essere svolti dalla popolazione non sono semplicemente la somma dei comportamenti dei singoli individui, ma sono qualcosa di più complesso --> **Emergenza**
 
 ## **Particle Swarm Optimization (PSO)**
 ### **Descrizione PSO**
@@ -2615,22 +2632,22 @@ Il PSO è stato inventato a metà degli anni 90.
 
 ### **Piccolo Recap sui problemi di Ottimizzazione Continua**
 Si ha una funzione obiettivo che è definita per variabili reali. Queste variabili reali sono rappresentate come vettori di dimensione ***d***. <br>
-![swarm1](./imgs/swarm1.png) 
+<img src="./imgs/swarm1.png" width="50%" />
 
 ### **Principio guida del PSO**
 **Attrazione** <br>
-![swarm2](./imgs/swarm2.png) <br>
-***x_a' = x_a + C * (x_b - x_a)*** con c < 1 (numero reale)<br>
+<img src="./imgs/swarm2.png" width="50%" /> <br>
+$x_a' = x_a + C * (x_b - x_a)$ con c < 1 (numero reale)<br>
 a' è ottenuto spostando A verso B
 
 Questa tecnica è ad esempio utilizzata nei videogiochi. Si pensi alla situazione in cui un elemento nel videogioco deve inseguire un altro elemento nel videogioco che si sta muovendo. Per dire al primo elemento di inseguire il primo, non lo si può far muovere direttamente nella posizione dell'altro, ma si deve utilizzare questa tecnica.
 
 Si ha una popolazione di **N** individui, in cui ciascun individuo ha le seguenti caratteristiche:
-- **posizione corrente** pi (i sta per i-esimo individuo)
-- **velocità corrente** vi (si deve immaginare che questi individui si muovono ed hanno una velocità)
-- **memoria** bi (detto anche **personal best**) che corrisponde alla migliore posizione da lui trovata. Il migliore è inteso in termini della funzione obiettivo f.
+- **posizione corrente** $p^{(i)}$ (i sta per i-esimo individuo)
+- **velocità corrente** $v^{(i)}$ (si deve immaginare che questi individui si muovono ed hanno una velocità)
+- **memoria** $b^{(i)}$ (detto anche **personal best**) che corrisponde alla migliore posizione da lui trovata. Il migliore è inteso in termini della funzione obiettivo f.
 
-Inoltre la popolazione ha anche una variabile globale g chiamata **global best** che corrisponde alla migliore posizione trovata da tutti gli individui. <br>
+Inoltre la popolazione ha anche una variabile globale $g$ chiamata **global best** che corrisponde alla migliore posizione trovata da tutti gli individui. <br>
 **Global Best è il migliore dei Personal Best**.
 
 L'idea è di far muovere le particelle secondo due direzioni diverse (che si devono compensare l'una con l'altra). Da un lato la particella viene attratta dal suo personal best e dall'altro viene attratta dal global best. Queste due forze spingono la particella a cambiare velocità. Queste due forze danno l'idea del movimento di uno sciame perchè il global best fa puntare tutte le particelle verso la stessa direzione e il personal best fa puntare le particelle ognuna in una direzione diversa (tranne l'individuo migliore che ha il personal best uguale al global best). Questo fa esplorare lo spazio di ricerca.
@@ -2638,27 +2655,27 @@ L'idea è di far muovere le particelle secondo due direzioni diverse (che si dev
 Il comportamento del Particle Swarm è dato da due semplici equazioni. 
 
 Ciascun individuo aggiorna la sua posizione e la sua velocità con le seguenti regole:
-- **nuova posizione pi** <-- pi (posizione corrente) + vi (velocità corrente) <br>
-    Nella fisica tradizionale la velocità vi è moltiplicata per Δt ma in questo caso lo valutiamo implicitamente uguale a 1 <br>
-    ![swarm3](./imgs/swarm3.png)
-- ![swarm4](./imgs/swarm4.png)
-    - Dove c1 e c2 sono due coefficienti -> **parametri del PSO** (solitamente sono fissati a 2.04)
-    - vi è la velocità corrente <br>
-    - bi è la miglior posizione trovata dalla particella <br>
+- **nuova posizione $p^{(i)}$** <-- $p^{(i)}$ (posizione corrente) + $v^{(i)}$ (velocità corrente) <br>
+    Nella fisica tradizionale la velocità $v_i$ è moltiplicata per Δt ma in questo caso lo valutiamo implicitamente uguale a 1 <br>
+    <img src="./imgs/swarm3.png" width="35%" />
+- <img src="./imgs/swarm4.png" width="40%" />
+    - Dove $c_1$ e $c_2$ sono due coefficienti -> **parametri del PSO** (solitamente sono fissati a 2.04)
+    - $v^{(i)}$ è la velocità corrente <br>
+    - $b^{(i)}$ è la miglior posizione trovata dalla particella <br>
     - g è la miglior posizione dell'intera popolazione <br>
-    - r1 e r2 sono due **vettori casuali** di dimensione ***d*** <br>
+    - $r_1$ e $r_2$ sono due **vettori casuali** di dimensione ***d*** <br>
     - ⊙ è la moltiplicazione elemento per elemento (**element-wise multiplication**) <br>
     `(1, 2, 3) ⊙ (0, 2, 5) --> (0, 4, 15)`
 
-`bi - pi` è una componente che sposta pi verso bi = la particella i-esima tende ad andare verso la migliore posizione che essa aveva trovato -> **Componente Cognitiva** <br>
+$(b^{(i)} - p^{(i)})$ è una componente che sposta $p^{(i)}$ verso $b^{(i)}$ = la particella i-esima tende ad andare verso la migliore posizione che essa aveva trovato -> **Componente Cognitiva** <br>
 Tuttavia in quanto si ha `r1 ⊙ (bi - pi)`, si ha una distorsione della forza di attrazione in ogni dimensione. <br>
-Il coefficiente c1 serve invece a calibrare quanto è forza la forza di attrazione (quanto è forte questa spinta).
+Il coefficiente $c_1$ serve invece a calibrare quanto è forte la forza di attrazione (quanto è forte questa spinta).
 
 **N.B**: Solo la particella che ha raggiunto **g** sa che è una buona posizione. Le altre non lo sanno. In un certo qual modo le altre si "fidano".
 
-`(g - pi)` muove pi verso ****g**** -> **Componenete Sociale** = tutti gli individui sono attratti verso lo stesso punto ***g***
+`(g - pi)` muove $p^{(i)}$ verso ****g**** -> **Componenete Sociale** = tutti gli individui sono attratti verso lo stesso punto ***g***
 
-![swarm5](./imgs/swarm5.png) <br>
+<img src="./imgs/swarm5.png" width="55%" />
 
 <hr>
 
@@ -2666,19 +2683,19 @@ Il coefficiente c1 serve invece a calibrare quanto è forza la forza di attrazio
 ***Quando viene aggiornata la posizione ? E quando la velocità?*** <br>
 Ci sono due alternative possibili:
 - La posizione viene aggiornata dopo la velocità. <br>
-    ![swarm6](./imgs/swarm6.png)
+    <img src="./imgs/swarm6.png" width="35%" />
 - Prima viene aggiornata la posizione poi viene aggiornata la velocità **utilizzando la vecchia posizione**. <br>
-![swarm7](./imgs/swarm7.png)
+    <img src="./imgs/swarm7.png" width="45%" />
 
 Entrambi gli approcci funzionano.
 
-***bi*** è aggiornato quando la nuova posizione pi è migliore della bi corrente. <br>
+$b^{(i)}$ è aggiornato quando la nuova posizione $p^{(i)}$ è migliore della $b^{(i)}$ corrente. <br>
 ***g*** è invece aggiornata in modo similare
 
 ### **Pseudocodice Algoritmo**
 ```pseudocode
     Inizializzazione della popolazione:
-        1. Scegliere posizione e velocitàù
+        1. Scegliere posizione e velocità
         2. bi = pi
     g è il miglior bi
     for gen <-- 1 ti max_gen
@@ -2694,17 +2711,18 @@ Entrambi gli approcci funzionano.
 
 ### **Dettagli aggiuntivi**
 Una rete di comunicazione tra le particelle (individui) può essere così rappresentata. <br>
-![swarm8](./imgs/swarm8.png) <br>
-dove i numeri corrispondo alle particelle i. Inoltre va aggiunto il fatto che il grafo (Rete di comunicazione) è fisso, non dipende dalle posizioni (viene creato in maniera arbitraria).<br>
+<img src="./imgs/swarm8.png" width="45%" /> <br>
+dove i numeri corrispondo alle particelle ***i***. Inoltre va aggiunto il fatto che il grafo (Rete di comunicazione) è fisso, non dipende dalle posizioni (viene creato in maniera arbitraria).<br>
 Le particelle si scambiano delle informazioni -> si scambiano la miglior posizione che esse hanno trovato. <br>
-Non tutte le particelle sono in comunicazione diretta. Ciascuna particella può comunicare solo con quelle direttamente collegate. <br>
+Non tutte le particelle sono in comunicazione diretta. Ciascuna particella può comunicare solo con quelle direttamente collegate.
+
 Invece di utilizzare `c2 r2 ⊙ (g - pi)` la componente sociale è data da `c2 r2 ⊙ (li - pi)`<br>
-dove ***li*** è la migliore posizione (***bi***) tra le particelle che comunicano con i. È una pratica comune includere anche i stesso per calcolare ***li***. <br>
+dove ***li*** è la migliore posizione ($b^{(i)}$) tra le particelle che comunicano con i. È una pratica comune includere anche i stesso per calcolare ***li***. <br>
 ***g*** è la situazione in cui il grafo è completamente connesso (ogni particella comunica con tutte le altre, quindi `li = g`). <br>
 Non è sempre così, infatti in genere è frequente utilizzare dei grafi con una connettività bassa.
 
 Un grafo che viene utilizzato spesso è il **grafo ad anello**: <br>
-![swarm9](./imgs/swarm9.png)
+<img src="./imgs/swarm9.png" width="55%" />
 
 Questi grafi di comunicazione sono utilizzati per ridurre la possibilità di una convergenza troppo rapida. In sostanza si rallenta la convergenza.<br>
 La **componente sociale** è importante perchè senza di essa ogni particella andrebbe per conto suo e non ci sarebbe una convergenza. È come se ci fossero n esecuzioni indipendenti dello stesso codice, non ci sarebbe un concetto di popolazione. <br>
@@ -2713,33 +2731,31 @@ La componente sociale da comunque l'idea di una popolazione -> **di un obiettivo
 <hr>
 
 ### Informazioni aggiuntive sul PSO
-- **Componente di inerzia**
-Un terzo coefficiente è la **componente d'inerzia** <br>
-![swarm10](./imgs/swarm10.png)
-
-dipende dalla velocità corrente.
-
-- È inoltre necessario utilizzare un limite per la velocità. Nel caso di una velocità troppo alta la particella salta da un punto all'altro nello spazio in maniera esagerata e non si avrebbe una buona esplorazione. <br>
-Ad esempio si possono limitare tutte le componenti di vi nell'intervallo [-v_max, +v_max].
+- **Componente di inerzia** <br>
+    Un terzo coefficiente è la **componente d'inerzia** <br>
+    <img src="./imgs/swarm10.png" width="45%" /> <br>
+    (dipende dalla velocità corrente).
+- È inoltre necessario utilizzare un limite per la velocità. Nel caso di una velocità troppo alta, la particella salta da un punto all'altro nello spazio in maniera esagerata e non si avrebbe una buona esplorazione. <br>
+    Ad esempio si possono limitare tutte le componenti di $v^{(i)}$ nell'intervallo [-v_max, +v_max].
 - Il PSO **può essere implementato e utilizzato per problemi di ottimizzazione discreti**. <br>
     La tecnica è simile a quella vista per il DE. <br>
     Ad *esempio* -> **PSO binario**: <br>
-    ![swarm11](./imgs/swarm11.png) <br>
+    <img src="./imgs/swarm11.png" width="55%" />  <br>
     In questo modo si ha una stringa di 3 bit. <br>
     ***velocità*** --> stringa di bit
 
 <hr>
 
 ## **Ant Colony Optimization**
-È uno dei migliori algoritmi di ottimizzazione basato su Swarm Intelligence. È ispirato dal comportamento delle formiche. <br>
-Le formiche **tendono** a preferire percorsi più brevi. Per trovare il percorso più breve è sufficiente che le formiche tendano ad andare dove sono passate più spesso le altre formiche (seguire percorsi già battuti da altre formiche). Questo perchè in tali percorsi vi è una maggiore quantità di ferormone.
-![swarm12](./imgs/swarm12.png) <br>
+È uno dei migliori algoritmi di ottimizzazione basato su Swarm Intelligence. È ispirato al comportamento delle formiche. <br>
+Le formiche **tendono** a preferire percorsi più brevi. Per trovare il percorso più breve è sufficiente che le formiche tendano ad andare dove sono passate più spesso le altre formiche (seguire percorsi già battuti da altre formiche). Questo perchè in tali percorsi vi è una maggiore quantità di ferormone. <br>
+<img src="./imgs/swarm12.png" width="50%" /> <br>
 Tuttavia il feromone tende lentamente ad evaporare e quindi, se un percorso non è più seguito, sparisce.
 
 L'idea è quella di simulare una colonia di formiche con lo scopo di risolvere problemi di ottimizzazione. In particolare per problemi di ottimizzazione combinatori su grafo (ottimizzazione discreta). --> ***Ant Colony Optimization***
 
 La naturale applicazione è quindi quella di risolvere problemi legati ai grafi. <br>
-![swarm13](./imgs/swarm13.png) <br>
+<img src="./imgs/swarm13.png" width="45%"/> <br>
 Il grafo potrebbe essere costruito ogni volta che la formica arriva in un nuovo nodo.
 
 Qui di seguito è mostrato come risolvere il TSP utilizzando **ACO** (Ant Colony Optimization)
@@ -2747,18 +2763,18 @@ Qui di seguito è mostrato come risolvere il TSP utilizzando **ACO** (Ant Colony
 ### **TSP utilizzando ACO**
 **Asimmetric TSP**:
 - n citta
-- Dij = distanza tra ci e cj
+- $D_{ij}$ = distanza tra $c_i$ e $c_j$
 - **Scopo**: trovare il percorso cπ(1), cπ(2), ..., cπ(n), cπ(1) con il costo minore
     - π è l'ordine di visita
     - il percorso parte da una città, tocca tutte le città una sola volta e infine si deve tornare al punto di partenza.
 
-![swarm14](./imgs/swarm14.png) <br>
+<img src="./imgs/swarm14.png" width="45%"/> <br>
 
 Il costo di una soluzione è la somma di tutte le distanze percorse.<br>
-![swarm15](./imgs/swarm15.png) <br>
+<img src="./imgs/swarm15.png" width="35%"/> <br>
 
-Il grafo su cui si muovono le formiche è cosi composto:
-![swarm16](./imgs/swarm16.png) <br>
+Il grafo su cui si muovono le formiche è cosi composto: <br>
+<img src="./imgs/swarm16.png" width="55%"/><br>
 La sua dimensione è enorme, ragionare su questa rappresentazione è quindi molto difficile.
 
 Il ragionamento da fare è quindi necessariamente diverso ed è descritto qui di seguito.
@@ -2772,26 +2788,26 @@ create_solution():
     aggiungi cπ(1) a π
     return π
 ```
-***Come fa la formica a scegliere un percorso?*** <br
+***Come fa la formica a scegliere un percorso?*** <br>
 La scelta della prossima città da visitare è una scelta probabilistica ed è influenzata da due valori:
-- **Feromone** τ_ij ("tau")
-- **Funzione euristica** ϑ_ij ("teta")
+- **Feromone** $\tau_{ij}$ ("tau")
+- **Funzione euristica** $\theta_{ij}$ ("teta")
 
 dove i è la città corrente (ultima città visitata) e j è la città successiva.
 - I valori di feromone sono memorizzati in una matrice che è gestita dalla colonia. <br>
-**τ_ij rappresenta quanto la colonia ritiene buono andare da ci a cj** (è un numero reale. In genere più è alto e più la colonia ritiene buono andare da ci a cj). <br>
-- Il valore di euristica ϑ_ij è un'informazione esterna che valuta la bontà della scelta ci -> cj <br> 
-Nel nostro caso ϑ_ij = 1/Dij <br>
+$\tau_{ij}$ **rappresenta quanto la colonia ritiene buono andare da $c_i$ a $c_j$** (è un numero reale. In genere più è alto e più la colonia ritiene buono andare da $c_i$ a $c_j$). <br>
+- Il valore di euristica $\theta_{ij}$ è un'informazione esterna che valuta la bontà della scelta $c_i$ -> $c_j$ <br> 
+Nel nostro caso $\theta_{ij}$ = 1/$D_{ij}$ <br>
 in questo modo ciascuna formica **tende** (la scelta è probabilistica) ad andare alla città non visitata più vicina.
 - **Probabilistic Choice**: La probabilità di scegliere j come città successiva del percorso è data dalla seguente formula: <br>
-![swarm17](./imgs/swarm17.png) <br>
+<img src="./imgs/swarm17.png" width="40%"/><br>
 Per scegliere un numero basandosi sulle probabilità si fa utilizzo della **roulette wheel**.
 
 Il valore probabilitico non esiste in natura ma viene aggiunto per migliorare le prestazioni.
 
 La scelta della prossima città (in base al valore probabilistico) avviene in due passaggi:
-1. calcolare p(i->j) per tutte le città cj non ancora visitate
-2. selezionare cj con il metodo della roulette wheel
+1. calcolare p(i->j) per tutte le città $c_j$ non ancora visitate
+2. selezionare $c_j$ con il metodo della roulette wheel
 
 ### **Pseudocodice dell'algoritmo ACO**
 ```pseudocode
@@ -2805,15 +2821,14 @@ La scelta della prossima città (in base al valore probabilistico) avviene in du
     end for
     return the best solution ever found
 ```
-### Descrizione delle varie fasi: 
-
-#### **Inizializzazione**
-La fase di inizializzazione è abbastanza semplice:
-![swarm18](./imgs/swarm18.png) <br>
+## Descrizione delle varie fasi: 
+### **Inizializzazione**
+La fase di inizializzazione è abbastanza semplice: <br>
+<img src="./imgs/swarm18.png" width="35%"/>
 
 All'inizio mettendo tutti i valori uguali, le formiche scelgono solo in base all'euristica -> **il feromone all'inizio non ha nessun contributo nella scelta delle formiche**
 
-#### **Create Solution**
+### **Create Solution**
 ```pseudocode
 create_solution():
     Una formica parte da un percorso vuoto π
@@ -2825,24 +2840,24 @@ create_solution():
     return π
 ```
 
-#### **Evaporazione**
-L'evaporazione è simulata nel seguente modo:
-![swarm19](./imgs/swarm19.png) <br>
+### **Evaporazione**
+L'evaporazione è simulata nel seguente modo: <br>
+<img src="./imgs/swarm19.png" width="35%"/> <br>
 ῥ (rho) è un valore **piccolo** <br>
-Esempio: ῥ = 0.05 ; 1-ῥ = 0.95 -> τ_ij è **diminuito del 5%** <br>
+Esempio: ῥ = 0.05 ; 1-ῥ = 0.95 -> $\tau_{ij}$ è **diminuito del 5%** <br>
 L'evaporazione è una sorta di decadimento esponenziale del feromone.
 
-#### **Aggiornamento**
+### **Aggiornamento**
 L'aggiornamento non esiste in natura. <br>
-Questo processo da una piccola reward (ricompensa) ad ogni coppia ci, cj che appare in buone soluzioni. <br>
+Questo processo da una piccola reward (ricompensa) ad ogni coppia $c_i$, $c_j$ che appare in buone soluzioni. <br>
 ***Quali sono le buone soluzioni?*** <br>
 In natura se ne distinguono 2:
 1. ***Best_So_Far*** -> è la migliore soluzione di sempre ***s_bs*** (sarà anche il risultato finale restituito dall'algoritmo)
 2. ***Iteration_Best*** -> è la migliore soluzione trovata in questa generazione ***s_ib***
 
 ```pseudocode
-rewars(s, k):      # reward in base alla soluzione s
-    for all ci , cj che appaiono in s
+rewards(s, k):      # reward in base alla soluzione s
+    for all ci, cj che appaiono in s
         τ_ij <-- τ_ij + K/Ls
 ```
 Ls è il costo della soluzione s. <br>
@@ -2853,6 +2868,8 @@ Ci sono 3 possibilità:
     reward(***s_ib***, w_ib)
 
 w_bs e w_ib sono pesi che dipendono dal problema e devono essere calibrati. Ci sono anche varianti in cui non viene premiata una sola soluzione ma ad esempio anche la seconda migliore ecc...
+
+<hr>
 
 ### **I parametri di ACO**
 - ***α*** -> indica quanto è importante τ nella scelta delle formiche
@@ -2868,26 +2885,119 @@ La ricompensa non è della soluzione in sè, ma è data alle componenti della so
 
 I **valori euristici** aiutano le formiche a scegliere, soprattuto all'inizio, perchè all'inizio il feromone non da contributo.
 
+<hrs>
+
 ### **Applicazioni di ACO**
 ACO risolve problemi discreti. ACO funziona creando, in modo incrementale, soluzioni di un problema combinatorio. <br>
-ACO viene ad esempio utilizzato per il TSP e per il VRP (Vehicle Routing Problem)<br>
-![swarm20](./imgs/swarm20.png) <br>
+ACO viene ad esempio utilizzato per il TSP e per il VRP (Vehicle Routing Problem)<br> 
+<img src="./imgs/swarm20.png" width="50%"/><br>
 L'obiettivo è trovare n percorsi, in modo tale che la somma dei costi dei percorsi sia minimo. <br> 
 Il VRP si riduce al TSP se si utilizza un solo veicolo.
 
 ACO può essere utilizzato anche per risolvere problemi di scheduling e per problemi di assegnamento. <br>
-**Problemi di assegnamento**:
-![swarm21](./imgs/swarm21.png) <br>
+**Problemi di assegnamento**: <br>
+<img src="./imgs/swarm21.png" width="50%"/>
 
 **Problemi di Scheduling**: <br>
 Si hanno n operazioni e si deve assegnare uno start_time a ciascuna operazione (possono anche essereci dei vincoli. Ad esempio: vincoli di precedenza tra le varie operazioni. Possono anche esserci dei vincoli di compatibilità: non possono esserci operazioni eseguite contemporaneamente tra loro.). La funzione obiettivo di un problema del genere è ad esempio quella di far terminare l'insieme di n operazioni nel minor tempo possibile.
 
 <hr>
 
-## **Implementazione codice ecc**
+## **Implementazione ACO**
+Qui di seguito è riportato il codice per implementare una versione di ACO. Ovviamente è necessario riscrivere la classe per il problema del TSP, per qualsiasi informazione aggiuntiva vedere la relativa directory del `particle_swarm` tra le implementazioni degli algoritmi.
+```python
+lass ACO_for_TSP:
+    def __init__(self,problem):
+        self.problem=problem
+        self.alpha=1
+        self.beta=1
+        self.rho=0.1
+        self.tau0=0.5
+        self.n_ants=20
+        self.w_ib=self.rho*2/3
+        self.w_bs=self.rho*1/3
+        self.n_cities=problem.get_dim()
+
+    def initialize(self):
+        self.phero=np.ones((self.n_cities+1,self.n_cities))*self.tau0
+        self.best_so_far=None
+        self.bs_cost=1e300 # very large value
+        self.sol=[None]*self.n_ants
+        self.sol_cost=np.zeros(self.n_ants)
+
+    def run(self,num_gen,seed=0):
+        if seed!=0:
+            np.random.seed(seed)
+        self.initialize()
+        for g in range(1,num_gen+1):
+            for n in range(0,self.n_ants):
+                self.sol[n]=self.generate_solution()
+            self.evaluate_solutions(g)
+            self.update_pheromone()
+        return self.best_so_far, self.bs_cost
+
+
+    def generate_solution(self):
+        sol=[]
+        rem=list(range(self.n_cities))
+        current=self.n_cities # a non existing city, it means that it must choose the first city to visit
+        for i in range(self.n_cities):
+            city=self.select_city(current,rem)
+            sol.append(city)
+            current=city
+            rem.remove(city)
+        return sol
+
+
+    def select_city(self,current,rem):
+        nr=len(rem)
+        prob=np.zeros(nr)
+        for i in range(0,nr):
+            city=rem[i]
+            tau=self.phero[current,city]
+            eta=1 if current==self.n_cities else 1/self.problem.dist_matrix[current,city]
+            p=tau**self.alpha * eta**self.beta
+            prob[i]=p
+        den=sum(prob)
+        prob=prob/den
+        # roulette wheel method
+        r=np.random.random()
+        i=0
+        while r>prob[i]:
+            r=r-prob[i]
+            i=i+1
+        return rem[i]
+
+    def evaporate(self):
+        self.phero=(1-self.rho)*self.phero
+
+    def evaluate_solutions(self,g):
+        for i in range(0,self.n_ants):
+            self.sol_cost[i]=self.problem.objective_function(self.sol[i])
+        self.ibest=self.sol_cost.argmin()
+        if self.sol_cost[self.ibest]<self.bs_cost:
+            self.bs_cost=self.sol_cost[self.ibest]
+            self.best_so_far=self.sol[self.ibest]
+            print("new best {} at gen. {}".format(self.bs_cost,g))
+
+    def update_pheromone(self):
+        self.evaporate()
+        #self.reward(self.best_so_far, self.w_bs/self.bbs_cost)
+        #self.reward(self.sol[self.ibest], self.w_ib/self.sol_cost[self.ibest])
+        self.reward(self.best_so_far, self.w_bs)
+        self.reward(self.sol[self.ibest],self.w_ib)
+
+    def reward(self,sol,delta):
+        current=self.n_cities
+        for i in range(self.n_cities):
+            city=sol[i]
+            self.phero[current,city] += delta
+            current=city
+```
 
 <hr>
 
+### **Altre informazioni sullo Swarm Intelligence**
 Lo Swarm Intelligence è una tecnica ispirata al comportamente di gruppi di animali. Precedentemete abbiamo visto le seguenti tipologie (sono i più famosi):
 - **Particle Swarm Optimization** -> pensato principalmente per problemi continui (non deve essere utilizzato necessariamente per problemi continui, può essere utilizzato anche per problemi discreti adattandolo)
 - **Ant Colony Optimization** -> pensato principalmente per problemi discreti (allo stesso modo del PSO può comunque essere utilizzato per problemi continui ma è meno performante)
@@ -2898,7 +3008,7 @@ Ci sono altri algoritmi degni di essere citati. Qui di seguito verranno trattati
     Divide gli individui del gruppo in due:
     - **Explorer** -> cercano in uno spazio più ampio
     - **Worker** -> cercano in uno spazio minore <br>
-    ![swarm22](./imgs/swarm22.png) <br>
+    <img src="./imgs/swarm22.png" width="45%"/><br>
 - ### **Cuckoo Search**
     È ispirato al comportamento di un particolare tipo di uccelli. La metafora a cui si ispira è di un particolare tipo di uccelli che fa covare le sue uova in nidi di altri uccelli. Quello che succede è che i pulcini di questo uccelli prendono il sopravvento sull'altro nido.
 - ### **Firefly Optimization**
