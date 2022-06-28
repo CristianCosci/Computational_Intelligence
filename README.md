@@ -122,7 +122,12 @@
     - [Conditional Indipendence](#conditional-indipendence)
     - [Bayesian Network](#bayesian-networks)
         - [Algortimo di Variable Elimination](#algortimo-di-variable-elimination)
+        - [Learning di una Rete Bayesiana](#apprendimento-di-una-rete-bayesiana-dai-dati)
 13. [Logica Fuzzy](#logica-fuzzy)
+    - [Complementare di un insieme Fuzzy](#complementare-di-un-insieme-fuzzy)
+    - [Unione e Intersezione di insiemi Fuzzy](#unione-e-intersezione-di-insiemi-fuzzy)
+    - [Numeri Fuzzy](#numeri-fuzzy)
+    - [Regole Fuzzy](#regole-fuzzy)
 
 <hr>
 <hr>
@@ -3305,6 +3310,8 @@ Esistono altre forme per rappresentare l'incertezza:
 
 Il problema delle probabilità è il **costo computazionale** (lavorare con le probabilità porta spesso a dover risolvere problemi computazionalmente difficili) ma ci sono molte tecniche per ridurre tale costo.
 
+<hr>
+
 ## **Piccolo recap sul calcolo probabilistico**
 P(x) = probabilità che la proposizione x è vera 
 
@@ -3322,7 +3329,7 @@ Lancio di due dadi:
 Se x è **indipendente** da y allora P($E_1$ AND $E_2$) = $\dfrac{2}{6} * \dfrac{2}{6}$ <br>
 
 ### **Probabilità condizionale**
-- P(x|y) con x e y proposizioni ---> è la probabilità che x sia vero sapendo che y è vero (considerando le sole situazioni in cui y è vero)
+- P(x | y) con x e y proposizioni ---> è la probabilità che x sia vero sapendo che y è vero (si considerano le sole situazioni in cui y è vero)
 
 ***Esempio 2***<br>
 Lancio di un dado:
@@ -3331,10 +3338,10 @@ Lancio di un dado:
 P(x | y) = $\dfrac{P(x AND y)}{P(y)}$ se P(y) > 0 <br>
 Notare che P(y) può essere 0 ma questo non significa che y sia impossibile (ad esempio una contraddizione.)
 
-x **è indipendente** da y se P(x | y) = P(X), ovvero conoscere che y è vero non influisce sulla probabilità di y.
+x **è indipendente** da y se P(x | y) = P(x), ovvero conoscere che y è vero non influisce sulla probabilità di y.
 
 In generale: P(x AND y) = P(x | y) * P(y) <br>
-se x è indipendente da y (ovvero P(x AND y) = P(x) * P(y))
+(se x è indipendente da y: P(x AND y) = P(x) * P(y))
 
 <hr>
 
@@ -3342,9 +3349,9 @@ Supponiamo di avere n proposizioni elementari $x_1, ..., x_n$ <br>
 Con una proposozione posso creare $2^n$ proposizioni composte. <br>
 Per ragionare su $x_1, ..., x_n$ è necessario avere $P(y_0), P(y_1), ..., P(y_{2^{n-1}})$ dato che l'ultima è ricavabile conoscendo le altre. <br>
 Dato che $y_{2^n-1}$ = NOT $(y_0 OR ... y_{2^n-2}) = \sum_{i=0}^{2^n-1}P(y_i) = 1$ <br>
-Da $P(y_i) per i=0, ..., 2^n-1$ è possibile calcolare P(z) dove z è qualsiasi espressione booleana di $x_1, ..., x_n$.
+Da $P(y_i)$ per i=0, ..., $2^n-1$ è possibile calcolare P(z) dove z è qualsiasi espressione booleana di $x_1, ..., x_n$.
 
-$P(z) = \sum{P(y_j) dove z è vero se y_j è vero}$
+$P(z) = \sum P(y_j)$ dove z è vero se $y_j$ è vero
 
 È importante sapere che senza la relazione di indipendenza, $P(y_k)$ è completamente scollegata rispetto alle probabilita $P(x_1), ..., P(x_n)$. 
 
@@ -3371,7 +3378,7 @@ Questo significa che:
 - quando **tutte le proposizioni sono indipendenti tra loro**, sono necessarie le sole probabilita $x_i$ -> $O(n)$
 
 ***Esempio*** <br>
-<img src="./imgs/model1.png" width="800" />
+<img src="./imgs/model1.png" width="50%" />
 
 *Conoscere solo $E_2$ o conoscere $E_1$ e $E_2$ influisce sulla probabilità di $E_3$ ?* <br>
 **No**, sapere anche $E_1$ è irrilevante. <br>
@@ -3449,11 +3456,10 @@ $x_i$ ⫫ $x_j$ | $x_k$ ----> **indipendenza condizionata**
 Una **Rete Bayesiana** è composta da
 - un insieme di n variabili **discrete** (casuali) $x_1, ..., x_n$ con il dominio finito $D_1, ..., D_N$
 - un **grafo aciclico diretto** i cui nodi sono le variabili e gli archi rappresentano una diretta influnza di una variabile rispetto ad un'altra
-- per ciascuna variabile $x_i si ha una tabella che specifica $Pa(x_i = a | Pa(x_i)=b) per ogni a appartente a $D_i$ a per tutte e combinazioni b di valori dei genitori di $x_i$
+- per ciascuna variabile $x_i$ si ha una tabella che specifica $Pa(x_i = a | Pa(x_i)=b)$ per ogni a appartente a $D_i$ a per tutte le combinazioni b di valori dei genitori di $x_i$
 
-![model2](./imgs/model2.png) <br>
-![model3](./imgs/model3.png) <br>
-![model4](./imgs/model4.png)
+<img src="./imgs/model2.png" width="55%" /> <img src="./imgs/model3.png" width="42%" /> <br>
+<img src="./imgs/model4.png" width="40%" />
 
 Gli altri valori possono essere calcolati come segue: <br>
 $P(x_4 = f | x_3 = f)$ = $1 - P(x_4 = t | x_3 = f)$
@@ -3474,7 +3480,7 @@ Il fatto che ha piovuto non mi interessa, il terreno è fangoso e questo spiega 
 È importante che il grafo sia diretto e aciclico perchè:
 - **diretto** -> gli archi hanno una direzione, dalla casua all'effetto
 - **aciclico** -> non ci sono loop (altrimenti significa che una variabile causa se stessa)
-- **Selezionare un ordine nelle variabili rispetto agli archi** -> $Se x_i -->> x_j$ allora $x_i$ precede $x_j$ (ordine topologico)
+- **Selezionare un ordine nelle variabili rispetto agli archi** -> Se $x_i$ --> $x_j$ allora $x_i$ precede $x_j$ (ordine topologico)
 
 Per ogni variabile $x_i$, l'insieme di genitori Pa($x_i$) è composto da tutti i suoi predecessori $x_j$ (con j < i) tale che $x_j$ --> $x_i$ ($x_j$ ha un arco verso $x_i$)
 
@@ -3488,11 +3494,11 @@ Nell'esempio in figura Pa($x_4$) = {$x_3$} e di conseguenza:
 ### ***Come calcolare il numero di parametri del modello in generale***
 In generale il modello ha $\sum_{i=1}{n}(n_j -1)c_j$ dove $n_i = |D_i|$ e $c_i$ è il numero di combinazioni dei valori di Pa($x_i$).
 
-Nel caso in cui tutte le variabili sono binarie $c_i = 2^{|Pa(x_i)|}$ dove $|Pa(x_i)|$ <= k --> $c_i$ <=$2^k$. <br>
+Nel caso in cui tutte le variabili sono binarie $c_i = 2^{|Pa(x_i)|}$ dove $|Pa(x_i)| \leq$ k --> $c_i$ <=$2^k$. <br>
 In pratica Pa($x_i$) è sempre limitato a valori piccoli.
 
 ### **Task che si possono fare con le reti Bayesiane**
-- **inferenza** -> calcolare il valore di una variabile, conoscendo il valore di altre variabili ---> $P(x_A = a | x_B = b)$ = ? con A, B indici (insiemi disgiunti) e a e combinazioni di valori.
+- **inferenza** -> calcolare il valore di una variabile, conoscendo il valore di altre variabili ---> $P(x_A = a | x_B = b)$ = ? con A, B indici (insiemi disgiunti) e ***a*** e ***b*** combinazioni di valori.
 - **learning (apprendimento)** -> possono apprendere la parte numerica o l'intera rete dai dati.
 
 Le Reti Bayesiane sono uno strumento importante per ragionare sotto l'incertezza utilizzando la probabilità. Quest'ultime rappresentano modelli in un modo compatto (numero ridotto di parametri) e quindi riducono il costo computazionale.
@@ -3531,23 +3537,23 @@ Ci sono degli algoritmi per calcolare $P(x_A = a | x_B = b)$ e $P(x_C = c)$ dove
 - **Markov Networks** -> non usano DAG ma utilizzando dei **Grafi non Orientati**. <br>
     Venivano utilizzati per rappresentare e ricostruire le immagini (image processing).
 - **Hidden Markov Models** -> ci sono delle variabili nascoste e delle variabili visibili. <br>
-    ![model5](./imgs/model5.png) <br> <br>
+    <img src="./imgs/model5.png" width="35%" />  <br>
     Le variabili nascoste sono influenzate tra di loro. <br>
     Utilizzato nel riconoscimento del parlato (speech recognition).
 - **Naive Bayes** ---> utilizzato ad esempio per la classificazione <br>
-    ![model6](./imgs/model6.png) <br>
+    !<img src="./imgs/model6.png" width="35%" />
 
 <hr>
 
 ### **Recap sulle Reti Bayesiane**
 Le reti Bayesiane sono costituite da un DAG i cui:
 - **nodi**: sono variabili casuali discrete
-- **tabelle di probabilità**: per ogni nodo vi è la distribuzione di probabilità condizioanta su tutti i valori dei genitori
+- **tabelle di probabilità**: per ogni nodo $v_i$ è la distribuzione di probabilità condizioanta su tutti i valori dei genitori
 
 <hr>
 
 ### **Esempio: ASIA Bayesian Network**
-![model7](./imgs/model7.png)
+<img src="./imgs/model7.png" width="50%" />
 
 - visit to asia: 1 parametro (probabilità di essere vero)
 - smoking: 1 parametro (probabilità di essere vero)
@@ -3578,31 +3584,30 @@ Il primo parametro è la **diagnosi** e il secondo è l'**evidenza**
 ```
 
 ***Esempio*** <br>
-![model8](./imgs/model8.png) <br>
-![model9](./imgs/model9.png) <br>
-![model10](./imgs/model10.png) <br>
-![model11](./imgs/model11.png) <br>
-![model12](./imgs/model12.png) <br>
-![model13](./imgs/model13.png)
+<img src="./imgs/model8.png" width="55%" /> <img src="./imgs/model9.png" width="40%" /><br>
+<img src="./imgs/model10.png" width="45%" /> <img src="./imgs/model11.png" width="45%" /><br>
+<img src="./imgs/model12.png" width="50%" /> <img src="./imgs/model13.png" width="30%" />
  
-Il costo computazionale dell'eliminazione delle variabili dipende dalla forma del grafo, in particolare se è simile ad un albero oppure no. Questa proprietà è chiamata **tree-with**. Se ogni nodo ha al più **k** genitori, il costo computazionale è $O(n^k)$.
+Il costo computazionale dell'eliminazione delle variabili dipende dalla forma del grafo, in particolare se è simile ad un albero oppure no. Questa proprietà è chiamata **tree-width**. Se ogni nodo ha al più **k** genitori, il costo computazionale è $O(n^k)$.
 
-È disponibile un'implementazione relativa alle Reti Bayesiane e al calcolo delle inferenze nell'apposita directory del codice. Viene utilizzata la libreria pgmpy.
+`È disponibile un'implementazione relativa alle Reti Bayesiane e al calcolo delle inferenze nell'apposita directory del codice. Viene utilizzata la libreria pgmpy`.
 
 Una Rete Bayesiana può produrre risultati interpretabili perchè tutto si basa sulle teorie delle probabilità. Tuttavia una rete Bayesiana richiede una grande potenza computazionale per eseguire le inferenze e l'apprendimento.
 
-### **Apprendimento di una Rete Bayesiana dai dati** <br>
-Non è particolarmente difficile quando il grafo è noto. <br>
-Per allenare una Rete Bayesiana è necessario un dataset e la funzione di 'loss' (rifacimento alle Neural Network) e la **verosimiglianza** -> trovare la rete che attribuisce ai campioni del dataset la maggior probabilità possiile.
+<hr>
 
-![model14](./imgs/model14.png)
+### **Apprendimento di una Rete Bayesiana dai dati**
+Non è particolarmente difficile quando il grafo è noto. <br>
+Per allenare una Rete Bayesiana è necessario un dataset e la funzione di '***loss***' (rifacimento alle Neural Network) e la **verosimiglianza** -> trovare la rete che attribuisce ai campioni del dataset la maggior probabilità possiile.
+
+<img src="./imgs/model14.png" width="45%" />
 
 **Lo scopo del learning è trovare la Rete Bayesiana che da agli esempi del training set la maggiore probabilità possibile.**
 
 - Se il grafo **è noto** allora le tabelle della rete sono quelle che si ottengono **contando** e **dividendo per il numero degli esempi**.
 - Se il grafo **non è noto**, il problema è molto più difficile e viene risolto utilizzando alcune strategie, come le seguenti:
     - utilizzare **test statistici** per scoprire le relazioni di indipendenza condizionata
-    - **approccio di ricerca** --> corrisponde ad un problema di ottimizzazione (ho un insieme di possibili grafi e devo scegliere quello che da al training set il punteggio più alto)
+    - **approccio di ricerca** --> corrisponde ad un problema di ottimizzazione (ho un insieme di possibili grafi e devo scegliere quello che da' al training set il punteggio più alto)
     - **approccio basato sui vincoli** -> costruisce la rete Bayesiana con dei meccanismi di tipo costruttivo (prendono il training set e cercano di costruire i possibili archi). L'approccio più famoso è **MMHC**
 
 Le Reti Bayesiane possono essere estese in molti modi:
@@ -3613,13 +3618,13 @@ Le Reti Bayesiane possono essere estese in molti modi:
 <hr>
 
 # **Logica Fuzzy**
-Si occupa di vaghezza, che è diversa dall'incertezza. <br>
+Si occupa di **vaghezza**, che è **diversa dall'incertezza**. <br>
 ***Esempio***: "*oggi è bel tempo*". <br>
 Questa informazione è vera o falsa? Potrebbe non essere nè vera nè falsa. <br>
 ***Esempio***: "*Una persona di 35 anni è giovane*". <br>
 Questa informazione è vera o falsa? Potrebbe non essere nè vera nè falsa. Non c'è una soglia specifica secondo cui una persona è giovane o vecchia.
 
-La **logica fuzzy da' ad una proposizione un valore di verita intermedio** in [0, 1]. <br>
+La **logica fuzzy da' ad una proposizione un valore di verità intermedio** in [0, 1]. <br>
 Ad esempio:
 - 0 -> Falso
 - 0.5 -> via di mezzo
@@ -3628,39 +3633,39 @@ Ad esempio:
 
 V("lunedì il tempo era bello") = 0.1
 
-La logica Fuzzy è stata inventata da un ingegnere nel 1965 da L. Zadeh.
+La logica Fuzzy è stata inventata da un ingegnere nel 1965 (L. Zadeh).
 
 Un **insieme Fuzzy** è una collezione di elementi con un grado di appartenenza all'insieme.
 
-![model15](./imgs/model15.png) <br>
+<img src="./imgs/model15.png" width="45%" /><br>
 
 $\mu_a(x)$ = grado di appartenenza di x ad a
 
 Un insieme normale ha un insieme di appartenenza in {0, 1} a differenza degli insiemi Fuzzy.
 
-È possibile calcolare **l'unione, l'intersezione, il complementare e il prodotto cartesiano** di insiemei Fuzzy.
+È possibile calcolare **l'unione, l'intersezione, il complementare e il prodotto cartesiano** di insiemi Fuzzy.
 
 ### **Complementare di un insieme Fuzzy**
 ***Esempio***: complementare di un insieme delle persone non giovani. <br>
-![model16](./imgs/model16.png) <br>
+<img src="./imgs/model16.png" width="40%" /><br>
 
-**Il complementare si ottiene quindi con il complemento a 1**.
+**Il complementare si ottiene con il complemento a 1**.
 
-### **Unione e Intersezione**
+### **Unione e Intersezione di insiemi Fuzzy**
 - unione -> massimo
 - intersezione e prodotto cartesiano -> minimimo
 
 ### **Numeri Fuzzy**
 Servono ad indicare delle frasi che parlano di quantità. <br>
-***Esempio***: "*la temeratura è alta ma non troppo*" <br>
-![model17](./imgs/model17.png) <br>
+***Esempio***: "*la temperatura è alta ma non troppo*" <br>
+<img src="./imgs/model17.png" width="55%" /><br>
 
 È possibile definire un insieme di operazioni numeriche tra i numeri Fuzzy (come addizione ecc) con un meccanismo che si chiama **principio di estensione** -> il risultato dell'operazione tra due numeri fuzzy è un numero fuzzy.
 
 ### **Regole Fuzzy**
 Utilizzate ad esempio negli elettrodomestici -> "*se la temperatura è **alta** e la pressione è **bassa** allora la velocità della ventola è **intermedia***" <br>
-Ciascun aggettivo corrisponde ad un insieme fuzzy (o ad un numero fuzzy)
+Ciascun aggettivo corrisponde ad un insieme fuzzy (o ad un numero fuzzy).
 
-Queste regolo permettono di non discretizzare in intervalli i vari valori per cui definire alta, bassa e intermedia.
+Queste regolo permettono di non discretizzare in intervalli i vari valori per cui definire *alta, bassa e intermedia*.
 
-Immaginare un insieme di regole fuzzy per decidere la velocità del motore. Bisogna calcolare per ogni regola il valore di attivazione della regola (cioè quanto è vero l'antecedente). Il valore finale è un insieme Fuzzy.
+Immaginare un insieme di regole fuzzy per decidere la velocità del motore. Bisogna calcolare per ogni regola il valore di attivazione della regola (cioè quanto è vero l'antecedente) -> il valore finale è ovviamente un insieme Fuzzy.
