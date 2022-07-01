@@ -66,7 +66,7 @@
 <hr>
 
 ### **Programmazione Genetica**
-8. [Programmazione Genetica](#programmazione-genetica)
+8. [Programmazione Genetica](#programmazione-genetica-1)
     - [Caratteristiche principali](#caratteristiche-principali)
         - [Inizializzazione](#inizializzazione)
         - [Crossover](#crossover)
@@ -101,12 +101,12 @@
 
 <hr>
 
-10. [No Free Lunch Theorem](#no-freee-lunch-theorem)
+10. [No Free Lunch Theorem](#no-free-lunch-theorem)
 
 <hr>
 
 ### **Problemi di Ottimizzazione Multi-Obiettivo**
-11. [Probelmi di Ottimizzazione Multi-Obiettivo](#problemi-di-ottimizzazione-multi-obiettivo)
+11. [Probelmi di Ottimizzazione Multi-Obiettivo](#problemi-di-ottimizzazione-multi-obiettivo-1)
     - [Dominanza di Pareto](#dominanza-di-pareto)
     - [NSGA-II](#nsga-ii)
         - [Non-Dominated Sort](#non-dominated-sort)
@@ -116,7 +116,7 @@
 
 <hr>
 
-### **Modelli Probabilistici e Logica Fuzzy**
+### **Modelli Probabilistici, Bayesian Network e Logica Fuzzy**
 12. [Modelli Probabilistici](#modelli-probabilistici)
     - [Recap sul calcolo probabilistico](#piccolo-recap-sul-calcolo-probabilistico)
     - [Conditional Indipendence](#conditional-indipendence)
@@ -2670,8 +2670,8 @@ Ciascun individuo aggiorna la sua posizione e la sua velocità con le seguenti r
 - **nuova posizione $p^{(i)}$** <-- $p^{(i)}$ (posizione corrente) + $v^{(i)}$ (velocità corrente) <br>
     Nella fisica tradizionale la velocità $v_i$ è moltiplicata per Δt ma in questo caso lo valutiamo implicitamente uguale a 1 <br>
     <img src="./imgs/swarm3.png" width="35%" />
-- <img src="./imgs/swarm4.png" width="40%" />
-    - Dove $c_1$ e $c_2$ sono due coefficienti -> **parametri del PSO** (solitamente sono fissati a 2.04)
+- $v^{(i)} \leftarrow v^{(i)} + c_1 r_1$ ⊙ $(b^{(i)} - p^{(i)}) + c_2 r_2$ ⊙ $(g - p^{(i)})$, dove:
+    - $c_1$ e $c_2$ sono due coefficienti -> **parametri del PSO** (solitamente sono fissati a 2.04)
     - $v^{(i)}$ è la velocità corrente <br>
     - $b^{(i)}$ è la miglior posizione trovata dalla particella <br>
     - g è la miglior posizione dell'intera popolazione <br>
@@ -3030,7 +3030,7 @@ Esistono molti altri algoritmi di Swarm Intelligence. Sono più o meno tutti isp
 
 <hr>
 
-### **No Freee Lunch Theorem**
+### **No Free Lunch Theorem**
 Qualsiasi algoritmo di ottimizzazione si scriva, esisterà comunque un problema per cui tale algoritmo funzionerà male.
 
 **Definizione Formale** <br>
@@ -3050,11 +3050,11 @@ Ci sono inoltre delle competizioni internazionali in cui si devono implementare 
 # **Problemi di Ottimizzazione Multi-Obiettivo**
 Multi-Obiettivo significa che devo massimizzare (o minimizzare) più funzioni obiettivo e non solo una.
 
-Ad esempio ho due funzioni obiettivo $f_1(x)$ e $f_2(x)$, ed il nostro obiettivo è quello di trovare un valore $x^{*}$ tale che: <br>
+Ad esempio ho due funzioni obiettivo $f_1(x)$ e $f_2(x)$, ed il nostro obiettivo è quello di trovare un valore $x^*$ tale che: <br>
 $f_1(x^*) <= f_1(x)$ e $f_2(x^*) <= f_2(x)$ ∀ x ∈ D.
 
 Formulato in questo modo, il problema non sembra così difficile ma non è sempre risolvibile. <br>
-Io voglio trovare un punto che minimizza contemporanemanete due funzioni. Allora provo a trovare un valore che minimizza $f_1(x)$ e di conseguenza tale valore minimizza anche l'altra. Tuttavia in molte situazioni questo valore $x^*$ non c'è, questo perchè potrebbe ad esempio esserci una situaizione in cui una funzione cresce e l'altra decresce.
+Io voglio trovare un punto che minimizza contemporanemanete due funzioni. Allora provo a trovare un valore che minimizza $f_1(x)$ e di conseguenza tale valore minimizza anche l'altra. Tuttavia in molte situazioni questo valore $x^*$ non c'è, questo perchè potrebbe ad esempio esserci una situazione in cui una funzione cresce e l'altra decresce.
 
 Un esempio è il TSP, in cui le funzioni obiettivo sono il **tempo** e il **consumo**. In questa situazione io non riesco a minimizzare le due funzioni, in quanto sono in conflitto tra di loro, perchè ad esempio minimizzare il tempo potrebbe equivalere ad aumentare il consumo.
 
@@ -3095,7 +3095,7 @@ Dall'insieme di soluzioni, posso poi scegliere in maniere autonoma la soluzione 
 
 **Un insieme di soluzioni non comparabili è chiamato Pareto Front**.
 
-Nei problemi di ottimizzazione multi-obiettivo, il ruolo degli algoritmi evolutivi è molto importanti, soprattutto gli algoritmi evolutivi basati sulle popolazioni, questo perchè io faccio evolvere una Pareto Front.
+Nei problemi di ottimizzazione multi-obiettivo, il ruolo degli algoritmi evolutivi è molto importante, soprattutto gli algoritmi evolutivi basati sulle popolazioni, questo perchè io faccio evolvere una Pareto Front.
 
 Uno degli algoritmi più famosi è il seguente:
 
@@ -3164,7 +3164,7 @@ Una volta che ho applicato il **Non-Dominated sorting** e la **Crowding Distance
 <img src="./imgs/swarm28.png" width="40%"/>
 
 Seleziono tutti gli individui con rank più basso e poi mano a mano che mi servono più individui seleziono tutti i migliori individui con rank maggiore ma rispetto alla distanza. <br>
-In questo modo ho una popolazione ben diversificata (rispetto alla semplice Pareto Front in cui avrei solo quelli di rank 1 e poitrei non poter migliorare più la mia popolazione).
+In questo modo ho una popolazione ben diversificata (rispetto alla semplice Pareto Front in cui avrei solo quelli di rank 1 e potrei non poter migliorare più la mia popolazione).
 
 Esistono in letteratura molte proposte di miglioramento per NSGA-II. <br>
 Queste proposte consistono nell'utilizzare il DE, il PSO e altre metaeuristiche e altri criteri per selezionare la popolazione.
@@ -3202,7 +3202,7 @@ utilizzando $\lambda^{(i)} != \lambda^{(j)}$, i punti $x^{(i)}$ e $x^{(j)}$, i q
 - ogni individuo ha:
     - un vettore $\lambda^{(i)}$
     - una soluzione iniziale $x^{(i)}$
-    - un vettore $F^{(i)} = (f_1(x^{(i)}), ..., f_n(x^{(i)})$
+    - un vettore $F^{(i)} = (f_1(x^{(i)}), ..., f_n(x^{(i)}))$
 
 Per 2 funzioni obiettivo, la scelta dei $\lambda^{(i)}$ è facile <br>
 <img src="./imgs/swarm29.png" width="45%"/>
