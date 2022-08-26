@@ -10,7 +10,7 @@ def iterated_local_search(prob, num_tries, num_flips, init_sol= None):
     nt = 0
     fx = prob.objective_function(x)
     while nt < num_tries:
-        y =perturbation(x, num_flips)
+        y = perturbation(x, num_flips)
         z, fz = local_search(prob, y)
         if fz < fx:
             x = z
