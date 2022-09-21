@@ -179,7 +179,7 @@ Esistono 2 livelli nelle Intelligenze Artificiali (e da questo anche 2 modi per 
         - **Opera ad alto livello**: l'informazione è codificata in modo simbolico (rappresentazione simbolica).
 - **Livello subsimbolico** (*Intelligenza Artificiale "moderna"*)
     - Ad esempio il riconoscimento delle immagini funziona meglio a livello subsimbolico (lavoro sui pixel e non sulle forme geometriche individuabili nelle immagini, come viene invece fatto a livello simbolico).
-    - Rappresentazione numrica invece della rapresentazione logica/discreta (esempio nel riconoscimento delle immagini sopra).
+    - Rappresentazione numerica invece della rapresentazione logica/discreta (esempio nel riconoscimento delle immagini sopra).
 
 <hr>
 
